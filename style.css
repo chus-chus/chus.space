@@ -72,7 +72,7 @@ body {
 
 /* Centers the main body and adds margins left and right */
 .content-container {
-    max-width: 800px; /* Adjust based on your preference */
+    max-width: 850px; /* Adjust based on your preference */
     margin: 0 auto; /* Centers the container */
     padding: 40px; /* Adds padding inside the container */
     width: 100%; /* Ensures it doesn't exceed the viewport width */
