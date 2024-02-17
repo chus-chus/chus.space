@@ -133,7 +133,7 @@ body {
 @media (max-width: 600px) {
     .logo-and-title {
         align-items: left;
-        margin-left: 0px;
+        margin-left: 2px;
     }
 
     #navbar ul {
@@ -141,7 +141,7 @@ body {
     }
     
     .logo-and-title h1 {
-        font-size: 1.15em;
+        font-size: 1.07em;
     }
 
     .tagline {
@@ -150,7 +150,7 @@ body {
     }
 
     .content-container {
-        width: 100%;
+        width: 95%;
         max-width: 400px;
         padding: 5px;
     }
