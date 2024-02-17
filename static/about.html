@@ -1,0 +1,162 @@
+<style>
+    body {
+        font-family: 'source-sans-pro', sans-serif;
+        font-style: normal;
+        font-weight: 200;
+        background-color: #FBFBEF; /* Light cream/beige background */
+        color: #333;
+        margin: 0;
+        padding-top: 60px;
+    }
+    
+    #navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: #FBFBEF; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    #navbar {
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+    
+    #navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 10px;
+        display: flex;
+    
+    }
+    
+    #navbar ul li {
+        margin: 0 10px; /* Adjust spacing between nav items */
+    }
+    
+    #navbar ul li a {
+        text-decoration: none;
+        color: #333; /* Adjust link color */
+        font-family: 'proxima-nova-condensed', sans-serif;
+        font-weight: 200;
+    }
+    
+    .logo-and-title {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .logo-and-title h1 {
+        margin: 0 0 0 10px; /* Adjust spacing between avatar and name */
+        font-family: 'proxima-nova-condensed', sans-serif;
+        font-weight: 500;
+        font-size: 1.35em;
+    }
+    
+    .avatar {
+        width: 50px; /* Adjust size */
+        height: auto;
+        border-radius: 50%; /* Makes the image circular */
+    }
+
+    .timeline {
+    position: relative; /* Needed for absolute positioning of the line */
+    padding-left: 20px; /* Give some space for the line on the left */
+    }
+
+    .timeline::before {
+        content: ''; /* Required for pseudo-elements */
+        position: absolute;
+        left: 83px; /* Align the line to the left edge of the timeline */
+        top: 4px; /* Start the line at the top of the first entry */
+        bottom: 0; /* Extend the line to the bottom of the last entry */
+        width: 2px; /* Width of the line */
+        background-color: #333; /* Color of the line, can be changed as needed */
+    }
+
+    .timeline-date {
+        position: absolute;
+        left: -95px; /* Adjust as needed to position the years correctly */
+        top: 0;
+        font-weight: 400;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-left: 75px; /* Give some space for the star to sit on the line */
+        margin-bottom: 20px; /* Adjust spacing between items */
+    }
+
+    .timeline-item::before {
+        content: '⭐️';
+        position: absolute;
+        left: -17.3px;
+        top: 0;
+        font-size: 12px;
+    }
+
+    .timeline-content {
+        max-width: 600px; /* or whatever maximum width you prefer */
+        padding-right: 20px; /* or however much space you want on the right */
+        padding-left: 11px; /* or any color that matches your design */
+        border-radius: 4px; /* optional, for styled corners */
+        position: relative;
+}
+
+    .timeline h4, .timeline p {
+        margin-top: 5px; /* Reduce space between title and description */
+        margin-bottom: 5px; /* Adjust as needed */
+}
+    
+</style>
+
+<body>
+    <header>
+        <nav id="navbar">
+            <div class="logo-and-title">
+                <a href="/index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <img src="avatar.png" alt="Avatar" class="avatar">
+                    <h1>Chus Antonanzas</h1>
+                </a>
+            </div>
+            <ul>
+                <li><a href="/index.html">Entries</a></li>
+                <li><a href="/static/about.html">About</a></li>
+                <li><a href="/static/contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        
+    </header>
+    
+    <div>
+        <h1>About me</h1>
+        <p>Mid 20's. Currently based in Barcelona. Here's a work-study timeline of my life</p>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="timeline-date">2024 - Now</div>
+                    <h4>On break</h4>
+                    <p>Want to change things up a bit! I'm learning about extracting latent knowledge from models. Wouldn't it be cool?</p>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <div class="timeline-date">2022 - 2024</div>
+                    <h4>Data things @ CaixaBank</h4>
+                    <p>Asset impairment modeling and reengineering of some satellite processes. 
+                    The main project I developed was implemented in the bank's production 
+                    environment. Also, learned SAS the hard way. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
