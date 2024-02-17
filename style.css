@@ -140,7 +140,7 @@ body {
     }
     
     .logo-and-title h1 {
-        font-size: 1.1em;
+        font-size: 1.15em;
     }
 
     .tagline {
@@ -149,7 +149,8 @@ body {
     }
 
     .content-container {
-        max-width: 375px;
+        width: 100%;
+        max-width: 400px;
         padding: 5px;
     }
 
