@@ -129,9 +129,14 @@ body {
     margin-bottom: 5px; /* Adjust as needed */
 }
 
+/* Mobile syle mods */
 @media (max-width: 600px) {
     .logo-and-title {
         align-items: left;
+    }
+
+    #navbar ul {
+        align-items: right;
     }
     
     .logo-and-title h1 {
@@ -142,12 +147,12 @@ body {
         text-align: left;
     }
 
-    .content-container h1 {
-        font-size: 1.5em;
+    .content-container {
         max-width: 300px;
+        padding: 10px;
     }
 
-    #navbar ul {
-        align-items: right;
+    .content-container h1 {
+        font-size: 1.5em;
     }
 }
