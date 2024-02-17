@@ -129,7 +129,7 @@ body {
     margin-bottom: 5px;
 }
 
-/* Mobile syle mods */
+/* mobile syle mods */
 @media (max-width: 600px) {
     .logo-and-title {
         align-items: left;
@@ -145,15 +145,19 @@ body {
 
     .tagline {
         text-align: left;
-        margin-top: 0px;
+        margin-top: 5px;
     }
 
     .content-container {
-        max-width: 375px;
+        max-width: 400px;
         padding: 5px;
     }
 
     .content-container h1 {
         font-size: 1.5em;
+    }
+
+    .timeline-content {
+        padding-right: 10px;
     }
 }
