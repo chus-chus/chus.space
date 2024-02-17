@@ -70,8 +70,9 @@ body {
     border-radius: 50%;
 }
 
+/* Centers the main body and adds margins left and right */
 .content-container {
-    max-width: 650px; /* Adjust based on your preference */
+    max-width: 800px; /* Adjust based on your preference */
     margin: 0 auto; /* Centers the container */
     padding: 40px; /* Adds padding inside the container */
     width: 100%; /* Ensures it doesn't exceed the viewport width */
@@ -79,8 +80,8 @@ body {
 }
 
 .timeline {
-position: relative; /* Needed for absolute positioning of the line */
-padding-left: 20px; /* Give some space for the line on the left */
+    position: relative; /* Needed for absolute positioning of the line */
+    padding-left: 20px; /* Give some space for the line on the left */
 }
 
 .timeline::before {
