@@ -133,7 +133,6 @@ body {
 @media (max-width: 600px) {
     .logo-and-title {
         align-items: left;
-        margin-left: 5px;
     }
 
     #navbar ul {
