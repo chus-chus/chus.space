@@ -1,3 +1,3 @@
 [build]
-  echo "No build step"
+  command = "echo 'No build step'"
   publish = "/"
