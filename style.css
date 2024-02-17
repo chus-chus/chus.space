@@ -128,3 +128,18 @@ body {
     margin-top: 5px; /* Reduce space between title and description */
     margin-bottom: 5px; /* Adjust as needed */
 }
+
+@media (max-width: 600px) {
+    .logo-and-title h1 {
+        font-size: 1em;
+    }
+
+    .tagline {
+        text-align: left;
+    }
+
+    .content-container h1 {
+        font-size: 1.5em;
+        max-width: 600px;
+    }
+}
