@@ -1,15 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chus - Home</title>
+    <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
+    <style>
+body {
+    font-family: 'source-sans-pro', sans-serif;
+    font-style: normal;
+    font-weight: 200;
+    background-color: #FBFBEF; /* Light cream/beige background */
+    color: #333; /* Adjust text color as needed */
+    margin: 0;
+    padding-top: 60px; /* Adjust based on the height of your fixed navbar */
+}
 
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="public/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chus</title>
-  </head>
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #FBFBEF; /* Matching the light cream/beige theme */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: Adds a subtle shadow for depth */
+    z-index: 1000;
+}
 
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+#navbar {
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+#navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+
+}
+
+#navbar ul li {
+    margin: 0 10px; /* Adjust spacing between nav items */
+}
+
+#navbar ul li a {
+    text-decoration: none;
+    color: #333; /* Adjust link color as needed */
+    font-family: 'proxima-nova-condensed', sans-serif;
+    font-weight: 200;
+}
+
+.logo-and-title {
+    display: flex;
+    align-items: center;
+    margin-left: 20px; /* Adjust as needed */
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.logo-and-title h1 {
+    margin: 0 0 0 10px; /* Adjust spacing between avatar and name */
+    font-family: 'proxima-nova-condensed', sans-serif;
+    font-weight: 500;
+    font-size: 1.35em;
+}
+
+.avatar {
+    width: 50px; /* Adjust size as needed */
+    height: auto;
+    border-radius: 50%; /* Makes the image circular */
+}
+
+.tagline {
+    text-align: center;
+    margin-top: 20px; /* Adjust as needed */
+}
+
+</style>
+</head>
+<body>
+    <header>
+        <nav id="navbar">
+            <div class="logo-and-title">
+                <img src="static/avatar.png" alt="Avatar" class="avatar">
+                <h1>Chus Antonanzas</h1>
+            </div>
+            <ul>
+                <li><a href="/index.html">Entries</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <p class="tagline">I like ml engineering and exploring stuff 🧨💻</p>
+    </header>
+    <!-- Content sections like Projects, Thoughts, Misc Entries will go here -->
+</body>
 </html>
+
+
