@@ -128,3 +128,53 @@ body {
     margin-top: 5px; /* Reduce space between title and description */
     margin-bottom: 5px; /* Adjust as needed */
 }
+
+/* Media query */
+@media (max-width: 600px) {
+    body {
+        padding-top: 40px; /* Reduce padding to save space */
+    }
+
+    #navbar {
+        flex-direction: column; /* Stack logo/title and menu vertically */
+        padding: 10px 0; /* Reduce padding */
+    }
+
+    #navbar ul {
+        margin-top: 10px; /* Adjust margin for vertical layout */
+        justify-content: center; /* Center the links */
+    }
+
+    .logo-and-title h1 {
+        font-size: 1em; /* Reduce font size to fit smaller screens */
+    }
+
+    .content-container {
+        padding: 20px; /* Reduce padding on smaller screens */
+    }
+
+    .avatar {
+        width: 40px; /* Reduce avatar size */
+    }
+
+    .tagline, .timeline-content, .timeline-item, .timeline-date {
+        text-align: center; /* Center-align text for readability */
+        max-width: 100%; /* Ensure no overflow */
+        padding: 0 10px; /* Add some padding on the sides */
+    }
+
+    .timeline-date {
+        position: relative; /* Switch from absolute to flow within the document */
+        margin-bottom: 10px; /* Add space below the date */
+        left: 0; /* Reset left alignment */
+    }
+
+    .timeline-item::before {
+        left: calc(50% - 12px); /* Center the star */
+    }
+
+    .timeline-item {
+        margin-left: 0; /* Reset margin */
+    }
+}
+
