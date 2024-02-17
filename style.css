@@ -5,14 +5,14 @@ body {
     background-color: #FBFBEF;
     color: #333;
     margin: 0;
-    padding-top: 60px; /* To avoid overlap with the fixed navbar */
+    padding-top: 60px; /* avoid overlap with the fixed navbar */
     display: flex;
     flex-direction: column;
 }
 
 #navbar {
     display: flex;
-    justify-content: center; /* Adjust this to center the contents */
+    justify-content: center;
     align-items: center;
     position: fixed;
     top: 0;
@@ -70,33 +70,33 @@ body {
     border-radius: 50%;
 }
 
-/* Centers the main body and adds margins left and right */
+/* center main body and adds margins left and right */
 .content-container {
-    max-width: 850px; /* Adjust based on your preference */
-    margin: 0 auto; /* Centers the container */
-    padding: 40px; /* Adds padding inside the container */
-    width: 100%; /* Ensures it doesn't exceed the viewport width */
-    text-align: left; /* Explicitly sets text alignment to left */
+    max-width: 850px;
+    margin: 0 auto; /* centers container */
+    padding: 40px; /* padding inside the container */
+    width: 100%; /* it doesn't exceed viewport width */
+    text-align: left;
 }
 
 .timeline {
-    position: relative; /* Needed for absolute positioning of the line */
-    padding-left: 20px; /* Give some space for the line on the left */
+    position: relative; /* for absolute positioning of the line */
+    padding-left: 20px; /* space for the line on the left */
 }
 
 .timeline::before {
-    content: ''; /* Required for pseudo-elements */
+    content: '';
     position: absolute;
-    left: 83px; /* Align the line to the left edge of the timeline */
-    top: 8px; /* Start the line at the top of the first entry */
-    bottom: 0; /* Extend the line to the bottom of the last entry */
-    width: 2px; /* Width of the line */
-    background-color: #333; /* Color of the line, can be changed as needed */
+    left: 83px; /* align line to the left edge of the timeline */
+    top: 8px; /* start the line at the top */
+    bottom: 0; /* extend the line to the bottom */
+    width: 2px; /* line width */
+    background-color: #333; /* line color */
 }
 
 .timeline-date {
     position: absolute;
-    left: -95px; /* Adjust as needed to position the years correctly */
+    left: -95px; /* position the years correctly */
     top: 0;
     font-weight: 400;
     font-size: 13px;
@@ -104,8 +104,8 @@ body {
 
 .timeline-item {
     position: relative;
-    margin-left: 75px; /* Give some space for the star to sit on the line */
-    margin-bottom: 20px; /* Adjust spacing between items */
+    margin-left: 75px; /* space for the star to sit on the line */
+    margin-bottom: 20px; /* spacing between items */
 }
 
 .timeline-item::before {
@@ -117,16 +117,16 @@ body {
 }
 
 .timeline-content {
-    max-width: 600px; /* or whatever maximum width you prefer */
-    padding-right: 20px; /* or however much space you want on the right */
-    padding-left: 11px; /* or any color that matches your design */
-    border-radius: 4px; /* optional, for styled corners */
+    max-width: 600px;
+    padding-right: 20px;
+    padding-left: 11px;
+    border-radius: 4px;
     position: relative;
 }
 
 .timeline h4, .timeline p {
-    margin-top: 5px; /* Reduce space between title and description */
-    margin-bottom: 5px; /* Adjust as needed */
+    margin-top: 5px; /* space between title and description */
+    margin-bottom: 5px;
 }
 
 /* Mobile syle mods */
@@ -149,8 +149,8 @@ body {
     }
 
     .content-container {
-        max-width: 350px;
-        padding: 10px;
+        max-width: 375px;
+        padding: 5px;
     }
 
     .content-container h1 {
