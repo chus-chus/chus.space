@@ -131,7 +131,7 @@ body {
 
 @media (max-width: 600px) {
     .logo-and-title h1 {
-        font-size: 1em;
+        font-size: 1.35em;
     }
 
     .tagline {
@@ -140,6 +140,6 @@ body {
 
     .content-container h1 {
         font-size: 1.5em;
-        max-width: 600px;
+        max-width: 550;
     }
 }
