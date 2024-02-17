@@ -145,10 +145,11 @@ body {
 
     .tagline {
         text-align: left;
+        margin-top: 0px;
     }
 
     .content-container {
-        max-width: 300px;
+        max-width: 350px;
         padding: 10px;
     }
 
