@@ -96,7 +96,7 @@ body {
 
 .timeline-date {
     position: absolute;
-    left: -95px; /* position the years correctly */
+    left: -60px; /* position the years correctly */
     top: 0;
     font-weight: 400;
     font-size: 13px;
@@ -124,7 +124,7 @@ body {
     position: relative;
 }
 
-.timeline h4, .timeline p {
+.timeline h4, .timeline p, .timeline h5 {
     margin-top: 5px; /* space between title and description */
     margin-bottom: 5px;
 }
