@@ -82,6 +82,7 @@ body {
 .timeline {
     position: relative; /* for absolute positioning of the line */
     padding-left: 20px; /* space for the line on the left */
+    margin: 20px auto;
 }
 
 .timeline::before {
@@ -180,6 +181,7 @@ body {
 
     .timeline {
         padding-left: 6px; /* align date, star and content */
+        margin: 15px auto;
     }
     
     .timeline::before {
@@ -196,6 +198,6 @@ body {
 
     .personal-photo {
         max-width: 55%;
-        margin: 40px auto;
+        margin: 40px 0;
     }
 }
