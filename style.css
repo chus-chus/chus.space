@@ -129,6 +129,25 @@ body {
     margin-bottom: 5px;
 }
 
+.personal-photo {
+    display: inline;
+    max-width: 35%;
+    height: auto;
+    border-radius: 10px; /* Adds rounded corners, adjust as needed */
+    margin: 40px 0; /* Centers the image in the container and adds some space above and below */
+}
+
+.image-with-caption {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.caption {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: -35px;
+}
+
 /* mobile syle mods */
 @media (max-width: 600px) {
     .logo-and-title {
@@ -161,5 +180,10 @@ body {
 
     .timeline-content {
         padding-right: 0px;
+    }
+
+    .personal-photo {
+        max-width: 20%;
+        margin: 40px auto;
     }
 }
