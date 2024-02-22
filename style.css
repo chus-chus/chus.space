@@ -97,7 +97,7 @@ body {
 .timeline-date {
     position: absolute;
     left: -55px; /* position the years correctly */
-    top: 0;
+    top: 1.5px;
     font-weight: 400;
     font-size: 13px;
 }
@@ -187,11 +187,11 @@ body {
     }
     
     .timeline-item::before {
-        content: '⭐️';
-        position: absolute;
-        left: -16px;
-        top: 0.5px;
-        font-size: 12px;
+        left: -17px;
+    }
+
+    .timeline-date {
+        top: 1.5px;
     }
 
     .personal-photo {
