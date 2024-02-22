@@ -87,7 +87,7 @@ body {
 .timeline::before {
     content: '';
     position: absolute;
-    left: 83px; /* align line to the left edge of the timeline */
+    left: 60px; /* align line to the left edge of the timeline */
     top: 8px; /* start the line at the top */
     bottom: 0; /* extend the line to the bottom */
     width: 2px; /* line width */
@@ -96,7 +96,7 @@ body {
 
 .timeline-date {
     position: absolute;
-    left: -60px; /* position the years correctly */
+    left: -55px; /* position the years correctly */
     top: 0;
     font-weight: 400;
     font-size: 13px;
@@ -104,15 +104,15 @@ body {
 
 .timeline-item {
     position: relative;
-    margin-left: 75px; /* space for the star to sit on the line */
+    margin-left: 50px; /* space for the star to sit on the line */
     margin-bottom: 20px; /* spacing between items */
 }
 
 .timeline-item::before {
     content: '⭐️';
     position: absolute;
-    left: -18.7px;
-    top: -3px;
+    left: -16px;
+    top: 0.5px;
     font-size: 12px;
 }
 
@@ -183,7 +183,7 @@ body {
     }
 
     .personal-photo {
-        max-width: 35%;
+        max-width: 55%;
         margin: 40px auto;
     }
 }
