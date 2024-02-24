@@ -6,12 +6,13 @@
 body {
     font-family: var(--vp-font-family-base);
     font-style: normal;
-    font-weight: 200;
+    font-weight: 240;
     background-color: #FBFBEF; /* #FBFBEF */
     color: #333;
     margin: 0;
     display: flex;
     flex-direction: column;
+    font-size: 12px;
 }
 
 #navbar {
