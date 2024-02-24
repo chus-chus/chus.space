@@ -5,7 +5,6 @@ body {
     background-color: #FBFBEF;
     color: #333;
     margin: 0;
-    padding-top: 60px; /* avoid overlap with the fixed navbar */
     display: flex;
     flex-direction: column;
 }
@@ -14,13 +13,22 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
+    position: relative; /* from static to relative to position pseudo-elements */
     top: 0;
     width: 100%;
-    border-bottom: 1px solid #e4e4d5;
     z-index: 1000;
 }
 
+#navbar::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 850px;
+    height: 1px;
+    background-color: #e4e4e4;
+    transform: translateX(-50%);
+}
 
 #navbar ul {
     list-style: none;
