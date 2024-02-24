@@ -9,7 +9,6 @@ body {
     flex-direction: column;
 }
 
-
 #navbar {
     display: flex;
     justify-content: center;
@@ -80,7 +79,7 @@ body {
 
 /* center main body and adds margins left and right */
 .content-container {
-    max-width: 500px;
+    max-width: 575px;
     margin: 0 auto; /* centers container */
     padding: 40px; /* padding inside the container */
     width: 100%; /* it doesn't exceed viewport width */
