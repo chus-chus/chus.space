@@ -2,12 +2,13 @@ body {
     font-family: 'source-sans-pro', sans-serif;
     font-style: normal;
     font-weight: 200;
-    background-color: #FBFBEF;
+    background-color: #FBFBEF; /* #FBFBEF */
     color: #333;
     margin: 0;
     display: flex;
     flex-direction: column;
 }
+
 
 #navbar {
     display: flex;
@@ -25,9 +26,9 @@ body {
     position: absolute;
     bottom: 0;
     left: 50%;
-    width: 450px;
+    width: 500px;
     height: 1px;
-    background-color: #e4e4e4;
+    background-color: #313131;
     transform: translateX(-50%);
 }
 
@@ -79,7 +80,7 @@ body {
 
 /* center main body and adds margins left and right */
 .content-container {
-    max-width: 850px;
+    max-width: 500px;
     margin: 0 auto; /* centers container */
     padding: 40px; /* padding inside the container */
     width: 100%; /* it doesn't exceed viewport width */
