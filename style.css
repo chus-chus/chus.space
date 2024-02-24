@@ -85,7 +85,7 @@ body {
 
 /* center main body and adds margins left and right */
 .content-container {
-    max-width: 575px;
+    max-width: 600px;
     margin: 0 auto; /* centers container */
     padding: 40px; /* padding inside the container */
     width: 100%; /* it doesn't exceed viewport width */
