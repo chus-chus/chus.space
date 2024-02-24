@@ -4,6 +4,7 @@
 }
 
 body {
+    font-family: var(--vp-font-family-base);
     font-style: normal;
     font-weight: 200;
     background-color: #FBFBEF; /* #FBFBEF */
