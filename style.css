@@ -14,6 +14,7 @@ body {
     flex-direction: column;
     font-size: 16px;
     line-height: 1.55;
+    position: relative;
 }
 
 #navbar {
@@ -214,6 +215,7 @@ body {
 .content-container.entry .tagline {
     text-align: left;
     font-style: italic;
+    color: #666;
 }
 
 .content-container.entry section {
@@ -227,21 +229,34 @@ body {
 }
 
 #progress-container {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: fixed; /* keep visible while scrolling */
+    top: 40px;
+    bottom: 0; /* Do not remove top and bottom */
+    left: 25px;
     height: 100%;
-    width: 10px; /* Adjust the width of the progress bar container */
-    background-color: #f0f0f0; /* Background of the container */
+    width: 1px;
+    background-color: transparent; /* background */
+    z-index: 10; /* Ensure it's above other content */
 }
 
 #progress-bar {
+    background-color: #000;
+    width: 100%;
+    height: 0%;
+    background-color: #bababa;
+}
+
+.progress-marker {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%; /* Full width of its container */
-    background-color: #007bff; /* Color of the progress bar */
-    height: 0%; /* Initial height */
+    left: 100%; /* Place marker to the right of the progress bar */
+    transform: translateX(10px); /* Adjust horizontal position */
+    white-space: nowrap;
+    /* Additional styling for markers */
+}
+
+/* Optional: Style for the active marker */
+.progress-marker.active {
+    /* Styles to highlight the active marker */
 }
 
 
