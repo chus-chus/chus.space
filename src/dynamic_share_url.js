@@ -3,22 +3,25 @@
 document.addEventListener('DOMContentLoaded', function() {
     var twitterBtn = document.querySelector('a[aria-label="Twitter"]');
     if (twitterBtn) {
-        twitterBtn.href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href);
+        var baseUrl = window.location.href.split('#')[0]; // Remove the hash part
+        twitterBtn.href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(baseUrl);
     }
 });
 
-function copyToClipboard(url) {
+
+function copyToClipboard() { // Removed the url parameter since it's always the current URL being copied
+    var baseUrl = window.location.href.split('#')[0]; // Remove the hash part
     // Create a temporary text area to hold the URL
     var tempInput = document.createElement('textarea');
     // Prevent styling from affecting layout
     tempInput.style.position = 'absolute';
     tempInput.style.left = '-9999px';
-    tempInput.value = url;
+    tempInput.value = baseUrl; // Use the modified URL
     document.body.appendChild(tempInput);
     tempInput.select();
     document.execCommand('copy');
     document.body.removeChild(tempInput);
-    
+
     // Show the notification
     var notification = document.getElementById('copy-notification');
     notification.style.display = 'block';
@@ -27,7 +30,7 @@ function copyToClipboard(url) {
     setTimeout(function() {
         notification.style.display = 'none';
     }, 2000);
-    
 }
+
 
 window.copyToClipboard = copyToClipboard;

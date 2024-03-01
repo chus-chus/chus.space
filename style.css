@@ -127,7 +127,7 @@ body {
 .timeline-item::before {
     content: '⭐️';
     position: absolute;
-    left: -17px;
+    left: -16.91px;
     top: 0.5px;
     font-size: 12px;
 }
@@ -332,10 +332,6 @@ body {
     
     .timeline::before {
         left: 46px; /* align line */
-    }
-    
-    .timeline-item::before {
-        left: -17px;
     }
 
     .timeline-date {
