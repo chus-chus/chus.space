@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-
 function copyToClipboard() {
     var baseUrl = window.location.href.split('#')[0]; // Remove hash
     // temporary text area to hold the URL
@@ -31,6 +30,5 @@ function copyToClipboard() {
         notification.style.display = 'none';
     }, 2000);
 }
-
 
 window.copyToClipboard = copyToClipboard;

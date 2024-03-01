@@ -177,8 +177,8 @@ body {
     line-height: 1.1;
 }
 
-.content-container.entry section {
-    margin-bottom: 20px;
+.content-container.entry p {
+    margin-bottom: 35px;
 }
 
 .content-container.entry .header-date-links {
