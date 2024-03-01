@@ -25,9 +25,10 @@ body {
     top: 0;
     width: 100%;
     z-index: 1000;
+    background-color: #222222;
 }
 
-/* navbar bottom bar */
+/* navbar bottom bar
 #navbar::after {
     content: "";
     position: absolute;
@@ -37,7 +38,7 @@ body {
     height: 1px;
     background-color: #313131;
     transform: translateX(-50%);
-}
+} */
 
 #navbar ul {
     list-style: none;
@@ -54,7 +55,7 @@ body {
 
 #navbar ul li a {
     text-decoration: none;
-    color: #333;
+    color: #dcdcdc;
     font-family: 'proxima-nova-condensed', sans-serif;
     font-weight: 200;
 }
@@ -65,12 +66,13 @@ body {
     margin-left: 20px;
     margin-top: 5px;
     margin-bottom: 5px;
+    color: #ffffff;
 }
 
 .logo-and-title h1 {
     margin: 0 0 0 10px;
     font-family: 'proxima-nova-condensed', sans-serif;
-    font-weight: 500;
+    font-weight: 250;
     font-size: 1.35em;
 }
 
