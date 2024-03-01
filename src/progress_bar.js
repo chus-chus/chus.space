@@ -11,23 +11,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Create markers
     sections.forEach((section, index) => {
-        const marker = document.createElement('div');
+        // Create an anchor element instead of a div
+        const marker = document.createElement('a');
         marker.classList.add('progress-marker');
         marker.textContent = section.getAttribute('id'); // Use the section's ID as text
+        // Set the href attribute to link to the section ID
+        marker.href = '#' + section.getAttribute('id');
+    
         // Calculate position percentage (top offset / total content height)
         const positionPercent = (section.offsetTop / contentHeight) * 100;
         marker.style.top = Math.max(0, (positionPercent - 9)) + '%'; // Set the top position as a percentage
+        marker.style.position = 'absolute'; // Ensure the marker is positioned correctly
+        marker.style.cursor = 'pointer'; // Change the cursor to indicate it's clickable
+    
         progressBarContainer.appendChild(marker); // Append marker to the progress container
     });
 
-    function updateProgressBarOpacity() {
+    function updateProgressBar() {
         let scrollDistance = window.scrollY + window.innerHeight / 2;
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
         let scrolledPercentage = Math.max(0, (scrollDistance / maxScroll) * 100 - 13);
         progressBar.style.height = scrolledPercentage + '%';
 
         let markers = document.querySelectorAll('.progress-marker'); // Directly use the marker elements
-        let marker_positions = [];
         let closestMarkerIndex = null;
         let closestDistance = Number.MAX_VALUE;
 
@@ -35,9 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
         sections.forEach((section, index) => {
             const positionPercent = (section.offsetTop / document.documentElement.scrollHeight) * 100;
             const positionPixels = (positionPercent / 100) * document.documentElement.scrollHeight;
-            marker_positions.push(positionPixels);
 
-            let distance = Math.abs(scrollDistance - positionPixels);
+            // Calculate the distance from the viewport's midpoint to the marker
+            let distance = Math.abs(scrollDistance - positionPixels - window.innerHeight / 2);
 
             // Determine if this marker is the closest to the viewport's midpoint
             if (distance < closestDistance) {
@@ -55,44 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Sort markers to ensure they are in order
-        marker_positions.sort((a, b) => a - b);
-
-        // Find markers above and below the current scroll position
-        let aboveMarker = null, belowMarker = null;
-        for (let i = 0; i < markers.length; i++) {
-            if (marker_positions[i] < scrollDistance) {
-                aboveMarker = marker_positions[i];
-            } else {
-                belowMarker = marker_positions[i];
-                break; // Found the first marker below the scroll position
-            }
-        }
-
-        let opacity = 1;
-
-        if (aboveMarker !== null && belowMarker !== null) {
-            const midpoint = (aboveMarker + belowMarker) / 2;
-            const distanceToMidpoint = Math.abs(scrollDistance - midpoint);
-            const maxDistance = ((belowMarker - aboveMarker) / 2) * 0.9;
-            const normalizedDistance = distanceToMidpoint / maxDistance;
-            // Squaring the normalized distance to make opacity drop faster and stay at 0 longer.
-            opacity = 1 - Math.pow(normalizedDistance, 2);
-            opacity = Math.max(0, opacity); // Ensure opacity isn't negative and doesn't exceed the bounds
-        } else {
-            // Increase opacity starting from last marker towards the end
-            const fadeStart = marker_positions[marker_positions.length - 1];
-            const normalizedScrollDistance = (scrollDistance - fadeStart) / (maxScroll - fadeStart);
-            // Squaring can be applied here too if a more gradual increase is desired
-            opacity = Math.pow(normalizedScrollDistance, 2);
-            opacity = Math.min(1, opacity); // Ensure opacity doesn't exceed 1
-        }
-
-        progressBar.style.opacity = opacity;
-
     }
 
-    window.addEventListener('scroll', updateProgressBarOpacity);
-    updateProgressBarOpacity(); // Initialize on page load
+    window.addEventListener('scroll', updateProgressBar);
+    updateProgressBar(); // Initialize on page load
 });
 

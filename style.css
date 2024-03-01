@@ -230,13 +230,19 @@ body {
 
 .fas.fa-link {
     /* favicon link size */
-    font-size: 0.85em;
+    font-size: 1em;
+    margin-left: -15px;
+}
+
+.fab.fa-twitter-square {
+    /* favicon link size */
+    font-size: 1.35em;
     margin-left: -15px;
 }
 
 #progress-container {
     position: fixed; /* keep visible while scrolling */
-    top: 40px;
+    top: 80px;
     bottom: 0; /* Do not remove top and bottom */
     left: 25px;
     height: 100%;
@@ -260,13 +266,11 @@ body {
     left: 100%; /* Place marker to the right of the progress bar */
     transform: translateX(10px); /* Adjust horizontal position */
     white-space: nowrap;
-    /* reduce left space */
     margin-left: -5px;
     font-size: 0.85em;
     color: #787878;
-    /* italics */
     font-style: italic;
-    /* Additional styling for markers */
+    text-decoration: none;
 }
 
 /* Optional: Style for the active marker */
