@@ -243,6 +243,7 @@ body {
     width: 1px;
     background-color: transparent; /* background */
     z-index: 10; /* Ensure it's above other content */
+    height: 88%;    
 }
 
 #progress-bar {
@@ -259,12 +260,20 @@ body {
     left: 100%; /* Place marker to the right of the progress bar */
     transform: translateX(10px); /* Adjust horizontal position */
     white-space: nowrap;
+    /* reduce left space */
+    margin-left: -5px;
+    font-size: 0.85em;
+    color: #787878;
+    /* italics */
+    font-style: italic;
     /* Additional styling for markers */
 }
 
 /* Optional: Style for the active marker */
 .progress-marker.active {
     /* Styles to highlight the active marker */
+    color: #000;
+    font-weight: 450;
 }
 
 

@@ -16,42 +16,83 @@ document.addEventListener('DOMContentLoaded', function() {
         marker.textContent = section.getAttribute('id'); // Use the section's ID as text
         // Calculate position percentage (top offset / total content height)
         const positionPercent = (section.offsetTop / contentHeight) * 100;
-        marker.style.top = Math.max(0, (positionPercent - 15)) + '%'; // Set the top position as a percentage
+        marker.style.top = Math.max(0, (positionPercent - 9)) + '%'; // Set the top position as a percentage
         progressBarContainer.appendChild(marker); // Append marker to the progress container
     });
 
-    function updateProgressBar() {
-        const scrollDistance = window.scrollY;
-
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;   
-
-    // Calculate the progress bar height as a percentage of the total scrollable height
-        let scrolledPercentage = Math.min(0.888, (scrollDistance / maxScroll)) * 100;
-
+    function updateProgressBarOpacity() {
+        let scrollDistance = window.scrollY + window.innerHeight / 2;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        let scrolledPercentage = Math.max(0, (scrollDistance / maxScroll) * 100 - 13);
         progressBar.style.height = scrolledPercentage + '%';
 
-        // Check proximity to each section to adjust the opacity of the progress bar
-        let nearestSectionDistance = Number.MAX_VALUE; // Start with the maximum distance
+        let markers = document.querySelectorAll('.progress-marker'); // Directly use the marker elements
+        let marker_positions = [];
+        let closestMarkerIndex = null;
+        let closestDistance = Number.MAX_VALUE;
 
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - window.innerHeight * 0.1; // Start checking 10% above the section
-            const sectionBottom = section.offsetTop + section.offsetHeight + window.innerHeight * 0.1; // Continue checking 10% below the section
+        // Compute markers' positions and find the closest marker
+        sections.forEach((section, index) => {
+            const positionPercent = (section.offsetTop / document.documentElement.scrollHeight) * 100;
+            const positionPixels = (positionPercent / 100) * document.documentElement.scrollHeight;
+            marker_positions.push(positionPixels);
 
-            // Determine the distance to the nearest section
-            if (scrollDistance > sectionTop && scrollDistance < sectionBottom) {
-                const distanceToTop = Math.abs(scrollDistance - sectionTop);
-                const distanceToBottom = Math.abs(scrollDistance - sectionBottom);
-                nearestSectionDistance = Math.min(distanceToTop, distanceToBottom, nearestSectionDistance);
+            let distance = Math.abs(scrollDistance - positionPixels);
+
+            // Determine if this marker is the closest to the viewport's midpoint
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestMarkerIndex = index;
             }
         });
 
-        // Adjust the opacity based on the nearest section distance
-        // The closer to the section, the lower the opacity
-        const opacity = Math.min(1, nearestSectionDistance / (window.innerHeight * 0.99) + 0.05);
+        // Toggle the active class based on the closest marker
+        markers.forEach((marker, index) => {
+            if (index === closestMarkerIndex) {
+                marker.classList.add('active');
+            } else {
+                marker.classList.remove('active');
+            }
+        });
+
+        // Sort markers to ensure they are in order
+        marker_positions.sort((a, b) => a - b);
+
+        // Find markers above and below the current scroll position
+        let aboveMarker = null, belowMarker = null;
+        for (let i = 0; i < markers.length; i++) {
+            if (marker_positions[i] < scrollDistance) {
+                aboveMarker = marker_positions[i];
+            } else {
+                belowMarker = marker_positions[i];
+                break; // Found the first marker below the scroll position
+            }
+        }
+
+        let opacity = 1;
+
+        if (aboveMarker !== null && belowMarker !== null) {
+            const midpoint = (aboveMarker + belowMarker) / 2;
+            const distanceToMidpoint = Math.abs(scrollDistance - midpoint);
+            const maxDistance = ((belowMarker - aboveMarker) / 2) * 0.9;
+            const normalizedDistance = distanceToMidpoint / maxDistance;
+            // Squaring the normalized distance to make opacity drop faster and stay at 0 longer.
+            opacity = 1 - Math.pow(normalizedDistance, 2);
+            opacity = Math.max(0, opacity); // Ensure opacity isn't negative and doesn't exceed the bounds
+        } else {
+            // Increase opacity starting from last marker towards the end
+            const fadeStart = marker_positions[marker_positions.length - 1];
+            const normalizedScrollDistance = (scrollDistance - fadeStart) / (maxScroll - fadeStart);
+            // Squaring can be applied here too if a more gradual increase is desired
+            opacity = Math.pow(normalizedScrollDistance, 2);
+            opacity = Math.min(1, opacity); // Ensure opacity doesn't exceed 1
+        }
+
         progressBar.style.opacity = opacity;
+
     }
 
-    window.addEventListener('scroll', updateProgressBar);
-    updateProgressBar(); // Initialize on page load
+    window.addEventListener('scroll', updateProgressBarOpacity);
+    updateProgressBarOpacity(); // Initialize on page load
 });
 
