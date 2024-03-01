@@ -181,30 +181,25 @@ body {
     margin-bottom: 20px;
 }
 
-.content-container.entry .header-top {
+.content-container.entry .header-date-links {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: px;
 }
 
 .content-container.entry .blog-header {
     padding: 30px;
 }
 
-.content-container.entry .meta-info {
+.content-container.entry .header-date {
     font-size: 0.95em;
-    color: #666;
-    margin-bottom: 5px;
+    color: #888888;
+    margin-top: 5px;
 }
 
-.content-container.entry .meta-info span {
+.content-container.entry .header-date span {
     display: block;
-    margin: 5px 0;
-}
-
-.content-container.entry .social-links {
-    margin: 20px 0;
 }
 
 .content-container.entry .social-links a {
@@ -222,6 +217,7 @@ body {
     text-align: left;
     font-style: italic;
     color: #666;
+    margin-top: 10px;
 }
 
 .content-container.entry section {
