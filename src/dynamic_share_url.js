@@ -18,8 +18,16 @@ function copyToClipboard(url) {
     tempInput.select();
     document.execCommand('copy');
     document.body.removeChild(tempInput);
-    // Optional: Inform the user the text was copied
-    alert('URL copied to clipboard');
+    
+    // Show the notification
+    var notification = document.getElementById('copy-notification');
+    notification.style.display = 'block';
+    
+    // Hide the notification after 2 seconds
+    setTimeout(function() {
+        notification.style.display = 'none';
+    }, 2000);
+    
 }
 
 window.copyToClipboard = copyToClipboard;

@@ -193,7 +193,7 @@ body {
 }
 
 .content-container.entry .meta-info {
-    font-size: 0.9em;
+    font-size: 0.95em;
     color: #666;
     margin-bottom: 5px;
 }
@@ -230,14 +230,20 @@ body {
 
 .fas.fa-link {
     /* favicon link size */
-    font-size: 1em;
+    font-size: 00.95em;
     margin-left: -15px;
+    color: #333;
 }
 
 .fab.fa-twitter-square {
     /* favicon link size */
     font-size: 1.35em;
     margin-left: -15px;
+    color: #1DA1F2;
+}
+
+.content-container.entry .social-links a {
+    text-decoration: none; /* remove underline */
 }
 
 #progress-container {
@@ -273,11 +279,23 @@ body {
     text-decoration: none;
 }
 
-/* Optional: Style for the active marker */
 .progress-marker.active {
-    /* Styles to highlight the active marker */
     color: #000;
     font-weight: 450;
+}
+
+#copy-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #444;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    font-size: 0.85em;
 }
 
 

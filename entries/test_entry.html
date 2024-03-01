@@ -25,6 +25,9 @@
     <meta property="og:locale" content="en_US">
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../src/dynamic_share_url.js"></script>
+    <script src="../src/progress_bar.js"></script>
+    <script src="../src/viz/test.js"></script>
 </head>
 <body>
     <header>
@@ -56,12 +59,9 @@
                         <span>Date</span>
                     </div>
                     <div class="social-links">
-                        <a href="" target="_blank" aria-label="Twitter">
-                            <i class="fab fa-twitter-square"></i>
-                        </a>
-                        <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link">
-                            <i class="fas fa-link"></i>
-                        </a>
+                        <div id="copy-notification" style="display: none; /* other styling */">URL copied</div>
+                        <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
+                        <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
                     </div>
                 </div>
                 <p class="tagline">This is a concise description of the entry</p>
@@ -169,8 +169,5 @@
             <!-- <div id="visualization"></div> -->
         </article>
     </div>    
-
-    <script src="../src/progress_bar.js"></script>
-    <script src="../src/viz/test.js"></script>
 </body>
 </html>
