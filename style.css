@@ -20,25 +20,12 @@ body {
 #navbar {
     display: flex;
     justify-content: center;
-    align-items: center;
-    position: relative; /* from static to relative to position pseudo-elements */
+    position: relative;
     top: 0;
     width: 100%;
     z-index: 1000;
     background-color: #222222;
 }
-
-/* navbar bottom bar
-#navbar::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 500px;
-    height: 1px;
-    background-color: #313131;
-    transform: translateX(-50%);
-} */
 
 #navbar ul {
     list-style: none;
@@ -62,7 +49,6 @@ body {
 
 .logo-and-title {
     display: flex;
-    align-items: center;
     margin-left: 20px;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -79,6 +65,7 @@ body {
 .tagline {
   text-align: center;
   margin-top: -20px;
+  font-size: 0.86em;
 }
 
 .avatar {
@@ -299,22 +286,28 @@ body {
 
 /* --------------- mobile styles --------------- */
 @media (max-width: 600px) {
-    .logo-and-title {
-        margin-left: 0px;
+    #navbar {
+        justify-content: space-evenly;
     }
-
+    
     #navbar ul {
-        align-items: right;
+        list-style: none;
+        margin: 0;
         font-size: 0.85em;
+    }
+    
+    .logo-and-title {
+        margin: 0;
     }
 
     .logo-and-title h1 {
         font-size: 1.07em;
+        margin: -3px 0 0 10px;
     }
 
     .tagline {
-        text-align: left;
-        margin-top: 5px;
+        margin-top: 10px;
+        font-size: 0.85em;
     }
 
     .content-container {
