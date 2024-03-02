@@ -1,26 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Assuming width, height, and data are defined
-    const width = 960, height = 500;
+import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
 
-    // Example data generation (replace with actual data logic)
-    const data = new Array(100).fill().map(() => Math.random() * 100);
-
-    // Contour generation logic (simplified)
-    const contours = d3.contours()
-        .size([width, height])
-        .thresholds(d3.range(1, 21).map(p => Math.pow(2, p)))
-        (data);
-
-    // SVG setup
-    const svg = d3.select('#visualization').append('svg')
-        .attr('width', width)
-        .attr('height', height);
-
-    // Drawing contours
-    svg.selectAll("path")
-        .data(contours)
-        .enter().append("path")
-        .attr("d", d3.geoPath(d3.geoIdentity().scale(width / Math.sqrt(data.length))))
-        .attr("fill", "none")
-        .attr("stroke", "#000");
-});
+const plot = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
+const div = document.querySelector("#myplot");
+div.append(plot);
