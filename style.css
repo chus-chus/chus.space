@@ -1,3 +1,6 @@
+
+/* --------------------------------- General  ------------------------------------ */
+
 :root {
     --vp-font-family-base: "Chinese Quotes", "Inter var", "Inter", ui-sans-serif, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --vp-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
@@ -62,18 +65,6 @@ body {
     font-size: 1.35em;
 }
 
-.tagline {
-  text-align: center;
-  margin-top: -20px;
-  font-size: 0.86em;
-}
-
-.avatar {
-    width: 50px;
-    height: auto;
-    border-radius: 50%;
-}
-
 /* center main body and adds margins left and right */
 .content-container {
     max-width: 650px;
@@ -82,6 +73,16 @@ body {
     width: 100%; /* it doesn't exceed viewport width */
     text-align: left;
 }
+
+/* --------------------------------- Index  ------------------------------------ */
+
+.tagline {
+    text-align: center;
+    margin-top: -20px;
+    font-size: 0.86em;
+  }
+
+/* --------------------------------- About  ------------------------------------ */
 
 .timeline {
     position: relative; /* for absolute positioning of the line */
@@ -153,7 +154,7 @@ body {
     margin-top: -35px;
 }
 
-/* ----------------------------- ENTRIES ------------------------------------ */
+/* ----------------------------- Entries ------------------------------------ */
 .content-container.entry h1 {
     font-size: 2.75em;
     margin: 20px 0;
@@ -231,6 +232,8 @@ body {
     text-decoration: none; /* remove underline */
 }
 
+/* ----------------------------- Entries - progress bar ------------------------------------ */
+
 #progress-container {
     position: fixed; /* keep visible while scrolling */
     top: 80px;
@@ -283,15 +286,39 @@ body {
     font-size: 0.85em;
 }
 
-#myplot {
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px 0;
+/* ------------------------- Entries - plot styles ------------------------- */
+
+.plot-container {
+    /* For plots that are 100% of the content width or ANY height */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
 }
 
+.plot-container.horizontal-125 {
+    /* For plots that are 125% of the content width */
+    width: 125%;
+    /* Set the next value to half of the increased width over 100%. */
+    margin-left: calc(-12.5%); 
+}
 
-/* --------------- mobile styles --------------- */
+.plot-container.horizontal-150 {
+    /* For plots that are 150% of the content width */
+    width: 150%;
+    /* Set the next value to half of the increased width over 100%. */
+    margin-left: calc(-25%); 
+}
+
+.plot-background-1 {
+    /* Light contrast */
+    background-color: rgba(142, 105, 32, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+}
+
+/* ------------------------- Mobile styles ------------------------- */
 @media (max-width: 600px) {
     #navbar {
         justify-content: space-evenly;
