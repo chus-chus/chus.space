@@ -71,13 +71,17 @@
                 <h2>Section 1</h2>
                 <p>Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
                     Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
+                    Artificial intelligence (AI) is  transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
                     Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
                     Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
 
                 </p>
+                <p>Here is a sample list:</p>
+                <ul>
+                    <li><a href="https://www.chus.space/entries/test_entry.html">This is a sample href!</a></li>
+                    <li><span class="bold">This is sample bold</span></li>
+                    <li><span class="italic">This is sample italics</span></li>
+                </ul>
                 <h3>Subsection 1</h3>
                 <p>
                     Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
@@ -102,27 +106,6 @@
                 </p>
             </section>
 
-            <section id="Section 3">
-                <h2>Section 3</h2>
-                <p>
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                    Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                enewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions.
-                        Artificial intelligence (AI) is transforming the sustainable energy sector by optimizing energy consumption, enhancing renewable energy technologies, and predicting energy demand. This blog post explores the innovative ways AI contributes to sustainable energy solutions
-                        
-                </p>
-            </section>
-
             <section id="Testing plots">
                 <h2>Testing plots</h2>
                 <p>This would be the text before the plot. </p>
@@ -136,25 +119,16 @@
                         divplot1.append(plot1);
                     </script>
                 </div>
-                <p class="plot-caption">Figure 1: sample</p>
+                <p class="plot-caption">Figure 1: sample.</p>
                 <p>This would be the text after the plot. </p>
 
                 <h3>This is a sample extra-wide plot (125%)</h3>
-                <p>This would be the text before the plot. </p>
+                <p>This would be the text before the plot. We are inserting the plot from another file. </p>
                 <div class="plot-container horizontal-125">
                     <div class="plot-background-1" id="plot2"></div>
-                    <script type="module">
-                        import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
-                        
-                        const plot2 = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
-                        const plot3 = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
-
-                        const divplot2 = document.querySelector("#plot2");
-                        divplot2.append(plot2);
-                        divplot2.append(plot3);
-                    </script>
+                    <script type="module" src="../src/viz/test.js"></script>
                 </div>
-                <p class="plot-caption">Figure 2: sample</p>
+                <p class="plot-caption">Figure 2: sample.</p>
 
                 <h3>This is a sample extra-wide plot (150%)</h3>
                 <div class="plot-container horizontal-150">
@@ -170,10 +144,10 @@
                         divplot3.append(plot5);
                     </script>
                 </div>
-                <p class="plot-caption">Figure 3: sample</p>
+                <p class="plot-caption">Figure 3: sample.</p>
 
 
-                <h3>This is a sample extra-vertical plot</h3>
+                <h3>This is a sample extra-vertical plot.</h3>
                 <div class="plot-container">
                     <div class="plot-background-1" id="plot4"></div>
                     <script type="module">
@@ -198,7 +172,7 @@
                         divplot4.append(plot6);
                     </script>
                 </div>
-                <p class="plot-caption">Figure 4: sample</p>
+                <p class="plot-caption">Figure 4: sample.</p>
             </section>
         </article>
     </div>    

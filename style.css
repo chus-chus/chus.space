@@ -11,7 +11,7 @@ body {
     font-style: normal;
     font-weight: 265;
     background-color: #FBFBEF; /* #FBFBEF */
-    color: #333;
+    color: #343131;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -73,6 +73,24 @@ body {
     width: 100%; /* it doesn't exceed viewport width */
     text-align: left;
 }
+
+a {
+    color: rgb(0, 102, 255);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.italic {
+    font-style: italic;
+}
+
 
 /* --------------------------------- Index  ------------------------------------ */
 
