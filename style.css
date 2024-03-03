@@ -286,7 +286,7 @@ body {
     font-size: 0.85em;
 }
 
-/* ------------------------- Entries - plot styles ------------------------- */
+/* ------------------------- Entries - plots ------------------------- */
 
 .plot-container {
     /* For plots that are 100% of the content width or ANY height */
@@ -316,6 +316,13 @@ body {
     border-radius: 10px;
     padding: 20px;
     display: flex;
+}
+
+.plot-caption {
+    color: rgba(131, 131, 131, 1);
+    font-size: 0.825em;
+    font-weight: 450;
+    margin-top: 10px;
 }
 
 /* ------------------------- Mobile styles ------------------------- */
