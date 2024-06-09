@@ -10,7 +10,7 @@ body {
     font-family: var(--vp-font-family-base);
     font-style: normal;
     font-weight: 265;
-    background-color: #FBFBEF; /* #FBFBEF */
+    background-color: #fffff4; /* #FBFBEF is warmer*/
     color: #343131;
     margin: 0;
     display: flex;

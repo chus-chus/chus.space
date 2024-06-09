@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Space Duality - Mamba 2</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://www.chus.space/favicon.ico?v=2"/>
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta property="og:type" content="article">
+    <!-- MODIFY FOREACH-->
+    <!-- entry title -->
+    <meta property="og:title" content="The State Space Duality: Mamba 2 - Chus Antonanzas">
+    <!-- entry description -->
+    <meta name="description" content="Description">
+    <meta property="og:description" content="Description">
+    <!-- entry name / entry image TODO REPLACE-->
+    <meta property="og:image" content="https://www.chus.space/static/entryname/ssms.jpg"> 
+    <!-- entry name -->
+    <meta property="og:url" content="https://www.chus.space/ssm_viz/"> 
+    <meta property="og:site_name" content="Chus Antonanzas">
+    <meta property="og:locale" content="en_US">
+    <script>
+      window.MathJax = {
+          tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$']],
+              packages: ['base', 'ams'],
+              tags: 'ams', // Enables AMS-style numbering
+              tagSide: 'right',
+              tagIndent: '0.8em'
+          },
+          options: {
+              ignoreHtmlClass: 'tex2jax_ignore',
+              processHtmlClass: 'tex2jax_process'
+          },
+          startup: {
+              ready: () => {
+                  MathJax.startup.defaultReady();
+                  console.log('MathJax is ready and fully loaded.');
+              }
+          }
+      };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="../../../src/progress_bar.js"></script>
+  <script src="../../../src/dynamic_share_url.js"></script>
+  <script src="../../../src/ssm_source.js"></script>
+</head>
+
+<body>
+
+  <header>
+      <nav id="navbar">
+          <div class="logo-and-title">
+              <a href="../../index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                  <h1>Chus Antonanzas</h1>
+              </a>
+          </div>
+          <ul>
+              <li><a href="../../about.html">About</a></li>
+              <li><a href="../../contact.html">Contact</a></li>
+          </ul>
+      </nav>
+  </header>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <div class="content-container entry">
+    <article>
+
+    <div class="blog-header">
+        <h1>State Space Models (1): context</h1>
+        <p class="tagline">In this series, we explore how State Space Models (SSMs) work, their history, some intuitions, and recent advances, including Mamba and Mamba 2. </p>
+        <div class="header-date-links">
+            <div class="header-date">
+                <span>June 10th, 2024</span>
+            </div>
+            <div class="social-links">
+                <div id="copy-notification" style="display: none; /* other styling */">URL copied</div>
+                <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
+                <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
+            </div>
+        </div>
+        <hr>
+    </div>
+
+    <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
+      In the series, we will cover how SSMs work, how they became competitive with the state-of-the-art, all up to the most recent advances mainly through a visualization and exploration lens.</p>
+    <p>I have tried to make the content engaging but through. If you have any questions or suggestions, please let me know!</p>
+
+      <ul>
+        <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
+          <ul>We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
+        </li>
+        
+        <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM networks and Structured State Spaces</a></span>
+          <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
+        </li>
+        <li><span class="bold"><a href="../ssm_3_selectivity/index.html">Part 3: Selective State Spaces (Mamba)</a></span>
+          <ul>We present Selective State Spaces, which added to SSMs the capacity of focusing on different parts of the input (yes, like attention).</ul>
+        </li>
+        <li><span class="bold">Part 4: State Space Duality (Mamba 2)</span>
+          <ul>What's the relationship between SSMs and the attention mechanism? They are actually the same! What does this imply?</ul>
+        </li>
+      </ul>
+    
+    <section id="What the series will cover">
+      <h2>What the series will cover</h2>
+
+      <p>This is an example of an equation with a number:</p>
+
+      \begin{equation}
+        E = mc^2
+        \label{eq:sample}
+      \end{equation}
+  
+      \begin{equation*}
+        E = mc^2
+      \end{equation*}
+      
+      <p>You can reference Equation \ref{eq:sample} anytime in the text. Also, inline $x = y$.</p>
+  
+      <div id="sample_viz"></div>
+      
+    </section>
+
+    <p>This is some text that needs a citation<sup><a href="#ref1">[1]</a></sup>.</p>
+
+    <div id="reference-list"></div>
+
+  </article>
+
+  </div>
+
+<script>document.addEventListener('DOMContentLoaded', function() {
+  const svg = d3.select('#sample_viz').append('svg')
+      .attr('width', 800)
+      .attr('height', 600);
+
+  // sample bar chart
+  const data = [4, 8, 15, 16, 23, 42];
+  svg.selectAll('rect')
+      .data(data)
+      .enter().append('rect')
+      .attr('x', (d, i) => i * 100)
+      .attr('y', d => 600 - d * 10)
+      .attr('width', 50)
+      .attr('height', d => d * 10)
+      .attr('fill', 'steelblue');
+});
+
+// -------------------------------------------------- References --------------------------------------------------
+const references = [
+  {id: "ref1", author: "Author Name", year: "Year", title: "Title of the Document", publisher: "Publisher", url: "url"},
+  {id: "ref2", author: "Author Name", year: "Year", title: "Title of the Document", publisher: "Publisher", url: "url"}
+  // Add more references as needed
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+  const refList = document.getElementById('reference-list');
+  references.forEach(ref => {
+      const listItem = document.createElement('li');
+      listItem.id = ref.id;
+      listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. ${ref.publisher}. <a href="${ref.url}">link</a>`;
+      refList.appendChild(listItem);
+  });
+});
+</script>
+
+</body>
+
+</html>
