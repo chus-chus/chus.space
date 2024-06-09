@@ -3,24 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Space Model Visualization</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>MathJax Equation Numbers</title>
     <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        tags: 'ams'  // Enables AMS-style equation numbering
+      },
+      options: {
+        renderActions: {
+          addContainer: [151, (doc, math, node) => {
+            const display = (math.root.display === "block");
+            if (display) {
+              const wrapper = MathJax.config.startup.document.createElement('div');
+              wrapper.style.display = "block";
+              wrapper.style.textAlign = "center";
+              wrapper.className = "MathJax_Display";
+              node.parentNode.insertBefore(wrapper, node);
+              wrapper.appendChild(node);
             }
-        };
+          }, '']
+        }
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
+    <p>This is an example of an equation with a number:</p>
+    $$
+    E = mc^2 \label{eq:energy}
+    $$
+    
+    <p>You can reference Equation \ref{eq:energy} anytime in the text.</p>
     <div id="sample_viz"></div>
-    <script src="main.js"></script>
-    <p>The formula for the area of a circle is given by $A = \pi r^2$ where $r$ is the radius.</p>
-    <p>The quadratic formula is displayed as follows:</p>
-    $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
-
 </body>
 </html>
