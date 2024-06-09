@@ -9,7 +9,8 @@
           tex: {
               inlineMath: [['$', '$'], ['\\(', '\\)']],
               displayMath: [['$$', '$$']],
-              tags: 'ams',  // Enables AMS-style numbering
+              packages: ['base', 'ams'],
+              tags: 'ams', // Enables AMS-style numbering
               tagSide: 'right',
               tagIndent: '0.8em'
           },
@@ -17,12 +18,15 @@
               ignoreHtmlClass: 'tex2jax_ignore',
               processHtmlClass: 'tex2jax_process'
           },
-          loader: {
-              load: ['[tex]/ams']
+          startup: {
+              ready: () => {
+                  MathJax.startup.defaultReady();
+                  console.log('MathJax is ready and fully loaded.');
+              }
           }
       };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
