@@ -27,10 +27,10 @@
       };
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <link rel="script" href="main.js">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <div id="sample_viz"></div>
     <p>This is an example of an equation with a number:</p>
 
     \begin{equation}
@@ -40,9 +40,9 @@
 
     \begin{equation*}
       E = mc^2
-      \label{eq:sample}
     \end{equation*}
     
-    <p>You can reference Equation \ref{eq:sample} anytime in the text.</p>
+    <p>You can reference Equation \ref{eq:sample} anytime in the text. Also, inline $x = y$</p>
+    <div id="sample_viz"></div>
 </body>
 </html>
