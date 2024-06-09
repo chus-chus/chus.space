@@ -1,11 +1,26 @@
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Space Model Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div id="sample_viz"></div>
+    <script src="main.js"></script>
+    <p>The formula for the area of a circle is given by $A = \pi r^2$ where $r$ is the radius.</p>
+    <p>The quadratic formula is displayed as follows:</p>
+    $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
 
+</body>
+</html>
