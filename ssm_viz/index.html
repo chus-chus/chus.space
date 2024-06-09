@@ -6,28 +6,27 @@
     <title>MathJax Equation Numbers</title>
     <script>
       window.MathJax = {
-        loader: {load: ['[tex]/ams']},
-        tex: {
-          packages: {'[+]': ['ams']},
-          inlineMath: [['$', '$'], ['\\(', '\\)']],
-          displayMath: [['$$', '$$'], ['\\[', '\\]']],
-          tags: 'ams', // Enables AMS-style equation numbering
-          tagSide: 'right', // Position of equation numbers
-          tagIndent: '0.8em' // Indentation of equation numbers
-        },
-        options: {
-          ignoreHtmlClass: 'tex2jax_ignore|dno',
-          processHtmlClass: 'tex2jax_process'
-        },
-        svg: {
-          fontCache: 'global'
-        }
+          tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$']],
+              tags: 'ams',  // Enables AMS-style numbering
+              tagSide: 'right',
+              tagIndent: '0.8em'
+          },
+          options: {
+              ignoreHtmlClass: 'tex2jax_ignore',
+              processHtmlClass: 'tex2jax_process'
+          },
+          loader: {
+              load: ['[tex]/ams']
+          }
       };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
+    <div id="sample_viz"></div>
     <p>This is an example of an equation with a number:</p>
 
     $$
@@ -35,6 +34,5 @@
     $$
     
     <p>You can reference Equation \ref{eq:energy} anytime in the text.</p>
-    <div id="sample_viz"></div>
 </body>
 </html>
