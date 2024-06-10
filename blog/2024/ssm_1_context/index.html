@@ -126,32 +126,135 @@
 
     
     
-    <section id="The importance of State Space Models">
-      <h2>The importance of State Space Models</h2>
+    <section id="State Space Models of today">
+      <h2>State Space Models of today</h2>
 
+      <p>The Transformer (the architecture) supremacy has been active for quite a few years now, and the ML discourse is mainly still centered around them. 
+        Many variations, tricks and hacks have been added on top of the original model, but the core mechanics stay the same: attention. Attention has allowed Transformers
+      to stay as the state of the art in many tasks (mainly related to language). Of course, the Transformer is not the only architecture that is of use today, because 
+      in some domains it's not quite. Still, it's dominance is clear! </p>
+
+      <p> But yes, other areas are also actively innovating. MLPs, CNNs, RNNs and other arquitectures are constantly "receiving" updates, but can't really catch up. 
+        Researchers are trying to come up with architectures that can support our views on how the future of AI will look like. One of them, State Space Models, has been
+        stirring up some attention by the community; two of the proponents, Tri Dao and Albert Gu, are making some strong points.</p>
+
+      TODO insert grafico con nuevas arquitecturas e innovaciones presentadas a lo largo del tiempo.
+
+      <p>Before jumping to what they are and how they work, are SSMs currently competitive? </p>
+
+      <h3>SSMs vs the world</h3>
+
+      <p>There are many tasks agains which models are evaluated, and many metrics to perform those evaluations. But we can take a look at the most popular ones.
+        How does the performance of the SSM stack against the state of the art? (TODO add note: Mamba 2 has been recently presented, but it does not add performance).
+      </p>
+
+      TODO BLABLA
+      TODO graficos con comparaciones en performance. 
+
+      <p>On top of their task performance, SSMs have properties that make them appealing. Among others, linear scaling in memory and compute [TODO DOUBLE CHECK]. 
+      This makes them look promising, yes, but we need to approach this critically and judge for ourselves. To this end, let's go back to the fundamentals.
+      </p>
+    </section>
+
+    <section id="State Space Models of yesterday">
+      <h2>State Space Models of yesterday</h2>
+
+      <p>SSMs are not actually recent, they actually go back all they way to the mid 20-th century. 
+        In the 1960’s, Wiener’s and Kalman’s work on control theory introduced the concept of SSM for modeling linear systems. 
+        And while SSMs started being used in many fields such as computational neuroscience, researchers were only able to 
+        incorporate them effectively into deep learning until very recently for theoretical reasons. </p>
+      <p>In 2020, because Transformers could not model long sequence data <span class="italic">efficiently</span> and in the search of alternatives, the 
+        Long-Range Arena benchmark was presented. It focused on evaluating model quality under long context scenarios: data 
+        with Long Range Dependencies (LRD). In the paper, the authors found that for modeling that kind of data, it was hard 
+        to do better than vanilla Transformers.</p>
+      <p>The next year, Albert Gu and others showed that although vanilla SSM blocks could be used in conjuntion with other deep 
+        learning techniques, they struggled to efficiently model LRD data. But, in the following years, the theoretical framework was 
+        improved drastically with techniques and ideas that we will explore in the next posts. Before going into that, though, 
+        what <span class="italic">are</span> SSMs?</p>
+
+      <h3>The State Space Model</h3>
+
+      <p>The idea of the SSM is the following: model each step in a sequence given its respective input and information about the previous state of the sequence.
+        In particular, given an instant $t$ and an input signal $x(t)$, an SSM maps it to an output $y(t)$ of the same dimension while keeping track of a state representation $h(t)$:
+      </p>
+
+      \begin{equation}
+        h'(t) = \textbf{A} h(t) + \textbf{B} x(t)
+      \label{eq:ssm}
+      \end{equation}
+
+      \begin{equation*}
+        y(t) = \textbf{C}h(t) + \textbf{D}x(t)
+      \end{equation*}
+
+      <p>Where $\textbf{A}, \textbf{B}, \textbf{C}$ and $\textbf{D}$ are weight matrices. Usually, the term $\textbf{D}x(t)$ is not written down, because it can be equated to a skip
+        connection and can be considered as not part of the SSM. We will assume this from now on. </p>
       
+      <p>Equation \ref{eq:ssm} basically defines two things:
+        <ol>
+        <li>how the hidden state changes with respect to the current input and hidden state (the state representation) values. </li>
+        <li>how the output depends on the hidden state. </li>
+        </ol>
       
+      Graphically:
+
+      TODO GRAFICO SSM
+
+      TODO comentarios sobre grafico
+      </p>
+
+      <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
+        SSMs to work with sequences like their colleagues, this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions
+      cannot be differentiated, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
+
+    </section>
+
+    <section id="Discretized State Space Models">
+      <h2>Discretized State Space Models</h2>
+
+      The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval 
+      $\Delta $ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$. 
+
+      <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But of course, because the SSM cannot work
+        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the TODO PONER BIEN zero order holdout. 
+
+        TODO grafico de discretización de una señal con zero order holdout. 
+      </p>
+
+      <p> Now, because the results are not trivial, I won't go into details about why the discretized expression is like it is. In the case of using the zero-order holdout technique, the
+        discretized SSM now is the following:
+
+        TODO discretized expression.
+
+        Now, the SSM can naturally work with sequence data.
+        
+        <p>Note that the continous representation of A, B, etc from equation \ref{eq:ssm} is what is actually learned, and is later discretized. Recent works (2023) have proposed 
+          that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series.</p>
+      </p>
+
+    </section>
+
+    <section id="A mechanical example">
+      <h2>A mechanical example</h2>
+
+      Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post TODO CITE ilustrated s4. 
+
+      TODO mechanical example.
+    </section>
+
+    <section id="Next up">
+      <h2>Next up</h2>
+
+      We know their context, what they are and how they work.
+      In the next <a href="../ssm_2_discretization/index.html">post</a>, we are going to see how SSMs were incorporated into neural networks and made effective via some cool
+      mathematical properties.
     </section>
 
     <section id="test">
       <h2>test</h2>
-      <p>This is an example of an equation with a number:</p>
-
-      \begin{equation}
-        E = mc^2
-        \label{eq:sample}
-      \end{equation}
-  
-      \begin{equation*}
-        E = mc^2
-      \end{equation*}
-      
-      <p>You can reference Equation \ref{eq:sample} anytime in the text. Also, inline $x = y$.</p>
   
       <div id="sample_viz"></div>
     </section>
-
-    <p>This is some text that needs a citation<sup><a href="#ref1">[1]</a></sup>.</p>
 
     <div id="reference-list"></div>
 
