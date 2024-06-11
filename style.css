@@ -237,6 +237,7 @@ a:hover {
 
 .content-container.entry section {
     margin-bottom: 20px;
+    text-align: justify;
 }
 
 .fas.fa-link {

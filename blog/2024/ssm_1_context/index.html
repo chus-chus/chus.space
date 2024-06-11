@@ -45,12 +45,6 @@
           options: {
               ignoreHtmlClass: 'tex2jax_ignore',
               processHtmlClass: 'tex2jax_process'
-          },
-          startup: {
-              ready: () => {
-                  MathJax.startup.defaultReady();
-                  console.log('MathJax is ready and fully loaded.');
-              }
           }
       };
   </script>
@@ -58,7 +52,7 @@
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
-  <script src="../../../ssm_source.js"></script>
+  <script src="../../../src/ssm_source.js"></script>
 </head>
 
 <body>
@@ -175,21 +169,19 @@
       <h3>The State Space Model</h3>
 
       <p>The idea of the SSM is the following: model each step in a sequence given its respective input and information about the previous state of the sequence.
-        In particular, given an instant $t$ and an input signal $x(t)$, an SSM maps it to an output $y(t)$ of the same dimension while keeping track of a state representation $h(t)$:
+        In particular, given a instant $t$ and an input signal $x(t)$, an SSM maps it to an output $y(t)$ while keeping track of a state representation $h(t)$:
       </p>
 
-      \begin{equation}
-        h'(t) = \textbf{A} h(t) + \textbf{B} x(t)
-      \label{eq:ssm}
-      \end{equation}
+      $$
+      \begin{align}
+        h'(t) &= \mathbf{A} h(t) + \mathbf{B} x(t) \label{eq:ssm} \\
+        y(t) &= \mathbf{C}h(t) + \mathbf{D}x(t) \nonumber
+      \end{align}
+      $$
 
-      \begin{equation*}
-        y(t) = \textbf{C}h(t) + \textbf{D}x(t)
-      \end{equation*}
+      <p>Where $\mathbf{A}, \mathbf{B}, \mathbf{C}$ and $\mathbf{D}$ are weight matrices. Usually, the term $\mathbf{D}x(t)$ is not taken into account, 
+        because it can be equated to a skip connection and does not interact with the hidden state. We will assume this from now on. </p>
 
-      <p>Where $\textbf{A}, \textbf{B}, \textbf{C}$ and $\textbf{D}$ are weight matrices. Usually, the term $\textbf{D}x(t)$ is not written down, because it can be equated to a skip
-        connection and can be considered as not part of the SSM. We will assume this from now on. </p>
-      
       <p>Equation \ref{eq:ssm} basically defines two things:
         <ol>
         <li>how the hidden state changes with respect to the current input and hidden state (the state representation) values. </li>
@@ -201,6 +193,17 @@
       TODO GRAFICO SSM
 
       TODO comentarios sobre grafico
+
+      <p>A few notes about the components:
+        <ul>
+          <li>$\mathbf{A}$ defines how the previous hidden state influences the change of state. </li>
+          <li>$\mathbf{B}$ defines how the input influences the change of state. </li>
+          <li>$\mathbf{C}$ defines how the output depends on the hidden state. </li>
+        </ul>
+      </p>
+
+      TODO GRAFICAMENTE
+      
       </p>
 
       <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
@@ -213,50 +216,120 @@
       <h2>Discretized State Space Models</h2>
 
       The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval 
-      $\Delta $ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$. 
+      $\Delta $ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.
 
-      <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But of course, because the SSM cannot work
+      TODO grafico de discretización de una señal.
+
+      <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
         with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the TODO PONER BIEN zero order holdout. 
 
         TODO grafico de discretización de una señal con zero order holdout. 
       </p>
 
-      <p> Now, because the results are not trivial, I won't go into details about why the discretized expression is like it is. In the case of using the zero-order holdout technique, the
-        discretized SSM now is the following:
+      <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
+        and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order holdout). So, 
 
-        TODO discretized expression.
-
-        Now, the SSM can naturally work with sequence data.
-        
-        <p>Note that the continous representation of A, B, etc from equation \ref{eq:ssm} is what is actually learned, and is later discretized. Recent works (2023) have proposed 
-          that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series.</p>
+        $$
+        \begin{align}
+        \bar{\mathbf{A}} &= f_A(\Delta, \mathbf{A}) \nonumber \\
+        \bar{\mathbf{B}} &= f_B(\Delta, \mathbf{A}, \mathbf{B}) \nonumber \\
+        \end{align}
+        $$
       </p>
+
+      <p> Matrix $\mathbf{C}$ is not discretized because it only depends on $h(t)$, which in turn depends on the discretized matrices $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$.
+        Now, because the results are not trivial, I won't go into details about why the discretized expression is like it is. I'm presenting these formulas only because you might happen
+        to see them in other posts. In the case of $f$ being zero-order holdout, the discretized parameters can be computed as:
+
+        $$
+        \begin{align}
+          \bar{\mathbf{A}} &= e^{\Delta\mathbf{A}} \nonumber \\
+          \bar{\mathbf{B}} &= (\Delta \mathbf{A})^{-1} (e^{\Delta\mathbf{A}}-\mathbf{I}) \cdot \Delta \mathbf{B} \nonumber
+        \end{align}
+        $$
+
+        The SSM can naturally work with sequence data! A large $\Delta$ will make the model take more into account the current input The discretized version of the SSM is:
+
+        $$
+        \begin{align}
+         h_t &= \bar{\mathbf{A}} h_{t-1} + \bar{\mathbf{B}} x_t \label{eq:ssm_dis} \\
+         y_t &= \bar{\mathbf{C}} h_t \nonumber
+        \end{align}
+        $$
+
+      </p>
+        
+      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continous representation of A, B, etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed 
+        that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series. </p>
+
+      <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, a discretization of the first 
+        two, $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
+        formula $\ref{eq:ssm_dis}$.</p>
+
+        TODO grafico de como primero se coge la representation continua, luego se discretiza, y con eso se manda la señal, obteniendo secuencia de salida y.
 
     </section>
 
     <section id="A mechanical example">
       <h2>A mechanical example</h2>
 
-      Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post TODO CITE ilustrated s4. 
+      <p>Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post TODO CITE ilustrated s4. </p>
 
-      TODO mechanical example.
+      <p>Imagine we have a spring attached to a wall and supported by a horizontal surface. At the end of the spring there is a mass $m$ attached, like a weight. 
+        Over time ($t$) we pull on the mass with a force $u(t)$, making the spring bounce back and forth, dependent on its stiffness $k$ and the friction $b$. 
+        We constantly measure the position of the mass $y(t)$. </p>
+
+      TODO diagrama del problema.
+
+      <p>In order to model this system, we start from how we know that force is mass times acceleration. In a differential equation, this is:</p>
+
+      \begin{equation}
+      u(t) - b\cdot y'(t) - k\cdot y(t) = m\cdot y''(t)
+      \label{eq:mechanics_diff}
+      \end{equation}
+
+      <p>That is, the friction $b$ impacts speed and the stiffness $k$ impacts position, all subtracting from the force we apply. All that is equal to the mass of the weight
+       times its acceleration. </p>
+       <p>We can express the system like an SSM: the rates of change of the system (speed and acceleration) are presented in equation
+       $\ref{eq:ssm}$ as $h'(t)$, meaning that the hidden state $h(t)$ is actually just the position and speed. 
+       We also know that the input of the system is its current position, and the output is its next position. So, we just arrange the parameters:</p>
+
+      $$
+      \begin{align}
+      A &= \begin{bmatrix}
+      0 & 1 \\
+      -\frac{k}{m} & -\frac{b}{m}
+      \end{bmatrix} \nonumber \\
+
+      B &= \begin{bmatrix}
+      0 \\
+      \frac{1}{m}
+      \end{bmatrix} \nonumber \\
+
+      C &= \begin{bmatrix}
+      1 & 0
+      \end{bmatrix} \nonumber
+      \end{align} 
+      $$
+
+      <p>And there you have it. If we discretize the system as explained before, we can simulate it as an SMM. </p>
+
+      TODO mechanical simulation.
+
     </section>
 
     <section id="Next up">
       <h2>Next up</h2>
 
       We know their context, what they are and how they work.
-      In the next <a href="../ssm_2_discretization/index.html">post</a>, we are going to see how SSMs were incorporated into neural networks and made effective via some cool
-      mathematical properties.
-    </section>
+      In the next <a href="../ssm_2_discretization/index.html">post</a>, we are going to see how SSMs were incorporated into 
+      neural networks and made effective via some cool math trickery.
 
-    <section id="test">
-      <h2>test</h2>
-  
       <div id="sample_viz"></div>
-    </section>
 
-    <div id="reference-list"></div>
+      <div id="reference-list"></div>
+
+    </section>
 
   </article>
 

@@ -45,12 +45,6 @@
           options: {
               ignoreHtmlClass: 'tex2jax_ignore',
               processHtmlClass: 'tex2jax_process'
-          },
-          startup: {
-              ready: () => {
-                  MathJax.startup.defaultReady();
-                  console.log('MathJax is ready and fully loaded.');
-              }
           }
       };
   </script>
@@ -99,89 +93,30 @@
         </div>
         <hr>
     </div>
-
-    <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
-      In the series, we will cover how SSMs work, how they became competitive with the state-of-the-art, all up to the most recent advances mainly through a visualization and exploration lens.</p>
-
-    <ul>
-      <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
-        <ul>We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
-      </li>
-      
-      <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM networks and Structured State Spaces</a></span>
-        <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
-      </li>
-      <li><span class="bold">Part 3: Selective State Spaces (Mamba)</span>
-        <ul>We present Selective State Spaces, which added to SSMs the capacity of focusing on different parts of the input (yes, like attention).</ul>
-      </li>
-      <li><span class="bold"><a href="../ssm_4_duality/index.html">Part 4: State Space Duality (Mamba 2)</a></span>
-        <ul>What's the relationship between SSMs and the attention mechanism? They are actually the same! What does this imply?</ul>
-      </li>
-    </ul>
     
-    <section id="What the series will cover">
-      <h2>What the series will cover</h2>
-
-
-      <p>This is an example of an equation with a number:</p>
-
-      \begin{equation}
-        E = mc^2
-        \label{eq:sample}
-      \end{equation}
-  
-      \begin{equation*}
-        E = mc^2
-      \end{equation*}
-      
-      <p>You can reference Equation \ref{eq:sample} anytime in the text. Also, inline $x = y$.</p>
-  
-      <div id="sample_viz"></div>
+    <section id="Intro">
+      <h2>Intro</h2>
+      <ul>
+        <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
+          <ul>We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
+        </li>
+        
+        <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM networks and Structured State Spaces</a></span>
+          <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
+        </li>
+        <li><span class="bold">Part 3: Selective State Spaces (Mamba)</span>
+          <ul>We present Selective State Spaces, which added to SSMs the capacity of focusing on different parts of the input (yes, like attention).</ul>
+        </li>
+        <li><span class="bold"><a href="../ssm_4_duality/index.html">Part 4: State Space Duality (Mamba 2)</a></span>
+          <ul>What's the relationship between SSMs and the attention mechanism? They are actually the same! What does this imply?</ul>
+        </li>
+      </ul>
       
     </section>
-
-    <p>This is some text that needs a citation<sup><a href="#ref1">[1]</a></sup>.</p>
-
-    <div id="reference-list"></div>
 
   </article>
 
   </div>
-
-<script>document.addEventListener('DOMContentLoaded', function() {
-  const svg = d3.select('#sample_viz').append('svg')
-      .attr('width', 800)
-      .attr('height', 600);
-
-  // sample bar chart
-  const data = [4, 8, 15, 16, 23, 42];
-  svg.selectAll('rect')
-      .data(data)
-      .enter().append('rect')
-      .attr('x', (d, i) => i * 100)
-      .attr('y', d => 600 - d * 10)
-      .attr('width', 50)
-      .attr('height', d => d * 10)
-      .attr('fill', 'steelblue');
-});
-
-// -------------------------------------------------- References --------------------------------------------------
-const references = [
-  {id: "ref1", author: "Author Name", year: "Year", title: "Title of the Document", publisher: "Publisher", url: "url"},
-  {id: "ref2", author: "Author Name", year: "Year", title: "Title of the Document", publisher: "Publisher", url: "url"}
-  // Add more references as needed
-];
-
-document.addEventListener('DOMContentLoaded', function() {
-  const refList = document.getElementById('reference-list');
-  references.forEach(ref => {
-      const listItem = document.createElement('li');
-      listItem.id = ref.id;
-      listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. ${ref.publisher}. <a href="${ref.url}">link</a>`;
-      refList.appendChild(listItem);
-  });
-});
-</script>
 
 </body>
 
