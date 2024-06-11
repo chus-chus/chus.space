@@ -180,7 +180,8 @@
       $$
 
       <p>Where $\mathbf{A}, \mathbf{B}, \mathbf{C}$ and $\mathbf{D}$ are weight matrices. Usually, the term $\mathbf{D}x(t)$ is not taken into account, 
-        because it can be equated to a skip connection and does not interact with the hidden state. We will assume this from now on. </p>
+        because it can be equated to a skip connection and does not interact with the hidden state. We will assume this from now on. 
+      Also, we won't talk about dimensions in this post; they will be formalized in the second one.</p>
 
       <p>Equation \ref{eq:ssm} basically defines two things:
         <ol>
@@ -233,6 +234,7 @@
         \begin{align}
         \bar{\mathbf{A}} &= f_A(\Delta, \mathbf{A}) \nonumber \\
         \bar{\mathbf{B}} &= f_B(\Delta, \mathbf{A}, \mathbf{B}) \nonumber \\
+        \bar{\mathbf{C}} &= C \nonumber
         \end{align}
         $$
       </p>
@@ -259,11 +261,12 @@
 
       </p>
         
-      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continous representation of A, B, etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed 
+      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continous representation of A, B, 
+        etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed 
         that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series. </p>
 
-      <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, a discretization of the first 
-        two, $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
+      <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, their discrete versions
+        $\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$ and $\bar{\mathbf{C}}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
         formula $\ref{eq:ssm_dis}$.</p>
 
         TODO grafico de como primero se coge la representation continua, luego se discretiza, y con eso se manda la señal, obteniendo secuencia de salida y.
