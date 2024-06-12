@@ -337,14 +337,15 @@
 
       <p>If we look at equation $\ref{eq:conv_filter}$, we notice how not only there is lots of parameters to store, but also how we need to compute powers of $\mathbf{A}$. This is a red flag. 
       Motivated by the properties of diagonalizable matrices, S4 finds a way to represent the HiPPO matrix $\mathbf{A}$ so that the filter $\bar{\mathbf{K}}$ can be computed fast, and with less memory.
-      In the end (and after a lot of math), they end up having decomposed $\mathbf{A}$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
+      In the end (and after a lot of math), they end up decomposing $\mathbf{A} = \mathbf{\Lambda} - \mathbf{P} \mathbf{Q}^*$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
       a HiPPO matrix. Overall, then, now we can say that $\mathbf{A} \in \mathbb{R}^{N}$. Now only that, it's powers can be computed very fast and the prohibitive costs for computing the 
       convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing! (TODO cite)</p>
 
       todo idk que visualizacion auu...
 
-      <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by a few other parameters). Updating how the filter $\bar{\mathbf{K}}$
-        is computed is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
+      <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by $\mathbf{\Lambda}$, $\mathbf{P}$ and $\mathbf{Q}$). 
+        Updating how the filter $\bar{\mathbf{K}}$
+        is computed (not trivial, todo cite S4 paper) is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
     </section>
 
     <section id="Next up">
