@@ -96,9 +96,11 @@
 
     <section id="Intro">
       <h2>Intro</h2>
-      <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
+      <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic I decided to explore State Space Models (SSMs) in depth. 
         In the series, we will cover how SSMs work, how they became competitive with the state-of-the-art, all up to the most recent advances mainly through a visualization and exploration lens.</p>
-      <p>I have tried to make the content engaging but through. If you have any questions or suggestions, please let me know!</p>
+      <p>I have organised into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I also have tried to keep as 
+        TODO stable???? stable a structure as possible, 
+        given that notation and ways of presenting the material have been changing through the years. If you have any questions, suggestions, or corrections, please let me know!</p>
   
       <p>The series is divided into these parts:</p>
         <ul>
@@ -217,7 +219,7 @@
       <h2>Discretized State Space Models</h2>
 
       The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval 
-      $\Delta $ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.
+      $\Delta$ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.
 
       TODO grafico de discretización de una señal.
 
@@ -234,7 +236,7 @@
         \begin{align}
         \bar{\mathbf{A}} &= f_A(\Delta, \mathbf{A}) \nonumber \\
         \bar{\mathbf{B}} &= f_B(\Delta, \mathbf{A}, \mathbf{B}) \nonumber \\
-        \bar{\mathbf{C}} &= C \nonumber
+        \bar{\mathbf{C}} &= \mathbf{C} \nonumber
         \end{align}
         $$
       </p>
@@ -245,7 +247,7 @@
 
         $$
         \begin{align}
-          \bar{\mathbf{A}} &= e^{\Delta\mathbf{A}} \nonumber \\
+          \bar{\mathbf{A}} &= e^{\Delta \mathbf{A}} \nonumber \\
           \bar{\mathbf{B}} &= (\Delta \mathbf{A})^{-1} (e^{\Delta\mathbf{A}}-\mathbf{I}) \cdot \Delta \mathbf{B} \nonumber
         \end{align}
         $$
