@@ -1,8 +1,11 @@
+const widthSSM19 = 700;
+const heightSSM19 = 250;
+
 // Create input elements for k, b, and m with sliders
 var inputData = [
-    {label: 'k', value: 50, step: 1, min: 10, max: 100},
-    {label: 'b', value: 3, step: 0.1, min: 0.5, max: 10},
-    {label: 'm', value: 1, step: 0.1, min: 0.1, max: 10}
+    {label: 'k', value: 5, step: 1, min: 1, max: 10},
+    {label: 'b', value: 3, step: 1, min: 1, max: 15},
+    {label: 'm', value: 5, step: 1, min: 5, max: 20}
 ];
 
 d3.select('#ssm_1_viz_9').append('div')
@@ -39,6 +42,26 @@ function getSimulationParameters() {
     return { k, b, m };
 }
 
+// get the x position of the weight rectangle
+function getRectangleXPosition() {
+    const rect = d3.select("#weightRect");
+    const x = parseFloat(rect.attr("x"));
+    return x - widthSSM19 / 10;
+}
+
+function getRectangleNormalizedXPosition() {
+    pos = getRectangleXPosition();
+    return pos / ((widthSSM19 / 2 + widthSSM19 / 10) - (widthSSM19 / 2 - (widthSSM19 / 10) * 4));
+}
+
+function getForceApplied() {
+    var pos = getRectangleNormalizedXPosition();
+    if (pos > 0.5) {
+        return 4**(pos - 0.5) - 1;
+    } else {
+        return 4**(-pos + 0.5) - 1;
+    }
+}
 
 // Create the simulation
 createSimulation_1_9();
@@ -49,12 +72,13 @@ function createSimulation_1_9() {
 
     var weightWidth = width / 10;
     var weightHeight = width / 10;
-    var weidthStartX = width / 2 - weightWidth / 2;
-    var weidthStartY = height - weightWidth * 1.5;
 
     // Define the left and right limits for the input weight
     var leftDragLimit = width / 2 - weightWidth * 4;
     var rightDragLimit = width / 2 + weightWidth;
+
+    var weidthStartX = width / 2 - weightWidth / 2;
+    var weidthStartY = height - weightWidth * 1.5;
 
     const simCanvas = d3.select('#ssm_1_viz_9').append('svg')
         .attr('width', width)
@@ -68,6 +92,7 @@ function createSimulation_1_9() {
 
     // Append weight to the canvas
     var weight = simCanvas.append("rect")
+        .attr("id", "weightRect")
         .attr("x", weidthStartX)
         .attr("y", weidthStartY)
         .attr("width", weightWidth)
@@ -82,6 +107,7 @@ function createSimulation_1_9() {
 
     // Append the "spring" to the canvas
     var spring = simCanvas.append("line")
+        .attr("id", "spring")
         .attr("x1", leftDragLimit)
         .attr("y1", weidthStartY + weightHeight / 2)
         .attr("x2", weidthStartX)
@@ -110,13 +136,49 @@ function createSimulation_1_9() {
         // Update the spring position
         spring.attr("x2", newX + weightWidth / 2);
 
-        // Get the current simulation parameters
-        var params = getSimulationParameters();
-        console.log('Current simulation parameters:', params);
-        // Use params.k, params.b, params.m in your simulation as needed
+        var forceApplied = getForceApplied();
+        console.log('Current force applied:', forceApplied);
     }
 
     function dragEnded(event, d) {
         d3.select(this).attr("stroke", "black").attr("fill", "black");
+        startAnimation();
     }
+
+        // Function to start the animation
+    function startAnimation() {
+        var params = getSimulationParameters();
+        const force = getForceApplied();
+        const weight = d3.select("#weightRect");
+        const spring = d3.select("#spring");
+
+        let velocity = 0;
+        let position = parseFloat(weight.attr("x"));
+
+        function animate() {
+            const acceleration = force / params.m;
+            velocity += acceleration;
+            position += velocity;
+
+            // Apply damping
+            velocity *= (1 - params.b / 100);
+
+            // Apply spring force
+            const springForce = -params.k * (position - weidthStartX);
+            velocity += springForce / params.m;
+
+            position = Math.max(leftDragLimit, Math.min(position - weightWidth, rightDragLimit));
+
+            weight.attr("x", position);
+            spring.attr("x2", position);
+
+            if (Math.abs(velocity) > 0.001) {
+                params = getSimulationParameters();
+                requestAnimationFrame(animate);
+            }
+        }
+
+        animate();
+    }
+
 }
