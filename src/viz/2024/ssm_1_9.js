@@ -156,7 +156,16 @@ function createSimulation_1_9() {
         .attr("x1", leftDragLimit)
         .attr("y1", weightStartY)
         .attr("x2", leftDragLimit)
-        .attr("y2", weightStartY + weightHeight)
+        .attr("y2", weightStartY + weightHeight + 4)
+        .attr("stroke", "gray")
+        .attr("stroke-width", 6);
+
+    // Append bottom limit line
+    simCanvas.append("line")
+        .attr("x1", leftDragLimit - 3)
+        .attr("y1", weightStartY + weightHeight + 4)
+        .attr("x2", rightDragLimit + weightWidth)
+        .attr("y2", weightStartY + weightHeight + 4)
         .attr("stroke", "gray")
         .attr("stroke-width", 6);
 
