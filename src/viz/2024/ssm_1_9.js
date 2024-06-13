@@ -3,8 +3,8 @@ const heightSSM19 = 300;
 
 // Create input elements for k, b, and m with sliders
 var inputData = [
-    {label: 'k', value: 1, step: 1, min: 1, max: 10},
-    {label: 'b', value: 1, step: 1, min: 1, max: 15},
+    {label: 'k', value: 8, step: 1, min: 1, max: 10},
+    {label: 'b', value: 5, step: 1, min: 1, max: 15},
     {label: 'm', value: 1, step: 1, min: 1, max: 5}
 ];
 
