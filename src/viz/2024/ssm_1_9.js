@@ -163,12 +163,6 @@ function createSimulation_1_9() {
         // Update spring position too
         spring.attr("x2", newX + weightWidth / 2);
 
-        // print force applied
-        console.log('Force applied:', getForceApplied());
-
-        // print weight position
-        console.log('Weight position:', getRectangleNormalizedXPosition());
-
         updateForceValue(getForceApplied());
     }
 
