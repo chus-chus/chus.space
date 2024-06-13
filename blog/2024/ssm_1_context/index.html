@@ -53,6 +53,7 @@
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
   <script src="../../../src/ssm_source.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/dist/plot.umd.min.js"></script>
 </head>
 
 <body>
@@ -225,7 +226,7 @@
       </div>
       <p class="plot-caption">Figure 1.4: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which
         processes it and outputs a value (a prediction of the next input, in this case). The state $h$ is updated at every step. Values of parameters and hidden
-        state have been omitted.
+        state, as well as $\mathbf{D}$, are omitted.
       </p>
 
       <p style="margin-bottom: 1cm;"></p>
@@ -238,12 +239,24 @@
       <p>The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval 
         $\Delta$ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.</p>
 
-      TODO viz 1.5. grafico de discretización de una señal.
+        <div class="plot-container">
+          <div class="plot-background-1" id="ssm_1_viz_5">
+          <img src="../../../static/2024/ssm_1_5.png" alt="Discretization of a signal" width="400" height="155">
+        </div>
+        </div>
+        <p class="plot-caption">Figure 1.5: a continous signal (left), and it's sampled (discretized) version (right).</p>
+        </p>
 
       <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
-        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the TODO PONER BIEN zero order holdout. </p>
+        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the TODO PONER BIEN zero-order holdout. </p>
 
-        TODO viz 1.6 grafico de continuificacion de una señal con zero order holdout. 
+        <div class="plot-container">
+          <div class="plot-background-1" id="ssm_1_viz_6">
+          <img src="../../../static/2024/ssm_1_6.png" alt="Discretization of a signal" width="400" height="155">
+        </div>
+        </div>
+        <p class="plot-caption">Figure 1.6: a discrete signal (left), and it's transformation with zero-order holdout (right). We have, again, a continuous signal (black trace).</p>
+        </p> 
       
       <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
         and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order holdout). So, 
@@ -300,7 +313,12 @@
         Over time ($t$) we pull on the mass with a force $u(t)$, making the spring bounce back and forth, dependent on its stiffness $k$ and the friction $b$. 
         We constantly measure the position of the mass $y(t)$. </p>
 
-      TODO viz 1.8.
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_1_viz_8">
+          <img src="../../../static/2024/ssm_1_8.png" alt="The mechanical problem" width="300" height="210">
+        </div>
+      </div>
+      <p class="plot-caption" style="font-size: 0.7em;">Figure 1.8: The mechanical problem. A force is applied to a weight, which is attached to a spring, which stretches.</p>
 
       <p>In order to model this system, we start from how we know that force is mass times acceleration. In a differential equation, this is:</p>
 
