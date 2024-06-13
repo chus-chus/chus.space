@@ -252,7 +252,7 @@
 
         <div class="plot-container">
           <div class="plot-background-1" id="ssm_1_viz_6">
-          <img src="../../../static/2024/ssm_1_6.png" alt="Discretization of a signal" width="400" height="155">
+          <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order holdout to a signal" width="400" height="155">
         </div>
         </div>
         <p class="plot-caption">Figure 1.6: a discrete signal (left), and it's transformation with zero-order holdout (right). We have, again, a continuous signal (black trace).</p>
@@ -297,10 +297,16 @@
         that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series. </p>
 
       <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, their discrete versions
-        $\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$ and $\bar{\mathbf{C}}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
+        $\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$ and $\bar{\mathbf{C}} = \mathbf{C}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
         formula $\ref{eq:ssm_dis}$.</p>
 
-        TODO viz 1.7. pipeline de SSM discretizada
+        <div class="plot-container">
+          <div class="plot-background-1" id="ssm_1_viz_7">
+          <img src="../../../static/2024/ssm_1_7.png" alt="General view of an SSM" width="500" height="313">
+        </div>
+        </div>
+        <p class="plot-caption">Figure 1.7: discrete-time SSM.</p>
+        </p> 
 
     </section>
 
