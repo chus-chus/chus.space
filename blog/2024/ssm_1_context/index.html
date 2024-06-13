@@ -53,7 +53,6 @@
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
   <script src="../../../src/ssm_source.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/dist/plot.umd.min.js"></script>
 </head>
 
 <body>
@@ -337,7 +336,7 @@
        times its acceleration. </p>
        <p>We can express the system like an SSM: the rates of change of the system (speed and acceleration) are presented in equation
        $\ref{eq:ssm}$ as $h'(t)$, meaning that the hidden state $h(t)$ is actually just the position and speed. 
-       We also know that the input of the system is its current position, and the output is its next position. So, we just arrange the parameters:</p>
+       We also know that the input of the system is the force that its being applied, and the output is its position. So, we just arrange the parameters:</p>
 
       $$
       \begin{align}
@@ -359,7 +358,17 @@
 
       <p>And there you have it. If we discretize the system as explained before, we can simulate it as an SMM. </p>
 
-      TODO viz 1.9. simulación inteeractiva del problema y su SSM
+      <p style="margin-bottom: 1cm;"></p>
+
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_1_viz_9"></div>
+        <script src="../../../src/viz/2024/ssm_1_9.js"></script>
+      </div>
+      <p class="plot-caption">Figure 1.9: interact with the mechanical problem! Grab the weight, pull it, and let go, and inspect the changing values.
+        Under the hood, an SSM just like the one presented in the post is running. </p>
+      </p>
+
+      <p style="margin-bottom: 1cm;"></p>
 
     </section>
 
@@ -379,22 +388,7 @@
 
   </div>
 
-<script>document.addEventListener('DOMContentLoaded', function() {
-  const svg = d3.select('#sample_viz').append('svg')
-      .attr('width', 800)
-      .attr('height', 600);
-
-  // sample bar chart
-  const data = [4, 8, 15, 16, 23, 42];
-  svg.selectAll('rect')
-      .data(data)
-      .enter().append('rect')
-      .attr('x', (d, i) => i * 100)
-      .attr('y', d => 600 - d * 10)
-      .attr('width', 50)
-      .attr('height', d => d * 10)
-      .attr('fill', 'steelblue');
-});
+<script>
 
 // -------------------------------------------------- References --------------------------------------------------
 const references = [
