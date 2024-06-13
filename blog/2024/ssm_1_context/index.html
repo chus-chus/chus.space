@@ -212,6 +212,10 @@
           <li>$\mathbf{C}$ defines how the output depends on the hidden state. </li>
         </ul>
       </p>
+      
+      <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
+        SSMs to work with sequences like their colleagues (and as in the next visualization), this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions
+      cannot be differentiated, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
 
       <p style="margin-bottom: 1cm;"></p>
 
@@ -225,10 +229,6 @@
       </p>
 
       <p style="margin-bottom: 1cm;"></p>
-      
-      <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
-        SSMs to work with sequences like their colleagues (and as in the previous visualization), this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions
-      cannot be differentiated, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
 
     </section>
 

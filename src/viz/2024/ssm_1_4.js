@@ -968,6 +968,35 @@ function createMainView() {
         .attr('width', width)
         .attr('height', height);
 
+    // arrow indicating time flow (y is fixed)
+    let arrowStart = 5;
+    let arrowEnd = width / 3;
+
+    svg.append("line")
+        .attr("x1", arrowStart)
+        .attr("y1", height - 6)
+        .attr("x2", arrowEnd)
+        .attr("y2", height - 6)
+        .attr("stroke", "gray")
+        .attr("stroke-width", 1);
+
+        svg.append("path")
+        .attr("d", `M${arrowEnd},${height - 10} L${arrowEnd + 5},${height - 6} L${arrowEnd},${height - 2} Z`)
+        .attr("fill", "gray");
+
+    // t
+    svg.append("text")
+        .attr("x", arrowStart + 10)
+        .attr("y", height - 15)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "central")
+        .attr("fill", "gray")
+        .attr("font-size", "13px")
+        .attr("font-style", "italic")
+        .attr("cursor", "pointer") // Make cursor show clickable
+        .text("t");
+        
+
     for (let i = 0; i < totalBlocks; i++) {
         // Calculate the start x position of each block's third
         let thirdWidth = width / totalBlocks;
@@ -1116,7 +1145,7 @@ function createMainView() {
                 .attr("y", (height / 2) - 10)
                 .attr("text-anchor", "middle")
                 .attr("dominant-baseline", "central")
-                .attr("fill", "black")
+                .attr("fill", "gray")
                 .attr("font-size", "14px")  // Added to make text smaller
                 .text(`h(${i+1})`);
         }
