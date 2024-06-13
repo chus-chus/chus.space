@@ -122,13 +122,23 @@ function createSimulation_1_9() {
         .attr("y", weightStartY)
         .attr("width", weightWidth)
         .attr("height", weightHeight)
-        .attr("fill", "black")
+        .attr("fill", "white")
         .attr("stroke", "black")
         .attr("stroke-width", 2)
-        .attr("rx", 10)
-        .attr("ry", 10)
+        .attr("rx", Math.min(weightWidth, weightHeight) / 2)
+        .attr("ry", Math.min(weightWidth, weightHeight) / 2)
         .style("cursor", "pointer")
-        .call(drag);
+        .call(drag)
+        .on("mouseover", function() {
+            d3.select(this)
+                .attr("stroke-width", 4)
+                .attr("stroke", "red");
+        })
+        .on("mouseout", function() {
+            d3.select(this)
+                .attr("stroke-width", 2)
+                .attr("stroke", "black");
+        });
 
     // Append the "spring" to the canvas
     var spring = simCanvas.append("line")
@@ -153,7 +163,10 @@ function createSimulation_1_9() {
     // Functions for the drag behavior
     function dragStarted(event) {
         stopAnimation();
-        d3.select(this).raise().attr("stroke", "red").attr("fill", "red");
+        d3.select(this).raise()
+            .attr("stroke", "red")
+            .attr("stroke-width", 4)
+            .attr("fill", "white");
     }
 
     function dragged(event, d) {
@@ -167,7 +180,7 @@ function createSimulation_1_9() {
     }
 
     function dragEnded(event, d) {
-        d3.select(this).attr("stroke", "black").attr("fill", "black");
+        d3.select(this).attr("stroke", "black").attr("fill", "white");
         startAnimation();
     }
 

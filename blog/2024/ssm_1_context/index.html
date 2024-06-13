@@ -100,8 +100,8 @@
         In the series, we will cover everything you need to know about how SSMs work to understand their current uses, how they became competitive with the state-of-the-art, all the way up to the most 
         recent advances.</p>
       <p>I have organised into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I also have tried to keep as 
-        TODO stable???? stable a structure as possible, 
-        given that notation and ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
+        constant a notation as possible, 
+        given that the ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
   
       <p>The series is divided into these parts:</p>
         <ul>
@@ -144,7 +144,7 @@
       </p>
 
       TODO viz 1.2. incluye las comparaciones de todas las tasks, en multiples graficos.
-      TODO write last!
+      write last!
 
       <h3>Task 1</h3>
 
@@ -247,18 +247,18 @@
         </p>
 
       <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
-        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the TODO PONER BIEN zero-order holdout. </p>
+        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the zero-order hold. </p>
 
         <div class="plot-container">
           <div class="plot-background-1" id="ssm_1_viz_6">
-          <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order holdout to a signal" width="400" height="155">
+          <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order hold to a signal" width="400" height="155">
         </div>
         </div>
-        <p class="plot-caption">Figure 1.6: a discrete signal (left), and it's transformation with zero-order holdout (right). We have, again, a continuous signal (black trace).</p>
+        <p class="plot-caption">Figure 1.6: a discrete signal (left), and it's transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
         </p> 
       
       <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
-        and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order holdout). So, 
+        and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order hold). So, 
 
         $$
         \begin{align}
@@ -271,7 +271,7 @@
 
       <p> Matrix $\mathbf{C}$ is not discretized because it only depends on $h(t)$, which in turn depends on the discretized matrices $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$.
         Now, because the results are not trivial, I won't go into details about why the discretized expression is like it is. I'm presenting these formulas only because you might happen
-        to see them in other posts. In the case of $f$ being zero-order holdout, the discretized parameters can be computed as:
+        to see them in other posts. In the case of $f$ being zero-order hold, the discretized parameters can be computed as:
 
         $$
         \begin{align}
@@ -312,7 +312,7 @@
     <section id="A mechanical example">
       <h2>A mechanical example</h2>
 
-      <p>Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post TODO CITE ilustrated s4. </p>
+      <p>Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post "The Illustrated S4". </p>
 
       <p>Imagine we have a spring attached to a wall and supported by a horizontal surface. At the end of the spring there is a mass $m$ attached, like a weight. 
         Over time ($t$) we pull on the mass with a force $u(t)$, making the spring bounce back and forth, dependent on its stiffness $k$ and the friction $b$. 
@@ -376,7 +376,7 @@
       <h2>Next up</h2>
 
       We know their context, what they are and how they work.
-      In the next <a href="../ssm_2_discretization/index.html">post</a>, we are going to see how SSMs were incorporated into 
+      In the next <a href="../ssm_2_networks/index.html">post</a>, we are going to see how SSMs were incorporated into 
       neural networks and made effective via some cool math trickery.
 
 
