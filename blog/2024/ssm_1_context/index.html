@@ -53,6 +53,7 @@
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
   <script src="../../../src/ssm_source.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
 </head>
 
 <body>
@@ -325,14 +326,14 @@
       </div>
       <p class="plot-caption" style="font-size: 0.7em;">Figure 1.8: The mechanical problem. A force is applied to a weight, which is attached to a spring, which stretches.</p>
 
-      <p>In order to model this system, we start from how we know that force is mass times acceleration. In a differential equation, this is:</p>
+      <p>To model this system, remember that force is mass times acceleration. In a differential equation, and in the case of our system:</p>
 
       \begin{equation}
       u(t) - b\cdot y'(t) - k\cdot y(t) = m\cdot y''(t)
       \label{eq:mechanics_diff}
       \end{equation}
 
-      <p>That is, the friction $b$ impacts speed and the stiffness $k$ impacts position, all subtracting from the force we apply. All that is equal to the mass of the weight
+      <p>That is, the friction $b$ impacts speed, and the stiffness $k$ impacts position, all subtracting from the force we apply. All that is equal to the mass of the weight
        times its acceleration. </p>
        <p>We can express the system like an SSM: the rates of change of the system (speed and acceleration) are presented in equation
        $\ref{eq:ssm}$ as $h'(t)$, meaning that the hidden state $h(t)$ is actually just the position and speed. 
@@ -364,8 +365,8 @@
         <div class="plot-background-1" id="ssm_1_viz_9"></div>
         <script src="../../../src/viz/2024/ssm_1_9.js"></script>
       </div>
-      <p class="plot-caption">Figure 1.9: interact with the mechanical problem! Grab the weight, pull it, and let go, and inspect the changing values.
-        Under the hood, an SSM just like the one presented in the post is running. </p>
+      <p class="plot-caption">Figure 1.9: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
+        Under the hood, an SSM just like the one presented in the post is running. Imagine that the horizontal line behaves like a spring :)</p>
       </p>
 
       <p style="margin-bottom: 1cm;"></p>
@@ -380,7 +381,7 @@
       neural networks and made effective via some cool math trickery.
 
 
-      <div id="reference-list"></div>
+      <!-- <div id="reference-list"></div> -->
 
     </section>
 
@@ -388,7 +389,7 @@
 
   </div>
 
-<script>
+<!-- <script>
 
 // -------------------------------------------------- References --------------------------------------------------
 const references = [
@@ -406,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
       refList.appendChild(listItem);
   });
 });
-</script>
+</script> -->
 
 </body>
 
