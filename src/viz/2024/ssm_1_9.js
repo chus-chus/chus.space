@@ -163,7 +163,7 @@ function createSimulation_1_9() {
         // Update spring position too
         spring.attr("x2", newX + weightWidth / 2);
 
-        updateForceValue(getForceApplied());
+        updateDragValues(getForceApplied(), getRectangleNormalizedXPosition());
     }
 
     function dragEnded(event, d) {
@@ -198,6 +198,8 @@ function createSimulation_1_9() {
         firstFrame = true;
         animationRunning = true;
 
+        updateDragValues(0, position);
+
         function animate() {
             if (!animationRunning) return;
 
@@ -206,7 +208,6 @@ function createSimulation_1_9() {
             // Apply force
             [h, y] = SSM_step(Ab, Bb, C, force, h);
             
-            updateForceValue(force);
             updateDynamicValues(prevH, h, y.get([0, 0]))
 
             // map from 0 to 1 back to leftDragLimit to rightDragLimit
@@ -241,7 +242,7 @@ function createSimulation_1_9() {
     // dynamic values
     updateValuesParameterMatrices();
     updateDynamicValues(math.matrix([[0], [0]]), math.matrix([[0], [0]]), 0, 0);
-    updateForceValue(0);
+    updateDragValues(0, 0);
 }
 
 // ----------------------- SSM
@@ -326,8 +327,9 @@ function updateDynamicValues(h1, h2, y) {
     d3.select("#y_0_0").text(y.toFixed(1));
 }
 
-function updateForceValue(force) {
+function updateDragValues(force, y) {
     d3.select("#u_0_0").text(force.toFixed(1));
+    d3.select("#y_0_0").text(y.toFixed(1));
 }
 
 // matrix utils
