@@ -58,18 +58,18 @@
 <body>
 
   <header>
-      <nav id="navbar">
-          <div class="logo-and-title">
-              <a href="../../index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
-                  <h1>Chus Antonanzas</h1>
-              </a>
-          </div>
-          <ul>
-              <li><a href="../../about.html">About</a></li>
-              <li><a href="../../contact.html">Contact</a></li>
-          </ul>
-      </nav>
-  </header>
+    <nav id="navbar">
+        <div class="logo-and-title">
+            <a href="../../../index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                <h1>Chus Antonanzas</h1>
+            </a>
+        </div>
+        <ul>
+            <li><a href="../../../about/index.html">About</a></li>
+            <li><a href="../../../contact/index.html">Contact</a></li>
+        </ul>
+    </nav>
+</header>
 
   <div id="progress-container">
     <div id="progress-bar"></div>
@@ -109,10 +109,10 @@
         <li><span class="bold">Part 2: SSM networks and Structured State Spaces</span>
           <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
         </li>
-        <li><span class="bold"><a href="../ssm_3_selectivity/index.html">Part 3: Selective State Spaces (Mamba)</a></span>
+        <li><span class="bold">Part 3: Selective State Spaces (Mamba)</span>
           <ul>We present Selective State Spaces, which added to SSMs the capacity of focusing on different parts of the input (yes, like attention).</ul>
         </li>
-        <li><span class="bold"><a href="../ssm_4_duality/index.html">Part 4: State Space Duality (Mamba 2)</a></span>
+        <li><span class="bold">Part 4: State Space Duality (Mamba 2)</span>
           <ul>What's the relationship between SSMs and the attention mechanism? They are actually the same! What does this imply?</ul>
         </li>
       </ul>
@@ -145,7 +145,7 @@
      <p>A discrete SSM defines a map $x \in \mathbb{R}^{T} \rightarrow y \in \mathbb{R}^{T}$, where $T$ is the time dimension. That is, $x_t$ and $y_t$ are scalars.
        We also have the hidden state vector $h_t \in \mathbb{R}^{N}$, where $N$ is the state size, state dimension, state expansion factor, or even more.
        Parameters $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ can be thought of as tensors of shapes $\mathbf{A} \in \mathbb{R}^{(N, N)}$, 
-       $\mathbf{B} \in \mathbb{R}^{N}$ and $\mathbf{C} \in \mathbb{R}^{N}$. The discretization parameter $\Delta \in \mathbb{R}$ is a scalar. This notation will
+       $\mathbf{B} \in \mathbb{R}^{(N\times 1)}$ and $\mathbf{C} \in \mathbb{R}^{(1\times N)}$. The discretization parameter $\Delta \in \mathbb{R}$ is a scalar. This notation will
        be changing as we move forward, so keep an eye on it.
      </p>
 
@@ -321,7 +321,7 @@
       </ol>
       </p>
 
-      TODO hippo viz
+      TODO hippo viz: podemos ajustar los valores de los coeficientes, lo que hace que las funciones cambien. Otro plot actualiza las combinaciones de las funciones
 
       <p>If you want to know more, check out the references. (todo references S4, etc).</p>
 
