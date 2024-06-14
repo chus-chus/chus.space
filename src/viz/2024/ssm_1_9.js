@@ -171,8 +171,11 @@ function createSimulation_1_9() {
         .attr("stroke", "gray")
         .attr("stroke-width", 6);
 
+    var offsetX = 0;
+
     // Functions for the drag behavior
     function dragStarted(event) {
+        offsetX = event.x - d3.select(this).attr("x");
         stopAnimation();
         d3.select(this).raise()
             .attr("stroke", "red")
@@ -182,7 +185,7 @@ function createSimulation_1_9() {
     }
 
     function dragged(event, d) {
-        var newX = Math.max(leftDragLimit, Math.min(event.x, rightDragLimit));
+        var newX = Math.max(leftDragLimit, Math.min(event.x - offsetX, rightDragLimit));
         d3.select(this).attr("x", newX);
 
         // Update spring position too

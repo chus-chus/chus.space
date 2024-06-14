@@ -355,7 +355,7 @@
       \end{align} 
       $$
 
-      <p>And there you have it. If we discretize the system as explained before, we can simulate it as an SMM. </p>
+      <p>And there you have it. We can simulate it as an SMM. </p>
 
       <p style="margin-bottom: 1cm;"></p>
 
@@ -364,8 +364,8 @@
         <script src="../../../src/viz/2024/ssm_1_9.js"></script>
       </div>
       <p class="plot-caption">Figure 9: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
-        Under the hood, an SSM just like the one presented in the post is running. Stiffness $k$ and step size $\Delta$ are shown scaled down 100x and up 1000x, 
-        respectively. Decrease $\Delta$ and the simulation will go slower.
+        Under the hood, an SSM just like the one presented in the post is running (although we use <span class="italic">bilinear</span> discretization). 
+        Stiffness $k$ and step size $\Delta$ are shown scaled down 100x and up 1000x, respectively. Decrease $\Delta$ and the simulation will go slower.
         Also, imagine that the horizontal line is a spring :)</p>
       </p>
 
