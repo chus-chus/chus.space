@@ -181,7 +181,7 @@
 
       <div class="plot-container">
           <div class="plot-background-1" id="ssm_2_viz_1">
-            <img src="../../../static/2024/ssm_1_7.png" alt="General view of an SSM" width="500" height="313">
+            <img src="../../../static/2024/ssm_1_7.png" alt="Recurrent view of a discrete-time SSM" width="500" height="313">
           </div>
         </div>
       <p class="plot-caption">Figure 1: recurrent view of a discrete-time SSM.</p>
@@ -195,7 +195,14 @@
         RNNs like LSTMs, GRU, etc, all approximate the same type of dynamics. Neat!
       </p>
 
-      TODO viz 2 RNN vs recurrent view
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_1">
+          <img src="../../../static/2024/ssm_2_2.svg" alt="Recurrent view of an SSM vs a vanilla RNN" width="400" height="263">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 2: recurrent view of an SSM (left) vs a vanilla RNN (right). Their parameters and operations are different,
+        but they approximate the same dynamics.
+      </p>
 
       <h3>LSSL: convolutional view</h3>
 
@@ -211,7 +218,7 @@
          
       </p>
 
-      <p>We can see, or you can believe me, that this follows a pattern:</p>
+      <p>We can see that this follows a pattern:</p>
 
       \begin{equation}
       y_k = \bar{\mathbf{C}} \bar{\mathbf{A}}^k \bar{\mathbf{B}} x_0 + \bar{\mathbf{C}} \bar{\mathbf{A}}^{k-1} \bar{\mathbf{B}} x_1 + \ldots + \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}} x_{k-1} + \bar{\mathbf{C}} \bar{\mathbf{B}} x_k
@@ -234,8 +241,6 @@
       \bar{\mathbf{K}} = (\bar{\mathbf{C}} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}}, \ldots, \bar{\mathbf{C}} \bar{\mathbf{A}}^{T-1} \bar{\mathbf{B}})
       \label{eq:conv_filter}
       \end{equation}
-
-      <p>We also illustrate the operation:</p>
 
       TODO viz 3 convolution
 
@@ -354,7 +359,7 @@
 
     <section id="Next up">
       <h2>Next up</h2>
-      <p>This was a big one. We explored ways to view an SSM, how we can use it for inference and train it, how it can be incorporated into a neural
+      <p>In this post, we explored ways to view an SSM, how we can use it for inference and train it, how it can be incorporated into a neural
         network design, and how to address its computational and context limitations. In the next post, we will fix yet another shortcoming: linear-time-invariance. We will see how to 
         make SSMs focus on different parts of the input, just like attention mechanisms do. Stay tuned!</p>
       </p>
