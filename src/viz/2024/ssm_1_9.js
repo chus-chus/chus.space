@@ -73,7 +73,7 @@ function inverseNormalizeXPosition(normalized_pos) {
     // Map from range [-1, 1] to range [0, 1]
     var normalized_pos_0_1 = (normalized_pos + 1) / 2;
 
-    // Map from range [0, 1] to the original position range [leftLimit, rightLimit]
+    // Map from range [0, 1] to the original range [leftLimit, rightLimit]
     var pos = normalized_pos_0_1 * (rightLimit - leftLimit) + leftLimit;
 
     return pos;
@@ -171,11 +171,12 @@ function createSimulation_1_9() {
         .attr("stroke", "gray")
         .attr("stroke-width", 6);
 
-    var offsetX = 0;
+    // x offset for the drag behavior
+    var dragOffsetX = 0;
 
     // Functions for the drag behavior
     function dragStarted(event) {
-        offsetX = event.x - d3.select(this).attr("x");
+        dragOffsetX = event.x - d3.select(this).attr("x");
         stopAnimation();
         d3.select(this).raise()
             .attr("stroke", "red")
@@ -185,7 +186,7 @@ function createSimulation_1_9() {
     }
 
     function dragged(event, d) {
-        var newX = Math.max(leftDragLimit, Math.min(event.x - offsetX, rightDragLimit));
+        var newX = Math.max(leftDragLimit, Math.min(event.x - dragOffsetX, rightDragLimit));
         d3.select(this).attr("x", newX);
 
         // Update spring position too
