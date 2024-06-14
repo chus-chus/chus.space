@@ -196,7 +196,7 @@
       </p>
 
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_2_viz_1">
+        <div class="plot-background-1" id="ssm_2_viz_2">
           <img src="../../../static/2024/ssm_2_2.svg" alt="Recurrent view of an SSM vs a vanilla RNN" width="400" height="263">
         </div>
         </div>
@@ -238,11 +238,22 @@
       where
 
       \begin{equation}
-      \bar{\mathbf{K}} = (\bar{\mathbf{C}} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}}, \ldots, \bar{\mathbf{C}} \bar{\mathbf{A}}^{T-1} \bar{\mathbf{B}})
+      \bar{\mathbf{K}} = (\bar{\mathbf{C}} \bar{\mathbf{A}}^{(T-1)} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{A}}^{(T-2)} \bar{\mathbf{B}}, \ldots, \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{B}})
       \label{eq:conv_filter}
       \end{equation}
 
-      TODO viz 3 convolution
+      <p style="margin-bottom: 1cm;"></p>
+
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_3">
+          <script src="../../../src/viz/2024/ssm_2_3.js"></script>
+        </div>
+        </div>
+      <p class="plot-caption">Figure 3: interactive SSM convolution view. Each filter element K(i) is multiplied by the corresponding input element. The results are summed to get the output y(i).
+        Note how the kernel filter $K$ is as long as the input sequence ("A nice cat"). Also, see how each output element $y_i$ can be computed in parallel.
+      </p>
+
+      <p style="margin-bottom: 1cm;"></p>
 
       <p>Now, as you may know, convolution is parallelizable, which is a huge plus versus the recurrent view. Because actually computing such a big convolution is
         unstable, we go further and, using the discrete convolution theorem, perform the operation by multiplying the Fast Fourier Transforms of the input $x$ 
@@ -251,7 +262,13 @@
         is just as long as the sequence ($T$); its huge. This is a big downside, as we need to store all the parameters in memory.
       </p>
 
-      TODO viz 4 ilustracion de FFT, multiplicacion and back
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_4">
+          <img src="../../../static/2024/ssm_2_4.svg" alt="Convolution using FFT." width="525" height="131">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 4: Convolution using FFT.
+      </p>
 
       <p> So, these two views allow us to compute the same output in different ways:
         <ul>
@@ -276,18 +293,31 @@
         Intead of having a single LSSL block, we can stack $P$ blocks, each mapping the input to a different output. These blocks may share parameters 
         ($\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$), or each be trained independently.</p>
 
-      <p>Formally, we now may interpret input $\mathbf{X} \in \mathbb{R}^{(T, P)}$, with $P$ LSSLs stacked independently, having output $\mathbf{Y} \in \mathbb{R}^{(T, P)}$.
-      We may also have input $\mathbf{X} \in \mathbb{R}^{(T)}$, with $P$ LSSLs stacked, having output also $\mathbf{Y} \in \mathbb{R}^{(T, P)}$. The lesson here is that we can
-      stack LSSL blocks to create a that maps a sequence to another sequence, with the same signature as a modern neural network.</p>
+      <p>Formally, we now may interpret input $\mathbf{X} \in \mathbb{R}^{(T, P)}$, with $P$ LSSLs stacked independently (heads), having output $\mathbf{Y} \in \mathbb{R}^{(T, P)}$.
+      We may also have input $\mathbf{X} \in \mathbb{R}^{(T)}$, with $P$ LSSLs stacked, having output also $\mathbf{Y} \in \mathbb{R}^{(T, P)}$
+      (each input goes through $P$ LSSLs).
+      The lesson here is that we can stack LSSL blocks to create a that maps a sequence to another sequence, with the same signature as a modern neural network.</p>
 
-      TODO viz 5 multihead illustration
+      <div class="plot-container ">
+        <div class="plot-background-1" id="ssm_2_viz_5">
+          <img src="../../../static/2024/ssm_2_5.svg" alt="Convolution using FFT." height=400 style="transform: scale(1.15);">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 5: Multi-head SSM. The input signal can either be repeated or have multiple dimensions.
+      </p>
 
       <p>We can then get this stack of LSSLs and add normalization before it, and dropout, activation and a skip connection after it (an example). Voilà, this is looking
         more like a neural network layer. We can even connect many of these layers one after the other to finally get something analogous to a deep learning model. 
         This can be used for classification or generation, just like a Transformer. Note that only parameters $\mathbf{B}$, $\mathbf{C}$ and $\Delta$ are learnable.
         $\mathbf{A}$ is fixed and will need to have a particular <span class="italic">structure</span>.</p>
 
-      TODO viz 6 layer and model illustration
+      <div class="plot-container ">
+        <div class="plot-background-1" id="ssm_2_viz_6">
+          <img src="../../../static/2024/ssm_2_6.svg" alt="" height=385">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 6: zoom-in of an example SSM layer (top), part of a larger network (bottom).
+      </p>
 
     </section>
 
@@ -323,12 +353,23 @@
       going into detail would probably make this too long. Intuitively, though:
       
       <ol>
-        <li>The matrix makes each of the values of the hidden state approximate a coefficient.</li>
+        <li>The matrix makes each of the values of the hidden state approximate a coefficient $c_i$.</li>
         <li>Each of these coefficients defines a function.</li>
         <li>The combination of these functions can approximate all of the state history.</li>
         <li>Each step, the coefficients are updated by the HiPPO matrix $\mathbf{A}$. So, the state history gets updated.</li>
       </ol>
       </p>
+
+      <p style="margin-bottom: 1cm;"></p>
+
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_7">
+          <script src="../../../src/viz/2024/ssm_2_7.js"></script>
+        </div>
+        </div>
+      <p class="plot-caption">Figure 7: </p>
+
+      <p style="margin-bottom: 1cm;"></p>
 
       TODO viz 7 hippo viz: podemos ajustar los valores de los coeficientes, lo que hace que las funciones cambien. Otro plot actualiza las combinaciones de las funciones
 
@@ -349,8 +390,6 @@
       In the end (and after a lot of math), they end up decomposing $\mathbf{A} = \mathbf{\Lambda} - \mathbf{P} \mathbf{Q}^*$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
       a HiPPO matrix. Overall, then, now we can say that $\mathbf{A} \in \mathbb{R}^{N}$. Not only that, its powers can be computed very fast and the prohibitive costs for computing the 
       convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing! (TODO cite)</p>
-
-      todo viz 8 A is now decomposed, and the kernel is computed differently.
 
       <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by $\mathbf{\Lambda}$, $\mathbf{P}$ and $\mathbf{Q}$). 
         Updating how the filter $\bar{\mathbf{K}}$
