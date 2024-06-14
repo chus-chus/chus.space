@@ -197,7 +197,7 @@
           <img src="../../../static/2024/ssm_1_3.svg" alt="General view of a continous SSM" width="300" height="300" style="transform: translateX(-25px);">
         </div>
       </div>
-      <p class="plot-caption">Figure 1.3: A continuous signal $x(t)$ is mapped by the SSM to a continuous signal $y(t)$.</p>
+      <p class="plot-caption">Figure 3: A continuous signal $x(t)$ is mapped by the SSM to a continuous signal $y(t)$.</p>
 
       <p>Equation \ref{eq:ssm} basically defines two things:
         <ol>
@@ -223,7 +223,7 @@
         <div class="plot-background-1" id="ssm_1_viz_4"></div>
         <script src="../../../src/viz/2024/ssm_1_4.js"></script>
       </div>
-      <p class="plot-caption">Figure 1.4: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which
+      <p class="plot-caption">Figure 4: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which
         processes it and outputs a value (a prediction of the next input, in this case). The state $h$ is updated at every step. Values of parameters and hidden
         state, as well as $\mathbf{D}$, are omitted.
       </p>
@@ -243,7 +243,7 @@
           <img src="../../../static/2024/ssm_1_5.png" alt="Discretization of a signal" width="400" height="155">
         </div>
         </div>
-        <p class="plot-caption">Figure 1.5: a continous signal (left), and it's sampled (discretized) version (right).</p>
+        <p class="plot-caption">Figure 5: a continous signal (left), and it's sampled (discretized) version (right).</p>
         </p>
 
       <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
@@ -254,7 +254,7 @@
           <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order hold to a signal" width="400" height="155">
         </div>
         </div>
-        <p class="plot-caption">Figure 1.6: a discrete signal (left), and it's transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
+        <p class="plot-caption">Figure 6: a discrete signal (left), and it's transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
         </p> 
       
       <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
@@ -304,8 +304,7 @@
           <img src="../../../static/2024/ssm_1_7.png" alt="General view of an SSM" width="500" height="313">
         </div>
         </div>
-        <p class="plot-caption">Figure 1.7: discrete-time SSM.</p>
-        </p> 
+        <p class="plot-caption">Figure 7: discrete-time SSM.</p>
 
     </section>
 
@@ -323,7 +322,7 @@
           <img src="../../../static/2024/ssm_1_8.png" alt="The mechanical problem" width="300" height="210">
         </div>
       </div>
-      <p class="plot-caption" style="font-size: 0.7em;">Figure 1.8: The mechanical problem. A force is applied to a weight, which is attached to a spring, which stretches.</p>
+      <p class="plot-caption" style="font-size: 0.7em;">Figure 8: The mechanical problem. A force is applied to a weight, which is attached to a spring, which stretches.</p>
 
       <p>To model this system, remember that force is mass times acceleration. In a differential equation, and in the case of our system:</p>
 
@@ -364,7 +363,7 @@
         <div class="plot-background-1" id="ssm_1_viz_9"></div>
         <script src="../../../src/viz/2024/ssm_1_9.js"></script>
       </div>
-      <p class="plot-caption">Figure 1.9: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
+      <p class="plot-caption">Figure 9: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
         Under the hood, an SSM just like the one presented in the post is running. Imagine that the horizontal line behaves is a spring :)</p>
       </p>
 
@@ -376,7 +375,7 @@
       <h2>Next up</h2>
 
       We know their context, what they are and how they work.
-      In the next <a href="../ssm_2_networks/index.html">post</a>, we are going to see how SSMs were incorporated into 
+      In the <a href="../ssm_2_networks/index.html">next post</a>, we are going to see how SSMs were incorporated into 
       neural networks and made effective via some cool math trickery.
 
 
