@@ -1,11 +1,12 @@
 const widthSSM19 = 700;
-const heightSSM19 = 300;
+const heightSSM19 = 325;
 
 // Create input elements for k, b, and m with sliders
 var inputData = [
     {label: 'k', value: 8, step: 1, min: 1, max: 10},
     {label: 'b', value: 5, step: 1, min: 1, max: 15},
-    {label: 'm', value: 1, step: 1, min: 1, max: 5}
+    {label: 'm', value: 1, step: 1, min: 1, max: 5},
+    {label: 'Δ', value: 10, step: 1, min: 1, max: 10}
 ];
 
 d3.select('#ssm_1_viz_9').append('div')
@@ -40,7 +41,8 @@ function getSimulationParameters() {
     const k = parseFloat(document.getElementById('k_number').value) * 100;
     const b = parseFloat(document.getElementById('b_number').value);
     const m = parseFloat(document.getElementById('m_number').value);
-    return { k, b, m };
+    const step = parseFloat(document.getElementById('Δ_number').value) / 1000;
+    return { k, b, m, step};
 }
 
 // get the x position of the weight rectangle
@@ -93,7 +95,7 @@ createSimulation_1_9();
 
 function createSimulation_1_9() {
     const width = 700;
-    const height = 300;
+    const height = 325;
 
     var weightWidth = width / 10;
     var weightHeight = width / 10;
@@ -176,6 +178,7 @@ function createSimulation_1_9() {
             .attr("stroke", "red")
             .attr("stroke-width", 4)
             .attr("fill", "white");
+        updateDynamicValues(math.matrix([[0], [0]]), math.matrix([[0], [0]]), 0, 0);
     }
 
     function dragged(event, d) {
@@ -212,7 +215,7 @@ function createSimulation_1_9() {
 
         // declare matrices
         var Ab, Bb, C;
-        [Ab, Bb, C] = get_SSM_params(params.k, params.b, params.m);
+        [Ab, Bb, C] = get_SSM_params(params.k, params.b, params.m, params.step);
 
         // initial hidden state
         var h = math.matrix([[position], [0]]);
@@ -247,6 +250,7 @@ function createSimulation_1_9() {
                 requestAnimationFrame(animate);
             } else {
                 stopAnimation();
+                updateDynamicValues(math.matrix([[0], [0]]), math.matrix([[0], [0]]), 0, 0);
             }
 
             if (firstFrame) {
@@ -290,12 +294,12 @@ function get_SSM_params_NoDisc(k, b, m) {
     return [A, B, C];
 }
 
-function get_SSM_params(k, b, m) {
+function get_SSM_params(k, b, m, step) {
     const A = math.matrix([[0, 1], [-k/m, -b/m]]);
     const B = math.matrix([[0], [1/m]]);
     const C = math.matrix([[1, 0]]);
 
-    var [Ab, Bb] = discretize(A, B, 0.01);
+    var [Ab, Bb] = discretize(A, B, step);
 
     return [Ab, Bb, C];
 }
@@ -310,48 +314,44 @@ function SSM_step(Ab, Bb, C, u, h) {
 function updateValuesParameterMatrices() {
     var params = getSimulationParameters();
 
-    var [A, B, C] = get_SSM_params_NoDisc(params.k, params.b, params.m);
+    var [A, B, C] = get_SSM_params(params.k, params.b, params.m, params.step);
 
     // Update matrices
     for (let i = 0; i < 2; i++) {
         for (let j = 0; j < 2; j++) {
-            if (i == 1 && j == 0) {
-                d3.select("#A_" + i + "_" + j).text((A.get([i, j]) / 100).toFixed(1));
-            } else {
-                d3.select("#A_" + i + "_" + j).text(A.get([i, j]).toFixed(1));
-            }
+            d3.select("#A_" + i + "_" + j).text(A.get([i, j]).toFixed(2));
         }
     }
 
     for (let i = 0; i < 2; i++) {
         for (let j = 0; j < 1; j++) {
-            d3.select("#B_" + i + "_" + j).text(B.get([i, j]).toFixed(1));
+            d3.select("#B_" + i + "_" + j).text((B.get([i, j])).toFixed(2));
         }
     }
 
     for (let i = 0; i < 1; i++) {
         for (let j = 0; j < 2; j++) {
-            d3.select("#C_" + i + "_" + j).text(C.get([i, j]).toFixed(1));
+            d3.select("#C_" + i + "_" + j).text(C.get([i, j]).toFixed(0));
         }
     }
 }
 
 function updateDynamicValues(h1, h2, y) {
-    d3.select("#h_one_0_0").text(h1.get([0, 0]).toFixed(1));
-    d3.select("#h_one_1_0").text(h1.get([1, 0]).toFixed(1));
+    d3.select("#h_one_0_0").text(h1.get([0, 0]).toFixed(2));
+    d3.select("#h_one_1_0").text(h1.get([1, 0]).toFixed(2));
 
-    d3.select("#h_two_0_0").text(h2.get([0, 0]).toFixed(1));
-    d3.select("#h_two_1_0").text(h2.get([1, 0]).toFixed(1));
+    d3.select("#h_two_0_0").text(h2.get([0, 0]).toFixed(2));
+    d3.select("#h_two_1_0").text(h2.get([1, 0]).toFixed(2));
 
-    d3.select("#h_three_0_0").text(h2.get([0, 0]).toFixed(1));
-    d3.select("#h_three_1_0").text(h2.get([1, 0]).toFixed(1));
+    d3.select("#h_three_0_0").text(h2.get([0, 0]).toFixed(2));
+    d3.select("#h_three_1_0").text(h2.get([1, 0]).toFixed(2));
 
-    d3.select("#y_0_0").text(y.toFixed(1));
+    d3.select("#y_0_0").text(y.toFixed(2));
 }
 
 function updateDragValues(force, y) {
-    d3.select("#u_0_0").text(force.toFixed(1));
-    d3.select("#y_0_0").text(y.toFixed(1));
+    d3.select("#u_0_0").text(force.toFixed(2));
+    d3.select("#y_0_0").text(y.toFixed(2));
 }
 
 // matrix utils
@@ -397,7 +397,7 @@ function createMatrix(svg, rows, cols, cellSize, fill, stroke, startX, startY, t
 
 
 function generateAllMatrices(simCanvas) {
-    var matrixCellSize = 30;
+    var matrixCellSize = 35;
     var padding = 20;
 
     // A
@@ -405,7 +405,7 @@ function generateAllMatrices(simCanvas) {
     var starty_A = 30;
     var n_a = 2;
     var m_a = 2;
-    createMatrix(simCanvas, n_a, m_a, matrixCellSize, "#28C76F", "black", startx_A, starty_A, "A", "A");
+    createMatrix(simCanvas, n_a, m_a, matrixCellSize, "#28C76F", "black", startx_A, starty_A, "Ā", "A");
 
     // Times
     simCanvas.append("text")
@@ -441,7 +441,7 @@ function generateAllMatrices(simCanvas) {
     var starty_B = 30;
     var n_b = 2;
     var m_b = 1;
-    createMatrix(simCanvas, n_b, m_b, matrixCellSize, "#FA8072", "black", startx_B, starty_B, "B", "B");
+    createMatrix(simCanvas, n_b, m_b, matrixCellSize, "#FA8072", "black", startx_B, starty_B, "B̄", "B");
 
     // Times
     simCanvas.append("text")
