@@ -156,7 +156,7 @@
     <section id="The Linear State-Space Layer">
       <h2>The Linear State-Space Layer</h2>
 
-      <p>The vanilla SSM that we presented in the last post was generalized in 2021 by ((todo cite combining...)), which they called 
+      <p>The vanilla SSM that we presented in the last post was generalized in 2021 by Gu et al., which they called 
         Linear State-Space Layer (LSSL).
         They characterized the LSSL in terms of its parameters, $\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$, and importantly by
         providing multiple interpretations of the model. These interpretations, or views, allowed us to define the same LSSL in different ways. </p>
@@ -374,7 +374,7 @@
 
       <p style="margin-bottom: 1cm;"></p>
 
-      <p>If you want to know more, check out the references. (todo references S4, etc).</p>
+      <!-- If you want to know more, check out the references. (todo references S4, etc). -->
 
       <p>Alas, even with HiPPO matrices, problems still plague these lands. Now, although a deep LSSL network can perform well on LRD, it has prohibitive computational and memory 
         requirements, mainly due to the state representation (not on the recurrent view, as the requirements are constant). If we want these models to be competitive to 
@@ -390,11 +390,11 @@
       Motivated by the properties of diagonalizable matrices, S4 finds a way to represent the HiPPO matrix $\mathbf{A}$ so that the filter $\bar{\mathbf{K}}$ can be computed fast, and with less memory.
       In the end (and after a lot of math), they end up decomposing $\mathbf{A} = \mathbf{\Lambda} - \mathbf{P} \mathbf{Q}^*$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
       a HiPPO matrix. Overall, then, now we can say that $\mathbf{A} \in \mathbb{R}^{N}$. Not only that, its powers can be computed very fast and the prohibitive costs for computing the 
-      convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing! (TODO cite)</p>
+      convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing!</p> <!--(TODO cite)-->
 
       <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by $\mathbf{\Lambda}$, $\mathbf{P}$ and $\mathbf{Q}$). 
         Updating how the filter $\bar{\mathbf{K}}$
-        is computed (not trivial, todo cite S4 paper) is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
+        is computed <!--(TODO cit s4)--> is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
     </section>
 
     <section id="Next up">
