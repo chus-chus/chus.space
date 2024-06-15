@@ -156,8 +156,8 @@
     <section id="The Linear State-Space Layer">
       <h2>The Linear State-Space Layer</h2>
 
-      <p>The vanilla SSM that we presented in the last post was generalized in 2021 by Gu et al., which they called 
-        Linear State-Space Layer (LSSL).
+      <p>The vanilla SSM that we presented in the last post was generalized in by <a href="#LSSL">Gu et al. (2021)</a>, and they called it
+        the <span class=="italic">Linear State-Space Layer</span> (LSSL).
         They characterized the LSSL in terms of its parameters, $\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$, and importantly by
         providing multiple interpretations of the model. These interpretations, or views, allowed us to define the same LSSL in different ways. </p>
 
@@ -325,7 +325,7 @@
       <h2>LRD & HiPPO</h2>
 
       <p>Given how we have defined SSMs until now, and even with the SSM neural network design, there is a big problem. They were shown to 
-        have limitations when trying to remember long-term dependencies (remember LRD data?). Let's address this. </p>
+        have limitations when trying to remember long-term dependencies (remember <a href="#LRA">LRD</a> data?). Let's address this. </p>
 
       <h3>Happy HiPPO: enabling long-term context</h3>
 
@@ -335,7 +335,7 @@
       it's also not enough. Well, then, is there any way to give $\mathbf{A}$ a structure that helps it compress the information better without having to train it? Introducing
       the HiPPO matrix!</p>
 
-      <p>HiPPO (High-Order Polynomial Projection Operator) defines a class of matrices that, in our case, allow continuous-time memorization of the state $h(t)$.
+      <p><a href="#hippo">HiPPO (2020)</a> (High-Order Polynomial Projection Operator) defines a class of matrices that, in our case, allow continuous-time memorization of the state $h(t)$.
       Using what's called as the HiPPO matrix as $\mathbf{A}$ enables the history of the state to be compressed in a way that can even be approximately reconstructed.
       Just the change of a random inicialization of $\mathbf{A}$ to a HiPPO matrix improved MNIST classification of an SSM from $60\%$ to $98\%$ accuracy!</p>
 
@@ -383,7 +383,7 @@
 
     <section id="Structured State Spaces">
       <h2>Structured State Spaces</h2>
-      <p>In 2022, Structured State Spaces (S4) were introduced. In S4, the authors basically showed how to address the computational and memory issues that we mentioned previously.
+      <p>In 2022, <a href="#S4">Structured State Spaces</a> (S4) were introduced. In S4, the authors basically showed how to address the computational and memory issues that we mentioned previously.
       As we said, the issues mainly came from how the convolutional view, which was the one needed for training, required computing and keeping in memory the huge filter $\bar{\mathbf{K}}$.</p>
 
       <p>If we look at equation $\ref{eq:conv_filter}$, we notice how not only there is lots of parameters to store, but also how we need to compute powers of $\mathbf{A}$. This is a red flag. 
@@ -405,9 +405,36 @@
       </p>
     </section>
 
+    <section id="References">
+      <h2>References</h2>
+      <ul id="reference-list"></ul>
+    </article>
+
   </article>
 
   </div>
+
+  <script>
+
+    // -------------------------------------------------- References --------------------------------------------------
+    const references = [
+      {id: "LSSL", author: "Gu et al", year: "2021", title: "Combining Recurrent, Convolutional, and Continuous-time Models with Linear State-Space Layers", url: "https://arxiv.org/pdf/2110.13985"},
+      {id: "LRA", author: "Tay et al", year: "2021", title: "Long Range Arena: A Benchmark for Efficient Transformers", url: "https://arxiv.org/abs/2011.04006"},
+      {id: "annotatedS4", author: "Sasha Rush, Sidd Karamcheti", year: "2022", title: "The Annotated S4", url: "https://srush.github.io/annotated-s4/"},
+      {id: "S4", author: "Albert Gu, Karan Goel, Christopher Ré", year: "2022", title: "Efficiently Modeling Long Sequences with Structured State Spaces", url: "https://arxiv.org/pdf/2111.00396"},
+      {id: "hippo", author: "Albert Gu, Tri Dao et al", year: "2020", title: "HiPPO: Recurrent Memory with Optimal Polynomial Projections", url: "https://arxiv.org/pdf/2008.07669"}
+    ];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const refList = document.getElementById('reference-list');
+      references.forEach(ref => {
+          const listItem = document.createElement('li');
+          listItem.id = ref.id;
+          listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. <a href="${ref.url}">link</a>`;
+          refList.appendChild(listItem);
+      });
+    });
+    </script>
 
 </body>
 
