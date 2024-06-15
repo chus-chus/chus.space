@@ -50,22 +50,22 @@ function normalizePosition(x) {
 }
 
 function paintAll(init = false) {
-    var dataC1 = paintHippo("c1", init);
-    var dataC2 = paintHippo("c2", init);
-    var dataC3 = paintHippo("c3", init);
-    paintTotal(dataC1, dataC2, dataC3, init, totalYOffset);
+    paintHippo("c1", init);
+    paintHippo("c2", init);
+    paintHippo("c3", init);
+    paintTotal(init, totalYOffset);
 }
 
-function paintTotal(dataC1, dataC2, dataC3, init = false, yOffset) {
+function paintTotal(init = false, yOffset) {
     // evaluate the whole legendre polynomial with the three coefficients
     const c1 = getHippoCoeff("c1");
     const c2 = getHippoCoeff("c2");
     const c3 = getHippoCoeff("c3");
 
-    const data = dataC1.map(function(d, i) {
+    const data = d3.range(hippoLeftLimit, hippoRightLimit).map(function(x) {
         return {
-            x: d.x,
-            y: legendrePolynomial([c1, c2, c3], normalizePosition(d.x)) + yOffset
+            x: x,
+            y: legendrePolynomial([c1, c2, c3], normalizePosition(x)) * 2 + yOffset
         };
     });
 
@@ -122,8 +122,6 @@ function paintHippo(hippoId, init = false) {
         .attr('stroke', 'blue')
         .attr('stroke-width', 2)
         .attr('d', line);
-
-    return data;
 }
 
 // Function to evaluate Legendre polynomial
