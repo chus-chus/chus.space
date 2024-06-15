@@ -124,7 +124,7 @@ function paintHippo(hippoId, init = false) {
         .attr('d', line);
 }
 
-// Function to evaluate Legendre polynomial
+// evaluate Legendre polynomial
 function legendrePolynomial(coefficients, x) {
     let result = 0;
     for (let n = 0; n < coefficients.length; n++) {
@@ -133,11 +133,16 @@ function legendrePolynomial(coefficients, x) {
     return result;
 }
 
-// Function to compute individual Legendre polynomial term
+// compute individual Legendre polynomial term
 function legendrePolynomialTerm(n, x) {
-    if (n === 0) return 1;
-    if (n === 1) return x;
-    return ((2 * n - 1) * x * legendrePolynomialTerm(n - 1, x) - (n - 1) * legendrePolynomialTerm(n - 2, x)) / n;
+    // evil closed formula azzazz
+    if (n === 3) return 35*x**4/8 - 15*x**2/4 + 3/8;
+    if (n === 9) return 46189*x**10/256 - 109395*x**8/256 + 45045*x**6/128 - 15015*x**4/128 + 3465*x**2/256 - 63/256;
+    if (n === 27) return x*(121683714103007*x**26 - 805867616040669*x**24 + 2370198870707850*x**22 
+                           - 4079321865912150*x**20 + 4556689318306125*x**18 - 3463083881912655*x**16 + 
+                           1825501581163260*x**14 - 667866432132900*x**12 + 166966608033225*x**10 - 
+                           27577067392875*x**8 + 2836498360410*x**6 - 164094946470*x**4 + 4411154475*x**2 - 35102025)/8388608
+    // return ((2 * n - 1) * x * legendrePolynomialTerm(n - 1, x) - (n - 1) * legendrePolynomialTerm(n - 2, x)) / n;
 }
 
 function appendHippoCoeffSliders() {
