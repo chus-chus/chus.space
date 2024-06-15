@@ -354,9 +354,9 @@
       
       <ol>
         <li>The matrix makes each of the values of the hidden state approximate a coefficient $c_i$.</li>
-        <li>Each of these coefficients defines a function.</li>
-        <li>The combination of these functions can approximate all of the state history.</li>
-        <li>Each step, the coefficients are updated by the HiPPO matrix $\mathbf{A}$. So, the state history gets updated.</li>
+        <li>For each position in the hidden state, a unique function exists (a Legendre Polynomial).</li>
+        <li>The combination of these functions (weighed by their respective coefficient) can approximate all of the state history.</li>
+        <li>Each step, the coefficients (values of hidden state) are updated by the HiPPO matrix $\mathbf{A}$. So, the state history gets updated.</li>
       </ol>
       </p>
 
@@ -366,12 +366,13 @@
         <div class="plot-background-1" id="ssm_2_viz_7">
           <script src="../../../src/viz/2024/ssm_2_7.js"></script>
         </div>
-        </div>
-      <p class="plot-caption">Figure 7: </p>
+      </div>
+      <p class="plot-caption">Figure 7: reconstruction of the state history via Legendre polynomials. $c_i$ (which would be the $h_i$) 
+        adjusts how much each Legendre polynomial (in blue) contributes to the reconstructed state history (in red). To show a clear distinction, shown are the 
+        $4_{th}$, $10_{th}$ and $28_{th}$ Legendre polynomials, top down.
+      </p>
 
       <p style="margin-bottom: 1cm;"></p>
-
-      TODO viz 7 hippo viz: podemos ajustar los valores de los coeficientes, lo que hace que las funciones cambien. Otro plot actualiza las combinaciones de las funciones
 
       <p>If you want to know more, check out the references. (todo references S4, etc).</p>
 
