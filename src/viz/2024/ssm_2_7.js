@@ -39,7 +39,7 @@ vizCanvas.append('text')
     .attr('x', canvasWidth / 2)
     .attr('y', 13)
     .attr('text-anchor', 'middle')
-    .text('Polynomial contribution');
+    .text('Weighed Legendre polynomials');
 
 appendHippoCoeffSliders();
 paintAll(init = true);

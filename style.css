@@ -172,7 +172,44 @@ a:hover {
     margin-top: -35px;
 }
 
-/* ----------------------------- Entries ------------------------------------ */
+/* --------------------------------- Blog entries in homepage  ------------------------------------ */
+
+.home-blog-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.home-blog-entry {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: rgba(142, 105, 32, 0.08); /* Slightly lighter dark color for entries */
+}
+
+.home-blog-title {
+    font-size: 1.2em;
+    color: #0088ad; /* Light blue color for titles */
+    text-decoration: none;
+    margin-top: -4px;
+}
+
+.home-blog-title:hover {
+    text-decoration: underline;
+}
+
+.home-blog-date {
+    font-size: 0.85em;
+    color: #878787; /* Gray color for dates */
+}
+
+.home-blog-description {
+    font-size: 0.96em;
+    color: #666666; /* Light gray color for descriptions */
+    margin-top: 3px;
+}
+
+/* ----------------------------- Blog posts ------------------------------------ */
 .content-container.entry h1 {
     font-size: 2.75em;
     margin: 20px 0;
