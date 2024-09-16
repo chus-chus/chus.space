@@ -120,7 +120,7 @@
       <li>how a basic SSM block works.</li>
       <li>how SSM blocks can be represented in different ways. Each interpretation (recurrent, convolutional), although equivalent in functionality, had different characteristics and was preferable under some circumstances.</li>
       <li>how SSM blocks could be stacked and organized to create a sequence mapper with the same signature as a common neural network.</li>
-      <li>what enables SSM blocks to have long term memory (the HiPPO A matrix).</li>
+      <li>what enables SSM blocks to have long term memory (the HiPPO $\mathbf{A}$ matrix).</li>
       <li>how the memory footprint problem of the convolutional view of an SSM is mitigated (structured state spaces).</li>
     </ul>
 
@@ -155,13 +155,12 @@
         as there is now way for our models to discern what is useful and what is not. More formally, they are <span class="italic">linear time invariant</span> (LTI).
       </p>
 
-      <p>I think we can all agree that if SSMs are to become equally as capable as our current state of the art models, they probably need to be selective. 
-        This is just what the authors thought, so let’s see how they did it.</p>
+      <p>So, if SSMs are to become equally as capable as our current state of the art models, they need to be selective!</p>
 
     </section>
     <section id="Selectivity on SSMs">
       <h2>Selectivity on SSMs</h2>
-      <h3>Selection as a means of compression</h3>
+      <h3>Motivation: selection as a means of compression</h3>
       <p>When a vanilla attention mechanism is used, all key and value representations of all parts of an input are saved in memory. Naturally, this much information 
         allows for a powerful way of selecting what is useful and what is not, at every moment. However, this also means that the memory footprint of the model is very large (many advances have been made).
         This is effective but inefficient, as nothing is compressed.</p>
@@ -170,9 +169,63 @@
           as all parts of the input all considered equally useful. This is efficient but not effective, as there is indiscriminate compression.</p>
 
         <p>Now, because SSM blocks use a fixed-size hidden state, there will always be compression. For an effective compression, though, the model needs to be able to select what is useful and what is not:
-          selection as a means of compression. This idea </p>
+          selection as a means of compression. Thus, a fixed hidden state coupled with selection will help us better explore this effectiveness-efficiency tradeoff.</p>
 
-      </p>
+      <h3>Parameters as functions of the input</h3>
+      <p>How do we actually make SSM blocks selective? A related question for the reader is: what parameters, from equation $\ref{eq:ssm_dis}$, influence 
+        how information propagates and how the output is constructed? The anwsers are (1) all matrices that update the hidden state ($\bar{\mathbf{A}}$ and 
+        $\bar{\mathbf{B}}$), and (2) the $\bar{\mathbf{C}}$ matrix. If they are to be able to be selective, that means that they need to behave differently 
+        depending on the input. That is, those parameters need to be input-dependant.</p>
+
+      <p>For this, the Mamba authors propose a simple solution: create parametrised (trainable) functions that map the input in each timestep to the corresponding parameter matrices.
+        These functions exist for each parameter that needs to be selective. For example, if we want the $\bar{\mathbf{B}}$ matrix to be selective, 
+        we train, as part of the SSM block, the linear projection $s_B(x) = $Linear${}_N(x)$ that maps the input $x$ to the $\mathbf{B}$ matrix. This way, the $\bar{\mathbf{B}}$ matrix 
+        will have a different structure depending on the input and will selectively interact with information.</p>
+
+        <p>Note how, in the previous paragraph, the linear map outputs the undiscretized matrix! To be precise, the Mamba paper proposes to make 
+          $\mathbf{B}, \mathbf{C}, \Delta$ functions of the input:
+
+          $$
+          \begin{align}
+          \mathbf{B} &= s_B(x) \nonumber \\
+          \mathbf{C} &= s_C(x) \nonumber \\
+          \Delta &= \tau_{\Delta}(p + s_{\Delta}(x)) \nonumber
+          \end{align}
+          $$
+
+          where $p$ is a fixed parameter and:
+        
+          $$
+          \begin{align}
+            s_{\Delta}(x) &= \text{Broadcast}_T(\text{Linear}_1(x)) \nonumber \\
+            s_B(x) &= \text{Linear}_N(x) \nonumber \\
+            s_C(x) &= \text{Linear}_N(x) \nonumber \\
+            \tau_{\Delta} &= \text{Softplus} \nonumber
+            
+          \end{align}
+          $$
+
+          where $T$ is the size of input sequence (time dimension), and $N$ is the state size.
+          Skip the latex if you want, but the main idea is that the matrices are functions of the input, and that the input is mapped to the matrices by linear functions.
+          The $\Delta$ matrix is constructed like that because, as the authors show, it's actually a nice generalisation of RNN gating.
+          
+          <p>An important comment to make is why the $\mathbf{A}$ matrix is not function of the input, but a fixed parameter just like before.
+            Look at equation $\ref{eq:ssm_dis}$ and think about the roles of each matrix. $\bar{\mathbf{A}}$ enables memorization of the hidden state (it's a HiPPO matrix),
+          $\bar{\mathbf{B}}$ determines how the input influences the state, and $\bar{\mathbf{C}}$ how the state influences the output. The purpose of selectivity is
+          for the model to be able to focus on different parts of the input to output a prediction. Thus, how the previous hidden state influences the current one is not
+          something that should be selective, but rather a fixed, operation.</p>
+        
+
+        <h3>The importance of implementation</h3>
+        <p>With the change of making some parameters input dependent, the ability to express an SSM as a convolution (see previous post) is lost: the kernel is not fixed anymore.
+          Thus, we only have the recurrent view of an SSM block, which is not as efficiently computed as the convolutional view (when expressed naively).
+          A big contribution of the Mamba paper is the implementation of the selective SSM block, with which they address the following problems:</p>
+          <ul>
+            <li>Parallelisation of a the recurrent view. todo primero paralelizan, y luego tienen que lidiar con los problemas de memoria, al igual que cuando
+              lo implementaban de forma convolucional.
+            </li>
+            <li>High memory usage.</li>
+          </ul>
 
     </section>
 
