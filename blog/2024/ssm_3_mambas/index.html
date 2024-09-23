@@ -316,25 +316,39 @@
       <p>In this section, I want to very briefly summarise the practical changes and the theoretical conclusions presented by the Mamba 2 paper. 
         The theoretical framework is in my opinion the most important result from the paper, and because this series focuses more on the models, I will be skimming through.
         Visit the great Mamba 2 posts (todo ref) for the best in-depth presentation of the topic. In spite of all this, though, we need just a bit of theoretical intuition to contextualise 
-        the results.</p>
+        the practical results.</p>
 
-      <h3>The state-space duality framework</h3>
+      <h3>Introduction to the State Space Duality framework</h3>
       <p>
-        In order to derive the relationships between attention and state space models, the authors go at it from two perspectives. First, they explore generalisations from the perspective of 
-        attention, and then from the perspective of SSMs. These generalisations are both made through the abstraction of <span class="italic">structured matrices</span>:
+        Before deriving the relationships between attention and state space models, the authors explore the properties of both from explore generalisations from 
+        the perspective of <span class="italic">structured matrices</span> (they both worked with them at the beggining of their PhD's, so it's a natural choice):
         <ul>
-          <li>for State Space Models, they show an equivalence with semiseparable matrices. These are well studied and allow for a new set of tools to be used with SSMs.</li>
-          <li>for attention, (linear attention, in particular todo cite), they generalise it to a family which they call structured mask attention.</li>
+          <li>as for <span class="bold">Structured State Space Models</span>, they show an equivalence with semiseparable matrices. 
+            From this formulation, the authors show that SSMs can be computed in two ways: a linear, recurrent one via tensor contractions (as usual), and a quadratic (naive) one via pure matrix multiplications.</li>
+          <li>as for <span class="bold">attention variants</span>, they define <span class="italic">structured mask attention</span>, which is another
+            generalisation. With this, they show that quadratic (the usual) and linear attention are simply different orders by which to compute masked attention via tensor contractions.</li>
         </ul>
+      </p>
+      <p>
+        So, for both from a SSM and an attention perspective, we now have the same two ways to compute them: a linear and a quadratic one. In fact, both turn out to be different perspectives on 
+        the same duality. When reducing on a special case, attention and SSMs have the <span class="bold">exact</span> same linear and quadratic forms, and are thus equivalent! 
+        This is the Structured State Space Duality (SSD). As for the special cases, they are the following:
+        <ul>
+          <li>as for SSMs, when $\mathbf{A}$ is a scalar times identity matrix (all elements in the diagonal are the same).</li>
+          <li>as for attention, when it's masked and the mask is what they call a 1-semiseparable matrix. We are not that interested in this instantiation because we only implement the SSM case. </li>
+        </ul>
+      </p>
 
-        Having both generalisations made in the same framework allows for a direct comparison between the two. Not by chance, they find that structured mask attention and SSMs have a generous
-        intersection.
-
+      <p>
+        Let's see what this duality actually implies for our current SSM implementation.
       </p>
 
       <h3>New matrix structure and its consequences</h3>
       <p>At the end of the <a href="../ssm_2_networks/index.html">previous post</a> I talked about Structured SSMs, which mitigated memory usage by making
         the $\mathbf{A}$ matrix diagonal. Motivated by some of the insights the new </p>
+
+        Although the quadratic representation scales with the sequence length, it's very important
+        to note that its purely based on matrix multiplications, and so can actually be very hardware-efficient.
 
     </section>
 
