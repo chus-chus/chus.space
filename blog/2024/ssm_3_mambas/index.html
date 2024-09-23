@@ -49,10 +49,9 @@
     };
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <!--<script src="https://d3js.org/d3.v6.min.js"></script>-->
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
-  <script src="../../../src/ssm_source.js"></script>
 </head>
 
 <body>
@@ -168,11 +167,11 @@
         allows for a powerful way of selecting what is useful and what is not, at every moment. However, this also means that the memory footprint of the model is very large (many advances have been made).
         This is effective but inefficient, as nothing is compressed.</p>
 
-        <p>On the other hand, when a vanilla SSM block, or a RNN, is used, the hidden state compresses all input information, up to the current part, into a fixed-size vector. This is very efficient, but not really effective, 
-          as all parts of the input all considered equally useful. This is efficient but not effective, as there is indiscriminate compression.</p>
+      <p>On the other hand, when a vanilla SSM block, or a RNN, is used, the hidden state compresses all input information, up to the current part, into a fixed-size vector. This is very efficient, but not really effective, 
+        as all parts of the input all considered equally useful. This is efficient but not effective, as there is indiscriminate compression.</p>
 
-        <p>Now, because SSM blocks use a fixed-size hidden state, there will always be compression. For an effective compression, though, the model needs to be able to select what is useful and what is not:
-          selection as a means of compression. Thus, a fixed hidden state coupled with selection will help us better explore this effectiveness-efficiency tradeoff.</p>
+      <p>Now, because SSM blocks use a fixed-size hidden state, there will always be compression. For an effective compression, though, the model needs to be able to select what is useful and what is not:
+        selection as a means of compression. Thus, a fixed hidden state coupled with selection will help us better explore this effectiveness-efficiency tradeoff.</p>
 
       <h3>Parameters as functions of the input</h3>
       <p>How do we actually make SSM blocks selective? A related question for the reader is: what parameters, from equation $\ref{eq:ssm_dis}$, influence 
@@ -185,143 +184,166 @@
         we train, as part of the SSM block, the linear projection $s_B(x) = $Linear${}_N(x)$ that maps the input $x$ to the $\mathbf{B}$ matrix. This way, the $\bar{\mathbf{B}}$ matrix 
         will have a different structure depending on the input and will selectively interact with information.</p>
 
-        <p>Note how, in the previous paragraph, the linear map outputs the undiscretized matrix! To be precise, the Mamba paper proposes to make 
-          $\mathbf{B}, \mathbf{C}, \Delta$ functions of the input:
+      <p>Note how, in the previous paragraph, the linear map outputs the undiscretized matrix! To be precise, the Mamba paper proposes to make 
+        $\mathbf{B}, \mathbf{C}, \Delta$ functions of the input:
 
-          $$
-          \begin{align}
-          \mathbf{B} &= s_B(x) \nonumber \\
-          \mathbf{C} &= s_C(x) \nonumber \\
-          \Delta &= \tau_{\Delta}(p + s_{\Delta}(x)) \nonumber
-          \end{align}
-          $$
+        $$
+        \begin{align}
+        \mathbf{B} &= s_B(x) \nonumber \\
+        \mathbf{C} &= s_C(x) \nonumber \\
+        \Delta &= \tau_{\Delta}(p + s_{\Delta}(x)) \nonumber
+        \end{align}
+        $$
 
-          where $p$ is a fixed parameter and:
-        
-          $$
-          \begin{align}
-            s_{\Delta}(x) &= \text{Broadcast}_T(\text{Linear}_1(x)) \nonumber \\
-            s_B(x) &= \text{Linear}_N(x) \nonumber \\
-            s_C(x) &= \text{Linear}_N(x) \nonumber \\
-            \tau_{\Delta} &= \text{Softplus} \nonumber
-            
-          \end{align}
-          $$
-
-          where $T$ is the size of input sequence (time dimension), and $N$ is the state size.
-          Skip the latex if you want, but the main idea is that the matrices are functions of the input, and that the input is mapped to the matrices by linear functions.
-          The $\Delta$ matrix is constructed like that because, as the authors show, it's actually a nice generalisation of RNN gating.
+        where $p$ is a fixed parameter and:
+      
+        $$
+        \begin{align}
+          s_{\Delta}(x) &= \text{Broadcast}_T(\text{Linear}_1(x)) \nonumber \\
+          s_B(x) &= \text{Linear}_N(x) \nonumber \\
+          s_C(x) &= \text{Linear}_N(x) \nonumber \\
+          \tau_{\Delta} &= \text{Softplus} \nonumber
           
-          <p>An important comment to make is why the $\mathbf{A}$ matrix is not function of the input, but a fixed parameter just like before.
-            Look at equation $\ref{eq:ssm_dis}$ and think about the roles of each matrix. $\bar{\mathbf{A}}$ enables memorization of the hidden state (it's a HiPPO matrix),
-          $\bar{\mathbf{B}}$ determines how the input influences the state, and $\bar{\mathbf{C}}$ how the state influences the output. The purpose of selectivity is
-          for the model to be able to focus on different parts of the input to output a prediction. Thus, how the previous hidden state influences the current one is not
-          something that should be selective, but rather a fixed operation. If you don't find this argument compelling enough, also note how the only way $\mathbf{A}$
-          interacts with the system is via $\bar{\mathbf{A}} = e^{\Delta \mathbf{A}}$ (the discretization, which we address in <a href="../ssm_1_context/index.html">post 1</a> of the series). Thus, one could argue that selectivity in $\Delta$
-          is enough for $\bar{\mathbf{A}}$ to be selective.</p>
+        \end{align}
+        $$
+
+        where $T$ is the size of input sequence (time dimension), and $N$ is the state size.
+        Skip the latex if you want, but the main idea is that the matrices are functions of the input, and that the input is mapped to the matrices by linear functions.
+        The $\Delta$ matrix is constructed like that because, as the authors show, it's actually a nice generalisation of RNN gating.
         
+      <p>An important comment to make is why the $\mathbf{A}$ matrix is not function of the input, but a fixed parameter just like before.
+        Look at equation $\ref{eq:ssm_dis}$ and think about the roles of each matrix. $\bar{\mathbf{A}}$ enables memorization of the hidden state (it's a HiPPO matrix),
+      $\bar{\mathbf{B}}$ determines how the input influences the state, and $\bar{\mathbf{C}}$ how the state influences the output. The purpose of selectivity is
+      for the model to be able to focus on different parts of the input to output a prediction. Thus, how the previous hidden state influences the current one is not
+      something that should be selective, but rather a fixed operation. If you don't find this argument compelling enough, also note how the only way $\mathbf{A}$
+      interacts with the system is via $\bar{\mathbf{A}} = e^{\Delta \mathbf{A}}$ (the discretization, which we address in <a href="../ssm_1_context/index.html">post 1</a> of the series). Thus, one could argue that selectivity in $\Delta$
+      is enough for $\bar{\mathbf{A}}$ to be selective.</p>
+      
 
-        <h3>The importance of implementation</h3>
-        <p>With the change of making some parameters input dependent, the ability to express an SSM as a convolution (see previous post) is lost: the kernel is not fixed anymore.
-          Thus, we only have the recurrent view of an SSM block, which is not as efficiently computed as the convolutional view (when expressed naively).
-          A big contribution of the Mamba paper is the implementation of the selective SSM block, with which they address the following problems:</p>
-          <ol>
-            <li><span class="bold">Parallelisation of the recurrent view.</span><p></p></li>
-            <li><span class="bold">Memory limitations.</span></li>
-          </ol>
+      <h3>The importance of implementation</h3>
+      <p>With the change of making some parameters input dependent, the ability to express an SSM as a convolution (see previous post) is lost: the kernel is not fixed anymore.
+        Thus, we only have the recurrent view of an SSM block, which is not as efficiently computed as the convolutional view (when expressed naively).
+        A big contribution of the Mamba paper is the implementation of the selective SSM block, with which they address the following problems:</p>
 
-          <p>Let's address them.</p>
+      <ol>
+        <li><span class="bold">Parallelisation of the recurrent view.</span><p></p></li>
+        <li><span class="bold">Memory limitations.</span></li>
+      </ol>
 
-          </section>
-
-          <!--<p>If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use.</p>-->
-
-          <section id="Mamba: making it practical">
-            <h2>Mamba: making it practical</h2>
-            <p>The Mamba paper is a wonderful piece of research: many of the ideas are not new, but a special kind of mind is required for bringing them together and implement them in harmony. 
-              If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use. 
-              So, in this section, I want to briefly lay down the intuition behind what I consider two of the most relevant 
-              implementation details. For further reading, I really
-          recommend TODO cite https://jameschen.io/jekyll/update/2024/02/12/mamba.html#fnref:kvcache ,and </p>
-
-            <h3>The Blelloch parallel scan</h3>
-            <p>For the training of Mamba to be efficient, we need to parallelise it. The Blelloch parallel scan algorithm has been (relatively recently) used for parallelizing RNNs (todo cite Eric Martin and Chris Cundy. “Parallelizing Linear Recurrent Neural Nets Over Sequence Length”. In: The Interna-
-              tional Conference on Learning Representations (ICLR). 2018.), and if you
-              have been paying attention, something in you might tell you that it may be possible to also apply it to State Space Models. Well, that's exactly what happened!</p>
-              
-              <p>As its name suggests, the parallel scan algorithm is used to perform an operation called a 
-              <span class="italic">scan</span> in parallel. In short, the scan iteratively and cumulatively applies an operator to a list.
-              TODO fig scan example</p>
-
-              <p>This scan operation is actually how recurrent models compute hidden states:</p>
-
-              TODO fig rnn scan
-
-              <p>But an RNN, or Mamba, performs more operations than just sums! Well, the parallel scan algorithm doesn't only work with the sum operator, but with all binary (input two numbers, output one) and associative (the order does not matter) 
-                operators. So, if we can design an operator for Mamba, we can parallelise the scan (this is simplified, because the generalisation for recurrences is a bit more specific, but I refer you to the
-                mentioned source if you need more details). As a spoiler, the resulting operator is a way to express the computation of $\overline{\mathbf{A}_t}$ and $\overline{\mathbf{B}(x_t)}x_t$ at any point in 
-                time (in the sequence) $t$. With them, follow equation $\ref{eq:ssm_dis}$ to see how $h_t$ is computed. This is sufficient for applying the Blelloch algorithm, thus parallelising 
-                the training of Mamba.</p>
-
-              <p>As a sidenote, this parallelisation is also useful at inference time, but not as much given that requests will come in an asynchronous manner. 
-                It's a problem of batching and scheduling, then. </p>
-
-              <h3>Hardware-aware computing</h3>
-              <p>Nowadays, a lot of software is developed without taking any target hardware into account. In spite of this, for certain applications, there are plenty of benefits of knowing 
-                how the hardware your application is going to run in works.</p>
-
-              <p>You might recognize one of the Mamba authors, Tri Dao, by his work on FlashAttention todo cite. FlashAttention is an implementation of the attention mechanism that drastically reduces the amount
-                of memory transfers between High-Bandwidth Memory and SRAM, from where the processor units pull the data for performing operations. They way this is done is out of the scope of this post, but the main idea is that because Attention is memory-bound (more time moving things around
-                than actually doing computations), the less memory transfers, the faster the model. This is a hardware-aware implementation.</p>
-                
-              <p>The authors recognised that Mamba was memory-bound and did the same: reduce the amount of memory transfers. The usual flow for a GPU program is:
-                <ol>
-                  <li>Load data from HBM to SRAM.</li>
-                  <li>Compute.</li>
-                  <li>Store results from SRAM to HBM.</li>
-                </ol>
-                A naive implementation of an SSM block would discretize, update the hidden state, and then the output, all in separate steps (multiple loops of the flow above). Instead, we discretize, 
-                update the hidden state, and compute the output all in one loop. This is called <span class="italic">kernel fusion</span>, a fancy word for combining operations in a single GPU program.
-              </p>
-
-              <p>Another technique that they use to make the selective SSM block efficient is <span class="italic">recomputation</span>, which means to avoid storing objects that are
-                needed later on (such in the backward pass) in memory and instead compute them again. When an operation is clearly memory-bound, this makes everything go faster.</p>
-
-              <p>In conclusion, the selective SSM block is implemented efficiently mainly by:
-                <ul>
-                  <li>Parallelising the scan operation with the Blelloch algorithm.</li>
-                  <li>Using hardware-aware computing techniques such as kernel fusion and recomputation.</li>
-                </ul>
-                
-                Including more details would be repeating what's said in the paper, so if you're not sated, please refer to it.</p>
-
-                <h3>The Mamba block</h3>
-                <p>Just as we described in <a href="../ssm_2_networks/index.html">post 2</a>, the SSM block is not the only ingredient for a succesful model.
-                We saw how one could combine multiple SSM blocks with traditional operations such as softmax or linear projections to build a "neural network"
-                with SSMs as a core. Mamba is no different: in the paper, the selective SSM block is combined with multiple other operations to form a Mamba block.
-              
-              todo fig    </p>
-
-          </section>
-
-          <section id="Mamba 2">
-            <h2>Mamba 2</h2>
-
-          </section>
-
-         
-          
-        
-
-          
-
-
-        
+      <p>Let's address them.</p>
 
     </section>
 
-    <section id="Next up & references">
-      <h2>Next up</h2>
+          <!--<p>If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use.</p>-->
+
+    <section id="Mamba: making it practical">
+      <h2>Mamba: making it practical</h2>
+      <p>The Mamba paper is a wonderful piece of research: many of the ideas are not new, but a special kind of mind is required for bringing them together and implement them in harmony. 
+        If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use. 
+        So, in this section, I want to briefly lay down the intuition behind what I consider two of the most relevant 
+        implementation details. For further reading, I really
+    recommend TODO cite https://jameschen.io/jekyll/update/2024/02/12/mamba.html#fnref:kvcache ,and </p>
+
+      <h3>The Blelloch parallel scan</h3>
+      <p>For the training of Mamba to be efficient, we need to parallelise it. The Blelloch parallel scan algorithm has been (relatively recently) used for parallelizing RNNs (todo cite Eric Martin and Chris Cundy. “Parallelizing Linear Recurrent Neural Nets Over Sequence Length”. In: The Interna-
+        tional Conference on Learning Representations (ICLR). 2018.), and if you
+        have been paying attention, something in you might tell you that it may be possible to also apply it to State Space Models. Well, that's exactly what happened!</p>
+        
+        <p>As its name suggests, the parallel scan algorithm is used to perform an operation called a 
+        <span class="italic">scan</span> in parallel. In short, the scan iteratively and cumulatively applies an operator to a list.
+        TODO fig scan example</p>
+
+        <p>This scan operation is actually how recurrent models compute hidden states:</p>
+
+        TODO fig rnn scan
+
+        <p>But an RNN, or Mamba, performs more operations than just sums! Well, the parallel scan algorithm doesn't only work with the sum operator, but with all binary (input two numbers, output one) and associative (the order does not matter) 
+          operators. So, if we can design an operator for Mamba, we can parallelise the scan (this is simplified, because the generalisation for recurrences is a bit more specific, but I refer you to the
+          mentioned source if you need more details). As a spoiler, the resulting operator is a way to express the computation of $\overline{\mathbf{A}_t}$ and $\overline{\mathbf{B}(x_t)}x_t$ at any point in 
+          time (in the sequence) $t$. With them, follow equation $\ref{eq:ssm_dis}$ to see how $h_t$ is computed. This is sufficient for applying the Blelloch algorithm, thus parallelising 
+          the training of Mamba.</p>
+
+        <p>As a sidenote, this parallelisation is also useful at inference time, but not as much given that requests will come in an asynchronous manner. 
+          It's a problem of batching and scheduling, then. </p>
+
+        <h3>Hardware-aware computing</h3>
+        <p>Nowadays, a lot of software is developed without taking any target hardware into account. In spite of this, for certain applications, there are plenty of benefits of knowing 
+          how the hardware your application is going to run in works.</p>
+
+        <p>You might recognize one of the Mamba authors, Tri Dao, by his work on FlashAttention todo cite. FlashAttention is an implementation of the attention mechanism that drastically reduces the amount
+          of memory transfers between High-Bandwidth Memory and SRAM, from where the processor units pull the data for performing operations. They way this is done is out of the scope of this post, but the main idea is that because Attention is memory-bound (more time moving things around
+          than actually doing computations), the less memory transfers, the faster the model. This is a hardware-aware implementation.</p>
+          
+        <p>The authors recognised that Mamba was memory-bound and did the same: reduce the amount of memory transfers. The usual flow for a GPU program is:
+          <ol>
+            <li>Load data from HBM to SRAM.</li>
+            <li>Compute.</li>
+            <li>Store results from SRAM to HBM.</li>
+          </ol>
+          A naive implementation of an SSM block would discretize, update the hidden state, and then the output, all in separate steps (multiple loops of the flow above). Instead, we discretize, 
+          update the hidden state, and compute the output all in one loop. This is called <span class="italic">kernel fusion</span>, a fancy word for combining operations in a single GPU program.
+        </p>
+
+        <p>Another technique that they use to make the selective SSM block efficient is <span class="italic">recomputation</span>, which means to avoid storing objects that are
+          needed later on (such in the backward pass) in memory and instead compute them again. When an operation is clearly memory-bound, this makes everything go faster.</p>
+
+        <p>In conclusion, the selective SSM block is implemented efficiently mainly by:
+          <ul>
+            <li>Parallelising the scan operation with the Blelloch algorithm.</li>
+            <li>Using hardware-aware computing techniques such as kernel fusion and recomputation.</li>
+          </ul>
+          
+          Including more details would be repeating what's said in the paper, so if you're not sated, please refer to it.</p>
+
+          <h3>The Mamba block</h3>
+          <p>Just as we described in <a href="../ssm_2_networks/index.html">post 2</a>, the SSM block is not the only ingredient for a succesful model.
+          We saw how one could combine multiple SSM blocks with traditional operations such as softmax or linear projections to build a "neural network"
+          with SSMs as a core. Mamba is no different: in the paper, the selective SSM block is combined with multiple other operations to form a Mamba block.
+        
+        todo fig    </p>
+
+    </section>
+
+    <section id="A quick Mamba 2">
+      <h2>A quick Mamba 2</h2>
+
+      <p>If you have read through all three posts (thank you so much!), you might have noticed that this story is one of improvements. 
+        From plain vanilla state space models to deep networks, through state history reconstruction and hardware-specific optimizations to selection mechanisms,
+      we have been incrementally building upon the previous iteration. Mamba 1 and Mamba 2 (todo cite) were published in relatively quick succession, and although
+      the practical changes introduced by Mamba 2 were not many, a rich theoretical framework was presented along it. This framework enabled the authors to 
+      characterize the relation of SSMs to attention. So, SSMs can be viewed through many different lenses: as continuous, recurrent, convolutional and attention-based models!</p>
+
+      <p>In this section, I want to very briefly summarise the practical changes and the theoretical conclusions presented by the Mamba 2 paper. 
+        The theoretical framework is in my opinion the most important result from the paper, and because this series focuses more on the models, I will be skimming through.
+        Visit the great Mamba 2 posts (todo ref) for the best in-depth presentation of the topic. In spite of all this, though, we need just a bit of theoretical intuition to contextualise 
+        the results.</p>
+
+      <h3>The state-space duality framework</h3>
+      <p>
+        In order to derive the relationships between attention and state space models, the authors go at it from two perspectives. First, they explore generalisations from the perspective of 
+        attention, and then from the perspective of SSMs. These generalisations are both made through the abstraction of <span class="italic">structured matrices</span>:
+        <ul>
+          <li>for State Space Models, they show an equivalence with semiseparable matrices. These are well studied and allow for a new set of tools to be used with SSMs.</li>
+          <li>for attention, (linear attention, in particular todo cite), they generalise it to a family which they call structured mask attention.</li>
+        </ul>
+
+        Having both generalisations made in the same framework allows for a direct comparison between the two. Not by chance, they find that structured mask attention and SSMs have a generous
+        intersection.
+
+      </p>
+
+      <h3>New matrix structure and its consequences</h3>
+      <p>At the end of the <a href="../ssm_2_networks/index.html">previous post</a> I talked about Structured SSMs, which mitigated memory usage by making
+        the $\mathbf{A}$ matrix diagonal. Motivated by some of the insights the new </p>
+
+    </section>
+
+    <section id="Series conclusion & references">
+      <h2>Series conclusion</h2>
+
+      <p>As for Mamba 2, it's a restriction on top of the original Mamba that allows it to train quicker and have 8 times bigger states given the same memory footprint. 
+        It's not necesserily better than the first iteration in terms of predictive performance or inference speed, but given how the training of foundational models requires 
+        so much effort, a 50% increase in speed is nice. </p>
 
       <h3>References</h3>
       <p><ul id="reference-list"></ul></p>
