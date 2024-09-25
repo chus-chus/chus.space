@@ -12,7 +12,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSM networks and S4</title>
+    <title>SSM nets & S4 | Chus</title>
     <link rel="stylesheet" href="../../../style.css">
     <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -27,7 +27,7 @@
     <meta name="description" content="Description">
     <meta property="og:description" content="Description">
     <!-- entry name / entry image TODO REPLACE-->
-    <meta property="og:image" content="https://www.chus.space/static/entryname/ssms.jpg"> 
+    <meta property="og:image" content="https://www.chus.space/static/entryname/entrypic.jpg"> 
     <!-- entry name -->
     <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_2_networks"> 
     <meta property="og:site_name" content="Chus Antonanzas">
@@ -96,22 +96,23 @@
     <section id="Intro">
       <h2>Intro</h2>
 
-      <p>This is the second part of the State Space Model series! In this post, we are see how SSMs were first incorporated into neural networks. Then, we are 
-      going to see the fundamental flaws in this first approach (spoiler, there are 2), and how S4 approached them. To give some context, this is where
-      we are in the series:</p>
+      <p>Welcome to the second part of our State Space Model (SSM) series! 
+        In this post, we'll dive into how SSMs were initially incorporated into neural networks. 
+        We'll explore two key flaws in the first approach and how the S4 model addressed them. 
+        For context, here's a snapshot of where we are in the series:</p>
   
       <ul>
         <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
-          <ul>We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
+          <div>We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
         </li>
         
-        <li><span class="bold">Part 2: SSM networks and Structured State Spaces</span>
-          <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
+        <li><span class="bold">Part 2: SSM neural networks and Structured State Spaces</span>
+          <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
         </li>
         <li><span class="bold"><a href="../ssm_3_mambas/index.html">Part 3: State Space Selectivity (Mamba) and Duality (Mamba 2)</a></span>
-          <ul>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like attention.
+          <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
             Speaking of, what's the relationship between SSMs and attention? They are actually the same! What does this imply?
-          </ul>
+          </div>
         </li>
       </ul>
 
@@ -155,7 +156,7 @@
     <section id="The Linear State-Space Layer">
       <h2>The Linear State-Space Layer</h2>
 
-      <p>The vanilla SSM that we presented in the last post was generalized in by <a href="#LSSL">Gu et al. (2021)</a>, and they called it
+      <p>The vanilla SSM that we presented in the last post was generalized by <a href="#LSSL">Gu et al. (2021)</a>, and they called it
         the <span class="italic">Linear State-Space Layer</span> (LSSL).
         They characterized the LSSL in terms of its parameters, $\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$, and importantly by
         providing multiple interpretations of the model. These interpretations, or views, allowed us to define the same LSSL in different ways. </p>
@@ -164,8 +165,8 @@
       <p>The authors of LSSLs argued that they could be viewed in three ways: </p>
 
       <ol>
-        <li>A continuous-time view, where the LSSL is just equation $\ref{eq:ssm}$.</li>
-        <li>A recurrent view, where the LSSL was discretized like in equation $\ref{eq:ssm_dis}$ and its operations were performed iteratively.</li>
+        <li>A continuous-time view, where the LSSL is just Equation $\ref{eq:ssm}$.</li>
+        <li>A recurrent view, where the LSSL was discretized like in Equation $\ref{eq:ssm_dis}$ and its operations were performed iteratively.</li>
         <li>A convolutional view, where the LSSL was also discretized and its operations were defined as a convolution with a filter.</li>
       </ol>
 
@@ -174,9 +175,9 @@
 
       <h3>LSSL: recurrent view</h3>
 
-      <p>How would you implement the mechanical SSM simulation that we presesented at the end of the previous post? Well, one could write down the parameters
+      <p>How would you implement the mechanical SSM simulation that we presented at the end of the previous post? Well, one could write down the parameters
         and create a function that given the previous hidden state and the current input, computes the next hidden state. Then, we could iterate this function
-        over all inputs, each one depending on the last one. This is the recurrent view! It's just implementing equation $\ref{eq:ssm_dis}$ naively.</p>
+        over all inputs, each one depending on the last one. This is the recurrent view! It's just implementing Equation $\ref{eq:ssm_dis}$ naively.</p>
 
       <div class="plot-container">
           <div class="plot-background-1" id="ssm_2_viz_1">
@@ -185,8 +186,8 @@
         </div>
       <p class="plot-caption">Figure 1: recurrent view of a discrete-time SSM.</p>
 
-      <p>This view is quite efficient. The amount of memory and computation used is the same in each step: we only store the parameters, previous state and current
-        input. The downside is, it's sequential, so for a massive number of inputs, we will need to go one by one, without parallelization (a small lie, we will revisit
+      <p>This view is quite efficient. The amount of memory and computation used is the same in each step, and we only store the parameters, the previous state, and the current input.
+       The downside is, it's sequential, so for a massive number of inputs, we will need to go one by one, without parallelization (a small lie, we will revisit
         this later). </p>
 
       <p>You also may have noticed the similarities between the recurrent view of an LSSL and a traditional Recurrent Neural Network (RNN). Well, in the same paper, 
@@ -206,7 +207,7 @@
       <h3>LSSL: convolutional view</h3>
 
       <p>What's the other view? Well, if we pay closer attention to the recurrent view and write down how each step is computed, we can unroll the whole sequence.
-      Following equation $\ref{eq:ssm_dis}$, and assuming that $h_{-1} = 0$:
+      Following Equation $\ref{eq:ssm_dis}$, and assuming that $h_{-1} = 0$:
 
       $$
       \begin{align}
@@ -295,7 +296,7 @@
       <p>Formally, we now may interpret input $\mathbf{X} \in \mathbb{R}^{(T, P)}$, with $P$ LSSLs stacked independently (heads), having output $\mathbf{Y} \in \mathbb{R}^{(T, P)}$.
       We may also have input $\mathbf{X} \in \mathbb{R}^{(T)}$, with $P$ LSSLs stacked, having output also $\mathbf{Y} \in \mathbb{R}^{(T, P)}$
       (each input goes through $P$ LSSLs).
-      The lesson here is that we can stack LSSL blocks to create a that maps a sequence to another sequence, with the same signature as a modern neural network.</p>
+      The lesson here is that we can stack LSSL blocks to create a model that maps a sequence to another sequence, with the same signature as a modern neural network.</p>
 
       <div class="plot-container ">
         <div class="plot-background-1" id="ssm_2_viz_5">
@@ -312,7 +313,7 @@
 
       <div class="plot-container ">
         <div class="plot-background-1" id="ssm_2_viz_6">
-          <img src="../../../static/2024/ssm_2_6.svg" alt="" height=385">
+          <img src="../../../static/2024/ssm_2_6.svg" alt="" height="385">
         </div>
       </div>
       <p class="plot-caption">Figure 6: zoom-in of an example SSM layer (top), part of a larger network (bottom).
@@ -373,8 +374,6 @@
 
       <p style="margin-bottom: 1cm;"></p>
 
-      <!-- If you want to know more, check out the references. (todo references S4, etc). -->
-
       <p>Alas, even with HiPPO matrices, problems still plague these lands. Now, although a deep LSSL network can perform well on LRD, it has prohibitive computational and memory 
         requirements, mainly due to the state representation (not on the recurrent view, as the requirements are constant). If we want these models to be competitive to 
         comparably-sized RNNs, we need to dig further. Luckily, just one trick does it!</p>
@@ -385,29 +384,30 @@
       <p>In 2022, <a href="#S4">Structured State Spaces</a> (S4) were introduced. In S4, the authors basically showed how to address the computational and memory issues that we mentioned previously.
       As we said, the issues mainly came from how the convolutional view, which was the one needed for training, required computing and keeping in memory the huge filter $\bar{\mathbf{K}}$.</p>
 
-      <p>If we look at equation $\ref{eq:conv_filter}$, we notice how not only there is lots of parameters to store, but also how we need to compute powers of $\mathbf{A}$. This is a red flag. 
+      <p>If we look at Equation $\ref{eq:conv_filter}$, we notice how not only there is lots of parameters to store, but also how we need to compute powers of $\mathbf{A}$. This is a red flag. 
       Motivated by the properties of diagonalizable matrices, S4 finds a way to represent the HiPPO matrix $\mathbf{A}$ so that the filter $\bar{\mathbf{K}}$ can be computed fast, and with less memory.
       In the end (and after a lot of math), they end up decomposing $\mathbf{A} = \mathbf{\Lambda} - \mathbf{P} \mathbf{Q}^*$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
       a HiPPO matrix. Overall, then, now we can say that $\mathbf{A} \in \mathbb{R}^{N}$. Not only that, its powers can be computed very fast and the prohibitive costs for computing the 
-      convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing!</p> <!--(TODO cite)-->
+      convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing (<a href="#S4">paper</a>, <a href="#annotatedS4">The Annotated S4</a>)</p>
 
       <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by $\mathbf{\Lambda}$, $\mathbf{P}$ and $\mathbf{Q}$). 
         Updating how the filter $\bar{\mathbf{K}}$
-        is computed <!--(TODO cit s4)--> is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
+        is computed is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
     </section>
 
     <section id="Next up & references">
       <h2>Next up</h2>
-      <p>In this post, we explored ways to view an SSM, how we can use it for inference and train it, how it can be incorporated into a neural
-        network design, and how to address its computational and context limitations. In the <a href="../ssm_3_mambas/index.html">next post</a>, we will fix yet another shortcoming: linear-time-invariance. We will see how to 
-        make SSMs focus on different parts of the input, just like attention mechanisms do. Stay tuned!</p>
+      <p>
+        In this post, we explored ways to view an SSM, how we can use it for inference and train it, how it can be incorporated into a neural
+        network design, and how to address its computational and context limitations. In the <a href="../ssm_3_mambas/index.html">next post</a>, we will fix yet another shortcoming: linear-time-invariance. 
+        We will see what Mamba is and how to make SSMs focus on different parts of the input, just like attention mechanisms do. 
+        We will also establish a relation between SSMs and attention and present Mamba 2.
       </p>
 
       <h3>References</h3>
       <p><ul id="reference-list"></ul></p>
 
     </section>
-    </article>
 
   </article>
 
@@ -433,7 +433,7 @@
           refList.appendChild(listItem);
       });
     });
-    </script>
+  </script>
 
 </body>
 

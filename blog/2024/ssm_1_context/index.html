@@ -12,7 +12,7 @@
   </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intro to SSMs</title>
+    <title>Intro to SSMs | Chus</title>
     <link rel="stylesheet" href="../../../style.css">
     <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -99,23 +99,23 @@
       <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
         In the series, we will cover everything you need to know about how SSMs work to understand their current uses, how they became competitive with the state-of-the-art, all the way up to the most 
         recent advances.</p>
-      <p>I have organised into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I also have tried to keep as 
+      <p>I have organized into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I also have tried to keep as 
         constant a notation as possible, 
         given that the ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
   
       <p>The series is divided into these parts:</p>
         <ul>
           <li><span class="bold">Part 1: Motivation and introduction to SSMs</span>
-            <ul>You are here. We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
+            <div>You are here. We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
           </li>
           
-          <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM networks and Structured State Spaces</a></span>
-            <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
+          <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM neural networks and Structured State Spaces</a></span>
+            <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
           </li>
           <li><span class="bold"><a href="../ssm_3_mambas/index.html">Part 3: State Space Selectivity (Mamba) and Duality (Mamba 2)</a></span>
-            <ul>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like attention.
+            <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
               Speaking of, what's the relationship between SSMs and attention? They are actually the same! What does this imply?
-            </ul>
+            </div>
           </li>
         </ul>
     </section>
@@ -126,11 +126,11 @@
       <p>The <a href="attention">Transformer (2017)</a> supremacy has been active for quite a few years now, and the ML discourse is mainly still centered around them. 
         Many variations, tricks and hacks have been added on top of the original model, but the core mechanics stay the same: attention. Attention has allowed Transformers
       to stay as the state of the art in many tasks (mainly related to language). Of course, the Transformer is not the only architecture that is of use today, because 
-      in some domains it's not quite. Still, it's dominance is clear! </p>
+      in some domains it's not quite. Still, its dominance is clear! </p>
 
-      <p> But yes, other areas are also actively innovating. MLPs, CNNs, RNNs and other arquitectures are constantly "receiving" updates, but can't really catch up. 
+      <p> But yes, other areas are also actively innovating. MLPs, CNNs, RNNs and other architectures are constantly "receiving" updates, but can't really catch up. 
         Researchers are trying to come up with architectures that can support our views on how the future of AI will look like. One family of model architectures, 
-        based on State Space Models, has beenstirring up some attention by the community. 
+        based on State Space Models, has been stirring up some attention by the community. 
       </p>
 
       <p><!-- On top of their task performance --> SSMs have properties that make them appealing. For example, <a href="#mamba">Mamba (2024)</a>, an SSM-based architecture, scales linearly with 
@@ -184,7 +184,7 @@
 
       <div class="plot-container">
         <div class="plot-background-1" id="ssm_1_viz_3">
-          <img src="../../../static/2024/ssm_1_3.svg" alt="General view of a continous SSM" width="300" height="300" style="transform: translateX(-25px);">
+          <img src="../../../static/2024/ssm_1_3.svg" alt="General view of a continuous SSM" width="300" height="300" style="transform: translateX(-25px);">
         </div>
       </div>
       <p class="plot-caption">Figure 2: A continuous signal $x(t)$ is mapped by the SSM to a continuous signal $y(t)$.</p>
@@ -205,7 +205,7 @@
       
       <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
         SSMs to work with sequences like their colleagues (and as in the next visualization), this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions
-      cannot be differentiated, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
+      cannot be differentiated in the usual sense, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
 
       <p style="margin-bottom: 1cm;"></p>
 
@@ -233,7 +233,7 @@
           <img src="../../../static/2024/ssm_1_5.png" alt="Discretization of a signal" width="400" height="155">
         </div>
         </div>
-        <p class="plot-caption">Figure 4: a continous signal (left), and it's sampled (discretized) version (right).</p>
+        <p class="plot-caption">Figure 4: a continuous signal (left), and its sampled (discretized) version (right).</p>
         </p>
 
       <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
@@ -244,7 +244,7 @@
           <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order hold to a signal" width="400" height="155">
         </div>
         </div>
-        <p class="plot-caption">Figure 5: a discrete signal (left), and it's transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
+        <p class="plot-caption">Figure 5: a discrete signal (left), and its transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
         </p> 
       
       <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
@@ -270,7 +270,8 @@
         \end{align}
         $$
 
-        The SSM can naturally work with sequence data! A large $\Delta$ will make the model take more into account the current input The discretized version of the SSM is:
+        The SSM can naturally work with sequence data! A large $\Delta$ will make the model take more into account the current input. 
+        The discretized version of the SSM is:
 
         $$
         \begin{align}
@@ -281,7 +282,7 @@
 
       </p>
         
-      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continous representation of A, B, 
+      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continuous representation of A, B, 
         etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed 
         that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series. </p>
 
@@ -313,7 +314,7 @@
           <img src="../../../static/2024/ssm_1_8.png" alt="The mechanical problem" width="300" height="210">
         </div>
       </div>
-      <p class="plot-caption" style="font-size: 0.7em;">Figure 7: The mechanical problem. A force is applied to a weight, which is attached to a spring, which stretches.</p>
+      <p class="plot-caption" style="font-size: 0.7em;">Figure 7: The mechanical problem. A force is applied to a weight attached to a spring, causing it to stretch.</p>
 
       <p>To model this system, remember that force is mass times acceleration. In a differential equation, and in the case of our system:</p>
 

@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-CL61JF076E');
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Selectivity & Mamba</title>
+  <title>Mamba 1 & 2 | Chus</title>
   <link rel="stylesheet" href="../../../style.css">
   <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -22,14 +20,14 @@
   <meta property="og:type" content="article">
   <!-- MODIFY FOREACH-->
   <!-- entry title -->
-  <meta property="og:title" content="Selective State Spaces: Mamba - Chus Antonanzas">
+  <meta property="og:title" content="Mamba 1 & 2 - Chus Antonanzas">
   <!-- entry description -->
   <meta name="description" content="Description">
   <meta property="og:description" content="Description">
   <!-- entry name / entry image TODO REPLACE-->
   <meta property="og:image" content="https://www.chus.space/static/entryname/ssms.jpg"> 
   <!-- entry name -->
-  <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_3_selectivity"> 
+  <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_3_mambas"> 
   <meta property="og:site_name" content="Chus Antonanzas">
   <meta property="og:locale" content="en_US">
   <script>
@@ -82,7 +80,7 @@
         <div class="header-date-links">
             <div class="header-date">
             <!-- TODO adjust date -->
-                <span>June 10th, 2024</span>
+                <span>September 27th, 2024</span>
             </div>
             <div class="social-links">
                 <div id="copy-notification" style="display: none; /* other styling */">URL copied</div>
@@ -96,23 +94,21 @@
     <section id="Intro">
       <h2>Intro</h2>
 
-      <p>⚠️ Under construction!</p>
-
       <p>Welcome back to the SSM series! This is part 3 of 3, where we finally talk about Mamba and Mamba 2.
         If you haven't read the previous parts, I recommend you do so before continuing.</p>
       
       <ul>
         <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
-          <ul>We go through where SSMs are right now, how they appeared into the machine learning panorama, and what they are.</ul>
+          <div>We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
         </li>
         
-        <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM networks and Structured State Spaces</a></span>
-          <ul>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</ul>
+        <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM neural networks and Structured State Spaces</a></span>
+          <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
         </li>
         <li><span class="bold">Part 3: State Space Selectivity (Mamba) and Duality (Mamba 2)</span>
-          <ul>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like attention.
-            Speaking of, what's the relationship between SSMs and attention? They are actually the same! What does this imply?
-          </ul>
+          <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
+            Speaking of, what's the relationship between SSMs and attention? In fact, they are surprisingly similar! What does this imply?
+          </div>
         </li>
       </ul>
 
@@ -120,13 +116,13 @@
 
     <ul>
       <li>how a basic SSM block works.</li>
-      <li>how SSM blocks can be represented in different ways. Each interpretation (recurrent, convolutional), although equivalent in functionality, had different characteristics and was preferable under some circumstances.</li>
+      <li>how SSM blocks can be represented in different ways. Each interpretation (recurrent, convolutional) is equivalent in functionality but has different characteristics, making one preferable over the other in certain contexts.</li>
       <li>how SSM blocks could be stacked and organized to create a sequence mapper with the same signature as a common neural network.</li>
       <li>what enables SSM blocks to have long term memory (the HiPPO $\mathbf{A}$ matrix).</li>
       <li>how the memory footprint problem of the convolutional view of an SSM is mitigated (structured state spaces).</li>
     </ul>
 
-    <p>All in all, with what we know right now, one could very well create a performant (both in predictive capabilities and resource requirements) 
+    <p>In summary, based on what we know now, one could very well create a performant (both in predictive capabilities and resource requirements) 
       SSM-based model capable of competing with similar, more traditional methods.</p>
     
     <p>There is a particular technique that is now ubiquitous, though, and which we have not used for our comparisons yet. Let’s address the elephant in the room: 
@@ -142,7 +138,7 @@
         selectivity meant that the behavior of the model would not always the same, in the sense that different operations would be performed 
         by the model depending on the input. To predict the word that comes after the sequence “All felines are cool, and so is my _” the model 
         would not consider all words in the sequence uniformly useful, but rather it would probably understand that the sequence refers to felines 
-        in particular and thus predict “cat” as the next word. There are a gazillion resources on attention, so I won’t go into more detail here.</p>
+        in particular and thus predict “cat” as the next word. There are a million resources on attention, so I won’t go into more detail here.
       </p>
       <p>Now, if we refer to our current formulation of an SSM block, we see how all matrices ($\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$, $\bar{\mathbf{C}}$) are static:
         
@@ -154,7 +150,7 @@
       $$
 
       That is, whatever the input $h_t$ is, the same operations are always performed. Thus, selectivity cannot occur right now, 
-        as there is now way for our models to discern what is useful and what is not. More formally, they are <span class="italic">linear time invariant</span> (LTI).
+        as there is no way for our models to discern what is useful and what is not. More formally, they are <span class="italic">linear time invariant</span> (LTI).
       </p>
 
       <p>So, if SSMs are to become equally as capable as our current state of the art models, they need to be selective!</p>
@@ -168,14 +164,14 @@
         This is effective but inefficient, as nothing is compressed.</p>
 
       <p>On the other hand, when a vanilla SSM block, or a RNN, is used, the hidden state compresses all input information, up to the current part, into a fixed-size vector. This is very efficient, but not really effective, 
-        as all parts of the input all considered equally useful. This is efficient but not effective, as there is indiscriminate compression.</p>
+        as all parts of the input are considered equally useful. This is efficient, but not effective, due to indiscriminate compression.</p>
 
       <p>Now, because SSM blocks use a fixed-size hidden state, there will always be compression. For an effective compression, though, the model needs to be able to select what is useful and what is not:
         selection as a means of compression. Thus, a fixed hidden state coupled with selection will help us better explore this effectiveness-efficiency tradeoff.</p>
 
       <h3>Parameters as functions of the input</h3>
-      <p>How do we actually make SSM blocks selective? A related question for the reader is: what parameters, from equation $\ref{eq:ssm_dis}$, influence 
-        how information propagates and how the output is constructed? The anwsers are (1) all matrices that update the hidden state ($\bar{\mathbf{A}}$ and 
+      <p>How can we make SSM blocks selective? A related question for the reader is: what parameters, from equation $\ref{eq:ssm_dis}$, influence 
+        how information propagates and how the output is constructed? The answers are (1) all matrices that update the hidden state ($\bar{\mathbf{A}}$ and 
         $\bar{\mathbf{B}}$), and (2) the $\bar{\mathbf{C}}$ matrix. If they are to be able to be selective, that means that they need to behave differently 
         depending on the input. That is, those parameters need to be input-dependant.</p>
 
@@ -207,15 +203,15 @@
         \end{align}
         $$
 
-        where $T$ is the size of input sequence (time dimension), and $N$ is the state size.
-        Skip the latex if you want, but the main idea is that the matrices are functions of the input, and that the input is mapped to the matrices by linear functions.
+        where $T$ is the size of the input sequence (time dimension), and $N$ is the state size.
+        The main idea is that the matrices are functions of the input, and that the input is mapped to the matrices by linear functions.
         The $\Delta$ matrix is constructed like that because, as the authors show, it's actually a nice generalisation of RNN gating.
         
       <p>An important comment to make is why the $\mathbf{A}$ matrix is not function of the input, but a fixed parameter just like before.
         Look at equation $\ref{eq:ssm_dis}$ and think about the roles of each matrix. $\bar{\mathbf{A}}$ enables memorization of the hidden state (it's a HiPPO matrix),
       $\bar{\mathbf{B}}$ determines how the input influences the state, and $\bar{\mathbf{C}}$ how the state influences the output. The purpose of selectivity is
-      for the model to be able to focus on different parts of the input to output a prediction. Thus, how the previous hidden state influences the current one is not
-      something that should be selective, but rather a fixed operation. If you don't find this argument compelling enough, also note how the only way $\mathbf{A}$
+      for the model to be able to focus on different parts of the input. Thus, the influence of the previous hidden state on the current one should remain a fixed operation, rather than being selective.
+      If you don't find this argument compelling enough, also note how the only way $\mathbf{A}$
       interacts with the system is via $\bar{\mathbf{A}} = e^{\Delta \mathbf{A}}$ (the discretization, which we address in <a href="../ssm_1_context/index.html">post 1</a> of the series). Thus, one could argue that selectivity in $\Delta$
       is enough for $\bar{\mathbf{A}}$ to be selective.</p>
       
@@ -234,15 +230,12 @@
 
     </section>
 
-          <!--<p>If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use.</p>-->
-
     <section id="Mamba: making it practical">
       <h2>Mamba: making it practical</h2>
-      <p>The Mamba paper is a wonderful piece of research: many of the ideas are not new, but a special kind of mind is required for bringing them together and implement them in harmony. 
-        If the authors had not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use. 
+      <p>The Mamba paper is a wonderful piece of research. While many of the ideas are not new, a special kind of mind is required to bring them together and implement them in harmony.
+        Had the authors not included an efficient implementation of the selective SSM block, Mamba would have been impractical for real world use. 
         So, in this section, I want to briefly lay down the intuition behind what I consider two of the most relevant 
-        implementation details. For further reading, I really
-    recommend TODO cite https://jameschen.io/jekyll/update/2024/02/12/mamba.html#fnref:kvcache ,and </p>
+        implementation details. For further reading, I strongly recommend TODO cite https://jameschen.io/jekyll/update/2024/02/12/mamba.html#fnref:kvcache ,and </p>
 
       <h3>The Blelloch parallel scan</h3>
       <p>For the training of Mamba to be efficient, we need to parallelise it. The Blelloch parallel scan algorithm has been (relatively recently) used for parallelizing RNNs (todo cite Eric Martin and Chris Cundy. “Parallelizing Linear Recurrent Neural Nets Over Sequence Length”. In: The Interna-
@@ -259,19 +252,20 @@
 
         <p>But an RNN, or Mamba, performs more operations than just sums! Well, the parallel scan algorithm doesn't only work with the sum operator, but with all binary (input two numbers, output one) and associative (the order does not matter) 
           operators. So, if we can design an operator for Mamba, we can parallelise the scan (this is simplified, because the generalisation for recurrences is a bit more specific, but I refer you to the
-          mentioned source if you need more details). As a spoiler, the resulting operator is a way to express the computation of $\overline{\mathbf{A}_t}$ and $\overline{\mathbf{B}(x_t)}x_t$ at any point in 
+          mentioned source if you need more details). As a spoiler, the resulting operator is a way to express how $\overline{\mathbf{A}_t}$ and $\overline{\mathbf{B}(x_t)}x_t$ are computed at any point in 
           time (in the sequence) $t$. With them, follow equation $\ref{eq:ssm_dis}$ to see how $h_t$ is computed. This is sufficient for applying the Blelloch algorithm, thus parallelising 
           the training of Mamba.</p>
 
         <p>As a sidenote, this parallelisation is also useful at inference time, but not as much given that requests will come in an asynchronous manner. 
-          It's a problem of batching and scheduling, then. </p>
+          At that point, it becomes a problem of batching and scheduling. </p>
 
         <h3>Hardware-aware computing</h3>
         <p>Nowadays, a lot of software is developed without taking any target hardware into account. In spite of this, for certain applications, there are plenty of benefits of knowing 
-          how the hardware your application is going to run in works.</p>
+          how the hardware your application is going to run on works.</p>
 
         <p>You might recognize one of the Mamba authors, Tri Dao, by his work on FlashAttention todo cite. FlashAttention is an implementation of the attention mechanism that drastically reduces the amount
-          of memory transfers between High-Bandwidth Memory and SRAM, from where the processor units pull the data for performing operations. They way this is done is out of the scope of this post, but the main idea is that because Attention is memory-bound (more time moving things around
+          of memory transfers between High-Bandwidth Memory and SRAM, from where the processor units pull the data for performing operations. They way this is done is out of the scope of this post, but the 
+          main idea is that because Attention is memory-bound (more time moving things around
           than actually doing computations), the less memory transfers, the faster the model. This is a hardware-aware implementation.</p>
           
         <p>The authors recognised that Mamba was memory-bound and did the same: reduce the amount of memory transfers. The usual flow for a GPU program is:
@@ -298,16 +292,16 @@
           <h3>The Mamba block</h3>
           <p>Just as we described in <a href="../ssm_2_networks/index.html">post 2</a>, the SSM block is not the only ingredient for a succesful model.
           We saw how one could combine multiple SSM blocks with traditional operations such as softmax or linear projections to build a "neural network"
-          with SSMs as a core. Mamba is no different: in the paper, the selective SSM block is combined with multiple other operations to form a Mamba block.
+          with SSMs as a core. Mamba is no different: in the paper, the selective SSM block is combined with multiple other operations to form a complete Mamba block.
         
-        todo fig    </p>
+        todo fig</p>
 
     </section>
 
     <section id="A quick Mamba 2">
       <h2>A quick Mamba 2</h2>
 
-      <p>If you have read through all three posts (thank you so much!), you might have noticed that this story is one of improvements. 
+      <p>If you have read through all three posts (thank you so much!), you might have noticed that this journey is one of improvements. 
         From plain vanilla state space models to deep networks, through state history reconstruction and hardware-specific optimizations to selection mechanisms,
       we have been incrementally building upon the previous iteration. Mamba 1 and Mamba 2 (todo cite) were published in relatively quick succession, and although
       the practical changes introduced by Mamba 2 were not many, a rich theoretical framework was presented along it. This framework enabled the authors to 
@@ -356,7 +350,7 @@
         changes introduced in Mamba 2 w.r.t Mamba 1 that we have not discussed are:
         <ul>
           <li>the $\mathbf{A}$, $\mathbf{X}$ (embedded), $\mathbf{B}$ and $\mathbf{C}$ matrices are produced by a single projection at the beginning of the SSD block instead of as a function of
-            $\mathbf{X}$ (in the case of $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$). This enable better Tensor Parallelism (todo cite).</li>
+            $\mathbf{X}$ (in the case of $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$). This enables better Tensor Parallelism (todo cite).</li>
           <li>added a normalisation layer before the last linear projection of the block, which increases stability.</li>
         </ul>
       </p>
@@ -375,7 +369,7 @@
       </p>
       
       <p>
-        During this series I have introduced a lot of concepts, and I hope that you have been able to follow along. Of course, what I have presented is just a narrow view of the state and 
+        During this series, I have introduced a lot of concepts, and I hope that you have been able to follow along. Of course, what I have presented is just a narrow view of the state and 
         evolution of the field, with many interesting papers and ideas left out. If this has sparked your interest, I recommend that you keep up with the latest research in the field: 
         I have a hunch that the theoretical framework introduced in Mamba 2 will be used in many interesting ways, especially with how it unifies SSMs and attention. The biggest question for me is
         what (and if) other models can be unified with this framework, and what algorithmic discoveries will it bring. The field of deep learning is notorious for introducing 
