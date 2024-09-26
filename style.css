@@ -390,6 +390,19 @@ a:hover {
     display: flex;
 }
 
+.plot-background-1-interactive {
+    /* Light contrast */
+    background-color: rgba(142, 105, 32, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    border: 2px solid;
+    border-image: linear-gradient(
+        to right, 
+        red, orange, yellow, green, blue, indigo, violet
+    ) 1;
+}
+
 .plot-caption {
     color: rgba(131, 131, 131, 1);
     font-size: 0.82em;

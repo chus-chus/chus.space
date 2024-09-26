@@ -99,8 +99,8 @@
       <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
         In the series, we will cover everything you need to know about how SSMs work to understand their current uses, how they became competitive with the state-of-the-art, all the way up to the most 
         recent advances.</p>
-      <p>I have organized into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I also have tried to keep as 
-        constant a notation as possible, 
+      <p>I have organized into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I'll focus on a particular subset
+        of advances in the field, because covering all of them would be a bit hard. I also have tried to keep as constant a notation as possible, 
         given that the ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
   
       <p>The series is divided into these parts:</p>
@@ -112,7 +112,7 @@
           <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM neural networks and Structured State Spaces</a></span>
             <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
           </li>
-          <li><span class="bold"><a href="../ssm_3_mambas/index.html">Part 3: State Space Selectivity (Mamba) and Duality (Mamba 2)</a></span>
+          <li><span class="bold"><a href="../ssm_3_mambas/index.html">Part 3: State Space Selectivity (Mamba) and Duality (Mamba-2)</a></span>
             <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
               Speaking of, what's the relationship between SSMs and attention? In fact, they are surprisingly similar! What does this imply?
             </div>
@@ -210,7 +210,7 @@
       <p style="margin-bottom: 1cm;"></p>
 
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_1_viz_4"></div>
+        <div class="plot-background-1-interactive" id="ssm_1_viz_4"></div>
         <script src="../../../src/viz/2024/ssm_1_4.js"></script>
       </div>
       <p class="plot-caption">Figure 3: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which
@@ -353,7 +353,7 @@
       <p style="margin-bottom: 1cm;"></p>
 
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_1_viz_9"></div>
+        <div class="plot-background-1-interactive" id="ssm_1_viz_9"></div>
         <script src="../../../src/viz/2024/ssm_1_9.js"></script>
       </div>
       <p class="plot-caption">Figure 8: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
