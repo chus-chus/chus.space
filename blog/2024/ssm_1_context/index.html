@@ -461,25 +461,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Function to hide the reactions container
-function hideReactionsContainer() {
-    const reactionsContainer = document.getElementById('reactions__container');
-    if (reactionsContainer) {
-        reactionsContainer.style.display = 'none';
-    }
-}
-
-// Create a MutationObserver to detect changes in the body
-const observer = new MutationObserver(() => {
-    hideReactionsContainer();
-});
-
-// Start observing the body for child node changes
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Initially try to hide it in case it’s already loaded
-hideReactionsContainer();
-
 </script>
 
 </body>
