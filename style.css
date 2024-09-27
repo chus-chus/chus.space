@@ -304,6 +304,38 @@ a:hover {
     text-decoration: none; /* remove underline */
 }
 
+.bibtex-container {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-left: 5px solid #333;
+    border-radius: 5px;
+    font-family: monospace;
+    position: relative;
+}
+
+.bibtex {
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word; /* Break long words */
+    font-size: 0.9em;
+    color: #555; /* Greyish color for the text */
+}
+
+.bibtex-copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffffff; /* Green background */
+    border: 1px solid #9b9b9b;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.bibtex-copy-btn:hover {
+    background-color: #9f9f9f; /* Darker green on hover */
+}
+
 /* ----------------------------- Entries - progress bar ------------------------------------ */
 
 #progress-container {

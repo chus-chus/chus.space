@@ -24,8 +24,8 @@
   <!-- entry description -->
   <meta name="description" content="Learn all about the Mamba and Mamba-2 models in the third part of the State Space Model series." />
   <meta property="og:description" content="Learn all about the Mamba and Mamba-2 models in the third part of the State Space Model series." />
-  <!-- entry name / entry image TODO REPLACE-->
-  <meta property="og:image" content="https://www.chus.space/static/entryname/ssms.jpg"> 
+  <!-- entry name / entry image -->
+  <meta property="og:image" content="https://www.chus.space/static/ogimage.png"> 
   <!-- entry name -->
   <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_3_mambas"> 
   <meta property="og:site_name" content="Chus Antonanzas">
@@ -47,8 +47,8 @@
     };
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <!--<script src="https://d3js.org/d3.v6.min.js"></script>-->
   <script src="../../../src/progress_bar.js"></script>
+  <script src="../../../src/copy_bibtex.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
 </head>
 
@@ -79,11 +79,11 @@
         <p class="tagline">In this series, we explore how State Space Models (SSMs) work, their history, some intuitions, and recent advances, including Mamba and Mamba-2. </p>
         <div class="header-date-links">
             <div class="header-date">
-            <!-- TODO adjust date -->
+            <!-- adjust date -->
                 <span>September 27th, 2024</span>
             </div>
             <div class="social-links">
-                <div id="copy-notification" style="display: none;">URL copied</div>
+                <div id="copy-notification" style="display: none;">Copied!</div>
                 <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
@@ -370,10 +370,10 @@
         
           <div class="plot-container">
             <div class="plot-background-1" id="ssm_3_viz_7">
-              <img src="../../../static/2024/ssm_3_7.svg" alt="The Mamba block." height="240">
+              <img src="../../../static/2024/ssm_3_7.svg" alt="The Mamba block." height="280">
             </div>
           </div>
-          <p class="plot-caption">Figure 7: the Mamba Block. Circles are nonlinearities, in blue linear projections and in green sequence transformations.</p>
+          <p class="plot-caption">Figure 7: the Mamba Block. In peach are nonlinearities (multiplication, activation), in blue linear projections and in green sequence transformations.</p>
 
     </section>
 
@@ -382,16 +382,14 @@
 
       <p>If you have read through all three posts (thank you so much!), you might have noticed that this journey is one of improvements. 
         From plain vanilla state space models to deep networks, through state history reconstruction and hardware-specific optimizations to selection mechanisms,
-      we have been incrementally building upon the previous iteration. Mamba and Mamba-2 (todo cite) were published in relatively quick succession, and although
+      we have been incrementally building upon the previous iteration. Mamba and Mamba-2 were published in relatively quick succession, and although
       the practical changes introduced by Mamba-2 were not many, a rich theoretical framework was presented along it. This framework enabled the authors to 
-      characterize the relation of SSMs to attention. So, SSMs can be viewed through many different lenses: as continuous, recurrent, convolutional and attention-based models!</p>
-
-      # todo fig all ssms representations
+      characterize the relation of SSMs to attention. So, SSMs can be viewed through different lenses: as continuous, recurrent, convolutional and attention-based models!</p>
 
       <p>In this section, I want to very briefly summarise the practical changes and the theoretical conclusions presented by the Mamba-2 paper. 
         The theoretical framework is perhaps the most important result from the paper, and because this series focuses more on the models, I will be skimming through.
-        Visit the great Mamba-2 posts (todo ref) for the best in-depth presentation of the topic. In spite of all this, though, we need just a bit of theoretical intuition to contextualise 
-        the practical results.</p>
+        Visit the great <a href="#mamba2posts">Mamba-2 original blog posts</a> for the best in-depth presentation of the topic. In spite of all this, we need just a bit of theoretical 
+        intuition to contextualise the practical results.</p>
 
       <h3>Overview of the State Space Duality framework</h3>
       <p>
@@ -400,12 +398,18 @@
         <ul>
           <li>as for <span class="bold">Structured State Space Models</span>, they show an equivalence with semiseparable matrices. 
             From this formulation, the authors show that SSMs can be computed in two ways: a linear, recurrent one via tensor contractions (as usual), and a quadratic (naive) one via pure matrix multiplications.</li>
-          <li>as for <span class="bold">attention variants</span>, they define <span class="italic">structured mask attention</span>, which is another
+          <li>as for <span class="bold">attention variants</span>, they define <span class="italic">structured masked attention</span> (SMA), which is another
             generalisation. With this, they show that quadratic (the usual) and linear attention are simply different orders by which to compute masked attention via tensor contractions.</li>
         </ul>
       </p>
 
-      # todo fig ssd framework relationships
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_3_viz_8">
+          <img src="../../../static/2024/ssm_3_8.svg" alt="Structured State Space Duality." height="330">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 8: Structured State Space Duality. SSMs and Attention can be studied from the perspective of Structured Matrices via 
+       semiseparable matrices and SMA, respectively. This unlocks the State Space Duality between both. From the Mamba-2 paper.</p>
 
       <p>
         So, from both a SSM and an attention perspective, we now have the same two ways to compute them: a linear and a quadratic one. In fact, both turn out to be different perspectives on 
@@ -417,7 +421,12 @@
         </ul>
       </p>
 
-      # todo fig matrices of the special cases
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_3_viz_9">
+          <img src="../../../static/2024/ssm_3_9.svg" alt="A scalar times identity and 1-semiseparable matrices." height="200">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 9: To the left, a scalar times identity matrix. To the right, a 1-semiseparable matrix. </p>
 
       <p>
         Let's see what this duality actually implies for our current SSM implementation.
@@ -436,12 +445,18 @@
         changes introduced in Mamba-2 w.r.t Mamba that we have not discussed are:
         <ul>
           <li>the $\mathbf{A}$, $\mathbf{X}$, $\mathbf{B}$ and $\mathbf{C}$ matrices are produced by a single projection at the beginning of the SSD block instead of as a function of
-            $\mathbf{X}$ (in the case of $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$). This enables better Tensor Parallelism (todo cite).</li>
+            $\mathbf{X}$ (in the case of $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$). This enables better Tensor Parallelism (like in <a href="#megatron">Megatron</a>).</li>
           <li>added a normalisation layer before the last linear projection of the block, which increases stability.</li>
         </ul>
       </p>
 
-      # todo fig mamba architecture
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_3_viz_10">
+          <img src="../../../static/2024/ssm_3_10.svg" alt="The Mamba-2 block." height="280">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 10: The Mamba-2 block. In peach are nonlinearities (multiplication, activation, normalisation), in blue linear 
+        projections and in green sequence transformations. Note how similar it is to the original Mamba block.</p>
 
       <p>
         So, all of the theoretical developments have allowed us to develop a model that can be computed much more efficiently, both in memory and compute terms, 
@@ -469,6 +484,21 @@
         If you have any questions, comments, or suggestions, please don't hesitate to reach out. Until next time!
       </p>
 
+      <h3>Citations</h3>
+      <p>If this has been useful and you want to cite it in an academic setting, please use the following bibtex. ❤️</p>
+
+      <div class="bibtex-container">
+        <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>
+        <pre class="bibtex" id="bibtex-text">
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}</pre>
+      </div>
+    
       <h3>References</h3>
       <p><ul id="reference-list"></ul></p>
 
@@ -487,7 +517,9 @@
       {id: "mamba", author: "Tri Dao, Albert Gu", year: "2024", title: "Mamba: Linear-Time Sequence Modeling with Selective State Spaces", url: "https://arxiv.org/abs/2312.00752"},
       {id: "flashattention", author: "Tri Dao, Daniel Fu, Stefano Ermon, Atri Rudra, Christopher Ré", year: "2023", title: "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness", url: "https://arxiv.org/abs/2205.14135"},
       {id: "mamban5", author: "James Chen", year: "2024", title: "Mamba No. 5 (A Little Bit Of...)", url: "https://jameschen.io/jekyll/update/2024/02/12/mamba.html"},
-      {id: "parallelRNNs", author: "Eric Martin, Chris Cundy", year: "2017", title: "Parallelizing Linear Recurrent Neural Nets Over Sequence Length", url: "https://arxiv.org/abs/1709.04057"}
+      {id: "parallelRNNs", author: "Eric Martin, Chris Cundy", year: "2017", title: "Parallelizing Linear Recurrent Neural Nets Over Sequence Length", url: "https://arxiv.org/abs/1709.04057"},
+      {id: "mamba2posts", author: "Tri Dao, Albert Gu", year: "2024", title: "State Space Duality (Mamba-2) blog series, 1 to 4", url: "https://tridao.me/blog/2024/mamba2-part1-model/"},
+      {id: "megatron", author: "Mohammad Shoeybi, Mostofa Patwary, Raul Puri et al", year: "2019", title: "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", url: "https://arxiv.org/abs/1909.08053"}
     ];
     
     document.addEventListener('DOMContentLoaded', function() {

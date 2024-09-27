@@ -26,8 +26,8 @@
     <!-- entry description -->
     <meta name="description" content="Learn about SSM (State Space Model) neural networks, like Mamba, and the advances that made them possible." />
     <meta property="og:description" content="Learn about SSM (State Space Model) neural networks, like Mamba, and the advances that made them possible." />
-    <!-- entry name / entry image TODO REPLACE-->
-    <meta property="og:image" content="https://www.chus.space/static/entryname/entrypic.jpg"> 
+    <!-- entry name / entry image -->
+    <meta property="og:image" content="https://www.chus.space/static/ogimage.png"> 
     <!-- entry name -->
     <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_2_networks"> 
     <meta property="og:site_name" content="Chus Antonanzas">
@@ -52,6 +52,7 @@
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="../../../src/progress_bar.js"></script>
   <script src="../../../src/dynamic_share_url.js"></script>
+  <script src="../../../src/copy_bibtex.js"></script>
 </head>
 
 <body>
@@ -85,7 +86,7 @@
                 <span>June 15th, 2024</span>
             </div>
             <div class="social-links">
-                <div id="copy-notification" style="display: none; /* other styling */">URL copied</div>
+                <div id="copy-notification" style="display: none; /* other styling */">Copied!</div>
                 <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
@@ -403,6 +404,21 @@
         We will see what Mamba is and how to make SSMs focus on different parts of the input, just like attention mechanisms do. 
         We will also establish a relation between SSMs and attention and present Mamba-2.
       </p>
+
+      <h3>Citations</h3>
+      <p>If this has been useful and you want to cite it in an academic setting, please use the following bibtex. ❤️</p>
+
+      <div class="bibtex-container">
+        <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>
+        <pre class="bibtex" id="bibtex-text">
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}</pre>
+      </div>
 
       <h3>References</h3>
       <p><ul id="reference-list"></ul></p>
