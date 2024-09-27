@@ -442,6 +442,10 @@ a:hover {
     margin-top: 10px;
 }
 
+#reactions.reactions-refresh {
+    display: none;
+}
+
 /* ------------------------- Mobile styles ------------------------- */
 @media (max-width: 600px) {
     #navbar {
