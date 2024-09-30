@@ -57,13 +57,13 @@
   <header>
     <nav id="navbar">
         <div class="logo-and-title">
-            <a href="../../../index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+            <a href="../../.." style="display: flex; align-items: center; text-decoration: none; color: inherit;">
                 <h1>Chus Antonanzas</h1>
             </a>
         </div>
         <ul>
-            <li><a href="../../../about/index.html">About</a></li>
-            <li><a href="../../../contact/index.html">Contact</a></li>
+            <li><a href="../../../about">About</a></li>
+            <li><a href="../../../contact">Contact</a></li>
         </ul>
     </nav>
 </header>
@@ -99,11 +99,11 @@
         time of writing. If you haven't read the previous parts, I recommend you do so before continuing.</p>
       
       <ul>
-        <li><span class="bold"><a href="../ssm_1_context/index.html">Part 1: Motivation and introduction to SSMs</a></span>
+        <li><span class="bold"><a href="../ssm_1_context">Part 1: Motivation and introduction to SSMs</a></span>
           <div>We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
         </li>
         
-        <li><span class="bold"><a href="../ssm_2_networks/index.html">Part 2: SSM neural networks and Structured State Spaces</a></span>
+        <li><span class="bold"><a href="../ssm_2_networks">Part 2: SSM neural networks and Structured State Spaces</a></span>
           <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
         </li>
         <li><span class="bold">Part 3: State Space Selectivity (Mamba) and Duality (Mamba-2)</span>
@@ -245,7 +245,7 @@
         $\bar{\mathbf{B}}$ determines how the input influences the state, and $\bar{\mathbf{C}}$ how the state influences the output. The purpose of selectivity is
         for the model to be able to focus on different parts of the input. Thus, the influence of the previous hidden state on the current one should remain a fixed operation, rather than being selective.
         If you don't find this argument compelling enough, also note how the only way $\mathbf{A}$
-        interacts with the system is via $\bar{\mathbf{A}} = e^{\Delta \mathbf{A}}$ (the discretization, which we address in <a href="../ssm_1_context/index.html">post 1</a> of the series). Thus, one could argue that selectivity in $\Delta$
+        interacts with the system is via $\bar{\mathbf{A}} = e^{\Delta \mathbf{A}}$ (the discretization, which we address in <a href="../ssm_1_context">post 1</a> of the series). Thus, one could argue that selectivity in $\Delta$
         is enough for $\bar{\mathbf{A}}$ to be selective.
       </p>
 
@@ -358,7 +358,7 @@
 
           <h3>The Mamba block</h3>
           <p>
-            Just as we described in <a href="../ssm_2_networks/index.html">post 2</a>, the SSM block is not the only ingredient for a succesful model.
+            Just as we described in <a href="../ssm_2_networks">post 2</a>, the SSM block is not the only ingredient for a succesful model.
             We saw how one could combine multiple SSM blocks with traditional operations such as softmax or linear projections to build a "neural network"
             with SSMs as a core. Mamba is no different: in the paper, the selective SSM block is combined with multiple other operations to form a complete Mamba block.
             This can then be combined with other Mamba blocks to create a full deep network.
@@ -520,7 +520,7 @@
         
         var disqus_config = function () {
             // Replace PAGE_URL with your page's canonical URL variable
-            this.page.url = "https://www.chus.space/blog/2024/ssm_3_mambas/index.html";  
+            this.page.url = "https://www.chus.space/blog/2024/ssm_3_mambas";  
             
             // Replace PAGE_IDENTIFIER with your page's unique identifier variable
             this.page.identifier = "/blog/2024/ssm_3_mambas"; 
