@@ -1,0 +1,515 @@
+
+/* --------------------------------- General  ------------------------------------ */
+
+:root {
+    --vp-font-family-base: "Chinese Quotes", "Inter var", "Inter", ui-sans-serif, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --vp-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+}
+
+body {
+    font-family: var(--vp-font-family-base);
+    font-style: normal;
+    font-weight: 265;
+    background-color: #fffff4; /* #FBFBEF is warmer*/
+    color: #343131;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+    line-height: 1.57;
+    position: relative;
+}
+
+#navbar {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #222222;
+}
+
+#navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+#navbar ul li {
+    margin: 0 10px;
+}
+
+#navbar ul li a {
+    text-decoration: none;
+    color: #dcdcdc;
+    font-family: 'proxima-nova-condensed', sans-serif;
+    font-weight: 200;
+}
+
+.logo-and-title {
+    display: flex;
+    margin-left: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    color: #ffffff;
+}
+
+.logo-and-title h1 {
+    margin: 0 0 0 10px;
+    font-family: 'proxima-nova-condensed', sans-serif;
+    font-weight: 250;
+    font-size: 1.35em;
+}
+
+/* center main body and adds margins left and right */
+.content-container {
+    max-width: 650px;
+    margin: 0 auto; /* centers container */
+    padding: 40px; /* padding inside the container */
+    width: 100%; /* it doesn't exceed viewport width */
+    text-align: left;
+}
+
+a {
+    color: rgb(0, 102, 255);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.italic {
+    font-style: italic;
+}
+
+
+/* --------------------------------- Index  ------------------------------------ */
+
+.tagline {
+    text-align: center;
+    margin-top: -20px;
+    font-size: 0.86em;
+  }
+
+/* --------------------------------- About  ------------------------------------ */
+
+.timeline {
+    position: relative; /* for absolute positioning of the line */
+    padding-left: 20px; /* space for the line on the left */
+    margin: 20px auto;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 60px; /* align line to the left edge of the timeline */
+    top: 8px; /* start the line at the top */
+    bottom: 0; /* extend the line to the bottom */
+    width: 2px; /* line width */
+    background-color: #333; /* line color */
+}
+
+.timeline-date {
+    position: absolute;
+    left: -55px; /* position the years correctly */
+    top: 1.5px;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-left: 50px; /* space for the star to sit on the line */
+    margin-bottom: 20px; /* spacing between items */
+}
+
+.timeline-item::before {
+    content: '⭐️';
+    position: absolute;
+    left: -16.91px;
+    top: 0.5px;
+    font-size: 12px;
+}
+
+.timeline-content {
+    max-width: 600px;
+    padding-right: 20px;
+    padding-left: 11px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.timeline h4, .timeline p, .timeline h5 {
+    margin-top: 5px; /* space between title and description */
+    margin-bottom: 5px;
+}
+
+.personal-photo {
+    display: inline;
+    max-width: 35%;
+    height: auto;
+    border-radius: 10px;
+    margin: 40px 0;
+}
+
+.image-with-caption {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.caption {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: -35px;
+}
+
+/* --------------------------------- Blog entries in homepage  ------------------------------------ */
+
+.home-blog-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.home-blog-entry {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: rgba(142, 105, 32, 0.08); /* Slightly lighter dark color for entries */
+}
+
+.home-blog-title {
+    font-size: 1.2em;
+    color: #0088ad; /* Light blue color for titles */
+    text-decoration: none;
+    margin-top: -4px;
+}
+
+.home-blog-title:hover {
+    text-decoration: underline;
+}
+
+.home-blog-date {
+    font-size: 0.85em;
+    color: #878787; /* Gray color for dates */
+}
+
+.home-blog-description {
+    font-size: 0.96em;
+    color: #666666; /* Light gray color for descriptions */
+    margin-top: 3px;
+}
+
+/* ----------------------------- Blog posts ------------------------------------ */
+.content-container.entry h1 {
+    font-size: 2.75em;
+    margin: 20px 0;
+    line-height: 1.1;
+}
+
+/* Section title */
+.content-container.entry h2 {
+    font-size: 1.88em;
+    line-height: 1.1;
+    font-weight: 650;
+    margin: 37px 0 20px 0;
+}
+
+/* Subsection title */
+.content-container.entry h3 {
+    font-size: 1.4em;
+    line-height: 1.1;
+    font-weight: 500;
+    color: rgb(107, 107, 107);
+    margin: 23px 0 5px 0;
+}
+
+.content-container.entry .header-date-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: px;
+}
+
+.content-container.entry code {
+    background-color: #f4f4f4;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: var(--vp-font-family-mono);
+    font-size: 0.95em;
+    color: #c7254e;
+}
+
+.content-container.entry .blog-header {
+    padding: 30px;
+}
+
+.content-container.entry .header-date {
+    font-size: 0.95em;
+    color: #888888;
+    margin-top: 5px;
+}
+
+.content-container.entry .header-date span {
+    display: block;
+}
+
+.content-container.entry .social-links a {
+    margin: 0 10px;
+}
+
+.content-container.entry hr {
+    border: 0;
+    height: 1px;
+    background: #333;
+    margin-top: 20px;
+}
+
+.content-container.entry .tagline {
+    text-align: left;
+    font-style: italic;
+    color: #666;
+    margin-top: 10px;
+}
+
+.content-container.entry section {
+    margin-bottom: 20px;
+    text-align: justify;
+}
+
+.fas.fa-link {
+    /* favicon link size */
+    font-size: 00.95em;
+    margin-left: -15px;
+    color: #333;
+}
+
+.fab.fa-twitter-square {
+    /* favicon link size */
+    font-size: 1.35em;
+    margin-left: -15px;
+    color: #1DA1F2;
+}
+
+.content-container.entry .social-links a {
+    text-decoration: none; /* remove underline */
+}
+
+.bibtex-container {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-left: 5px solid #333;
+    border-radius: 5px;
+    font-family: monospace;
+    position: relative;
+}
+
+.bibtex {
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word; /* Break long words */
+    font-size: 0.9em;
+    color: #555; /* Greyish color for the text */
+}
+
+.bibtex-copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffffff; /* Green background */
+    border: 1px solid #9b9b9b;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.bibtex-copy-btn:hover {
+    background-color: #9f9f9f; /* Darker green on hover */
+}
+
+/* ----------------------------- Entries - progress bar ------------------------------------ */
+
+#progress-container {
+    position: fixed; /* keep visible while scrolling */
+    top: 80px;
+    bottom: 0; /* Do not remove top and bottom */
+    left: 25px;
+    height: 100%;
+    width: 1px;
+    background-color: transparent; /* background */
+    z-index: 10; /* Ensure it's above other content */
+    height: 88%;    
+}
+
+#progress-bar {
+    background-color: #000;
+    width: 100%;
+    height: 0%;
+    background-color: #bababa;
+    /* increase distance to bottom */
+    bottom: 100px;
+}
+
+.progress-marker {
+    position: absolute;
+    left: 100%; /* Place marker to the right of the progress bar */
+    transform: translateX(10px); /* Adjust horizontal position */
+    white-space: nowrap;
+    margin-left: -5px;
+    font-size: 0.85em;
+    color: #909090;
+    font-style: italic;
+    text-decoration: none;
+}
+
+.progress-marker.active {
+    color: #000;
+    font-weight: 450;
+}
+
+#copy-notification {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background-color: #444;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+    font-size: 0.85em;
+}
+
+/* ------------------------- Entries - plots ------------------------- */
+
+.plot-container {
+    /* For plots that are 100% of the content width or ANY height */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.plot-container.horizontal-125 {
+    /* For plots that are 125% of the content width */
+    width: 125%;
+    /* Set the next value to half of the increased width over 100%. */
+    margin-left: calc(-12.5%); 
+}
+
+.plot-container.horizontal-150 {
+    /* For plots that are 150% of the content width */
+    width: 150%;
+    /* Set the next value to half of the increased width over 100%. */
+    margin-left: calc(-25%); 
+}
+
+.plot-background-1 {
+    /* Light contrast */
+    background-color: rgba(142, 105, 32, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+}
+
+.plot-background-1-interactive {
+    /* Light contrast */
+    background-color: rgba(142, 105, 32, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    border: 2px solid;
+    border-image: linear-gradient(
+        to right, 
+        red, orange, yellow, green, blue, indigo, violet
+    ) 1;
+}
+
+.plot-caption {
+    color: rgba(131, 131, 131, 1);
+    font-size: 0.82em;
+    font-weight: 450;
+    margin-top: 10px;
+}
+
+/* ------------------------- Mobile styles ------------------------- */
+@media (max-width: 600px) {
+    #navbar {
+        justify-content: space-evenly;
+    }
+    
+    #navbar ul {
+        list-style: none;
+        margin: 0;
+        font-size: 0.85em;
+    }
+    
+    .logo-and-title {
+        margin: 0;
+    }
+
+    .logo-and-title h1 {
+        font-size: 1.07em;
+        margin: -3px 0 0 10px;
+    }
+
+    .tagline {
+        margin-top: 10px;
+        font-size: 0.85em;
+    }
+
+    .content-container {
+        width: 87%;
+        max-width: 400px;
+        padding: 5px;
+    }
+
+    .content-container h1 {
+        font-size: 1.5em;
+    }
+
+    .timeline {
+        padding-left: 6px; /* align date, star and content */
+        margin: 15px auto;
+    }
+    
+    .timeline::before {
+        left: 46px; /* align line */
+    }
+
+    .timeline-date {
+        top: 1.5px;
+    }
+
+    .personal-photo {
+        max-width: 55%;
+        margin: 40px 0;
+    }
+
+    .content-container.entry .header-top {
+        margin-bottom: 0;
+    }
+    
+    .content-container.entry .blog-header {
+        padding: 0;
+    }
+    
+    .content-container.entry .meta-info {
+        margin-bottom: 0;
+    }
+
+    #progress-container {
+        /* delete it */
+        display: none;
+    }
+}

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+  
+      gtag('config', 'G-CL61JF076E');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSM nets & S4 | Chus</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://www.chus.space/favicon.ico?v=2"/>
+    <link rel="canonical" href="https://www.chus.space/blog/2024/ssm_2_networks">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta property="og:type" content="article">
+    <!-- MODIFY FOREACH-->
+    <!-- entry title -->
+    <meta property="og:title" content="SSM networks and S4 - Chus Antonanzas">
+    <!-- entry description -->
+    <meta name="description" content="Learn about SSM (State Space Model) neural networks, like Mamba, and the advances that made them possible." />
+    <meta property="og:description" content="Learn about SSM (State Space Model) neural networks, like Mamba, and the advances that made them possible." />
+    <!-- entry name / entry image -->
+    <meta property="og:image" content="https://www.chus.space/static/ogimage.png"> 
+    <!-- entry name -->
+    <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_2_networks"> 
+    <meta property="og:site_name" content="Chus Antonanzas">
+    <meta property="og:locale" content="en_US">
+    <script>
+      window.MathJax = {
+          tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$']],
+              packages: ['base', 'ams'],
+              tags: 'ams', // Enables AMS-style numbering
+              tagSide: 'right',
+              tagIndent: '0.8em'
+          },
+          options: {
+              ignoreHtmlClass: 'tex2jax_ignore',
+              processHtmlClass: 'tex2jax_process'
+          }
+      };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="../../../src/progress_bar.js"></script>
+  <script src="../../../src/dynamic_share_url.js"></script>
+  <script src="../../../src/copy_bibtex.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <nav id="navbar">
+        <div class="logo-and-title">
+            <a href="../../.." style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                <h1>Chus Antonanzas</h1>
+            </a>
+        </div>
+        <ul>
+            <li><a href="../../../about">About</a></li>
+            <li><a href="../../../contact">Contact</a></li>
+        </ul>
+    </nav>
+</header>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <div class="content-container entry">
+    <article>
+
+    <div class="blog-header">
+        <h1>State Space Models (2): networks and S4</h1>
+        <p class="tagline">In this series, we explore how State Space Models (SSMs) work, their history, some intuitions, and recent advances, including Mamba and Mamba-2. </p>
+        <div class="header-date-links">
+            <div class="header-date">
+                <span>August 12th, 2024</span>
+            </div>
+            <div class="social-links">
+                <div id="copy-notification" style="display: none;">Copied!</div>
+                <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
+                <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
+            </div>
+        </div>
+        <hr>
+    </div>
+
+    <section id="Intro">
+      <h2>Intro</h2>
+
+      <p>Welcome to the second part of our State Space Model (SSM) series! 
+        In this post, we'll dive into how SSMs were initially incorporated into neural networks. 
+        We'll explore two key flaws in the first approach and how the S4 model addressed them. 
+        For context, here's a snapshot of where we are in the series:</p>
+  
+      <ul>
+        <li><span class="bold"><a href="../ssm_1_context">Part 1: Motivation and introduction to SSMs</a></span>
+          <div>We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
+        </li>
+        
+        <li><span class="bold">Part 2: SSM neural networks and Structured State Spaces</span>
+          <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
+        </li>
+        <li><span class="bold"><a href="../ssm_3_mambas">Part 3: State Space Selectivity (Mamba) and Duality (Mamba-2)</a></span>
+          <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
+            Speaking of, what's the relationship between SSMs and attention? In fact, they are surprisingly similar! What does this imply?
+          </div>
+        </li>
+      </ul>
+
+      <h3>A bit of notation</h3>
+
+      <p>
+        As a reminder, here are the continuous
+ 
+       $$
+       \begin{align}
+         h'(t) &= \mathbf{A} h(t) + \mathbf{B} x(t) \label{eq:ssm} \\
+         y(t) &= \mathbf{C}h(t) \nonumber
+       \end{align}
+       $$
+ 
+       and discrete
+ 
+       $$
+         \begin{align}
+          h_t &= \bar{\mathbf{A}} h_{t-1} + \bar{\mathbf{B}} x_t \label{eq:ssm_dis} \\
+          y_t &= \bar{\mathbf{C}} h_t \nonumber
+         \end{align}
+       $$
+ 
+       SSM representations that we presented in the previous post. Let's formalize the dimensions of their parameters, as we need more rigor from this point
+       forward:
+     </p>
+ 
+     <p>A discrete SSM defines a map $x \in \mathbb{R}^{T} \rightarrow y \in \mathbb{R}^{T}$, where $T$ is the time dimension. That is, $x_t$ and $y_t$ are scalars.
+       We also have the hidden state vector $h_t \in \mathbb{R}^{N}$, where $N$ is the state size, state dimension, state expansion factor, or even more.
+       Parameters $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$ can be thought of as tensors of shapes $\mathbf{A} \in \mathbb{R}^{(N, N)}$, 
+       $\mathbf{B} \in \mathbb{R}^{(N\times 1)}$ and $\mathbf{C} \in \mathbb{R}^{(1\times N)}$. The discretization parameter $\Delta \in \mathbb{R}$ is a scalar. This notation will
+       be changing as we move forward, so keep an eye on it.
+     </p>
+ 
+     <p>With that out of the way, let's get going. Before we see how SSMs can be used in neural nets, 
+       we will see how the ways of computing them was characterized.</p>
+
+    </section>
+
+    <section id="The Linear State-Space Layer">
+      <h2>The Linear State-Space Layer</h2>
+
+      <p>The vanilla SSM that we presented in the last post was generalized by <a href="#LSSL">Gu et al. (2021)</a>, and they called it
+        the <span class="italic">Linear State-Space Layer</span> (LSSL).
+        They characterized the LSSL in terms of its parameters, $\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$, and importantly by
+        providing multiple interpretations of the model. These interpretations, or views, allowed us to define the same LSSL in different ways. </p>
+
+      <h3>The three LSSL views</h3>
+      <p>The authors of LSSLs argued that they could be viewed in three ways: </p>
+
+      <ol>
+        <li>A continuous-time view, where the LSSL is just Equation $\ref{eq:ssm}$.</li>
+        <li>A recurrent view, where the LSSL was discretized like in Equation $\ref{eq:ssm_dis}$ and its operations were performed iteratively.</li>
+        <li>A convolutional view, where the LSSL was also discretized and its operations were defined as a convolution with a filter.</li>
+      </ol>
+
+      <p>The first view we have already explored. If you noticed, the second and third views only differ from one another by how the output is computed. 
+        Let's address this, because it's <span class="bold">essential</span>. </p>
+
+      <h3>LSSL: recurrent view</h3>
+
+      <p>How would you implement the mechanical SSM simulation that we presented at the end of the previous post? Well, one could write down the parameters
+        and create a function that given the previous hidden state and the current input, computes the next hidden state. Then, we could iterate this function
+        over all inputs, each one depending on the last one. This is the recurrent view! It's just implementing Equation $\ref{eq:ssm_dis}$ naively.</p>
+
+      <div class="plot-container">
+          <div class="plot-background-1" id="ssm_2_viz_1">
+            <img src="../../../static/2024/ssm_1_7.png" alt="Recurrent view of a discrete-time SSM" width="500" height="313">
+          </div>
+        </div>
+      <p class="plot-caption">Figure 1: recurrent view of a discrete-time SSM.</p>
+
+      <p>This view is quite efficient. The amount of memory and computation used is the same in each step, and we only store the parameters, the previous state, and the current input.
+       The downside is, it's sequential, so for a massive number of inputs, we will need to go one by one, without parallelization (a small lie, we will revisit
+        this later). </p>
+
+      <p>You also may have noticed the similarities between the recurrent view of an LSSL and a traditional Recurrent Neural Network (RNN). Well, in the same paper, 
+        the authors showed that, actually, the RNN gating mechanism is analogous to the step size $\Delta$ in the LSSL. Not only that, they actually showed that LSSLs and
+        RNNs like LSTMs, GRU, etc, all approximate the same type of dynamics. Neat!
+      </p>
+
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_2">
+          <img src="../../../static/2024/ssm_2_2.svg" alt="Recurrent view of an SSM vs a vanilla RNN" width="400" height="263">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 2: recurrent view of an SSM (left) vs a vanilla RNN (right). Their parameters and operations are different,
+        but they approximate the same dynamics.
+      </p>
+
+      <h3>LSSL: convolutional view</h3>
+
+      <p>What's the other view? Well, if we pay closer attention to the recurrent view and write down how each step is computed, we can unroll the whole sequence.
+      Following Equation $\ref{eq:ssm_dis}$, and assuming that $h_{-1} = 0$:
+
+      $$
+      \begin{align}
+      x_0 &= \bar{\mathbf{B}} x_0, & x_1 &= \bar{\mathbf{A}} \bar{\mathbf{B}} x_0 + \bar{\mathbf{B}} x_1, & x_2 &= \bar{\mathbf{A}}^2 \bar{\mathbf{B}} x_0 + \bar{\mathbf{A}} \bar{\mathbf{B}} x_1 + \bar{\mathbf{B}} x_2, & \ldots \nonumber \\ 
+      y_0 &= \bar{\mathbf{C}} \bar{\mathbf{B}} x_0, & y_1 &= \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}} x_0 + \bar{\mathbf{C}} \bar{\mathbf{B}} x_1, & y_2 &= \bar{\mathbf{C}} \bar{\mathbf{A}}^2 \bar{\mathbf{B}} x_0 + \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}} x_1 + \bar{\mathbf{C}} \bar{\mathbf{B}} x_2, & \ldots \nonumber
+      \end{align}
+      $$
+         
+      </p>
+
+      <p>We can see that this follows a pattern:</p>
+
+      \begin{equation}
+      y_k = \bar{\mathbf{C}} \bar{\mathbf{A}}^k \bar{\mathbf{B}} x_0 + \bar{\mathbf{C}} \bar{\mathbf{A}}^{k-1} \bar{\mathbf{B}} x_1 + \ldots + \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}} x_{k-1} + \bar{\mathbf{C}} \bar{\mathbf{B}} x_k
+      \label{eq:expanded_conv}
+      \end{equation}
+      
+      <p>It can be shown that, given this expression, we can compute the whole output sequence $y$ with just an operation: the convolution. In particular,
+        the convolution of the input sequence $x$ with what is called the <span class="bold">SSM convolution kernel</span>, or filter, 
+        $\bar{\mathbf{K}} \in \mathbb{R}^{T}$:
+      </p>
+
+      \begin{equation*}
+      y = \bar{\mathbf{K}} \ast x
+      \label{eq:conv}
+      \end{equation*}
+
+      where
+
+      \begin{equation}
+      \bar{\mathbf{K}} = (\bar{\mathbf{C}} \bar{\mathbf{A}}^{(T-1)} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{A}}^{(T-2)} \bar{\mathbf{B}}, \ldots, \bar{\mathbf{C}} \bar{\mathbf{A}} \bar{\mathbf{B}}, \bar{\mathbf{C}} \bar{\mathbf{B}})
+      \label{eq:conv_filter}
+      \end{equation}
+
+      <p style="margin-bottom: 1cm;"></p>
+
+      <div class="plot-container">
+        <div class="plot-background-1-interactive" id="ssm_2_viz_3">
+          <script src="../../../src/viz/2024/ssm_2_3.js"></script>
+        </div>
+        </div>
+      <p class="plot-caption">Figure 3: interactive SSM convolution view. Each filter element K(i) is multiplied by the corresponding input element. The results are summed to get the output y(i).
+        Note how the kernel filter $K$ is as long as the input sequence ("A nice cat"). Also, see how each output element $y_i$ can be computed in parallel.
+      </p>
+
+      <p style="margin-bottom: 1cm;"></p>
+
+      <p>Now, as you may know, convolution is parallelizable, which is a huge plus versus the recurrent view. Because actually computing such a big convolution is
+        unstable, we go further and, using the discrete convolution theorem, perform the operation by multiplying the Fast Fourier Transforms of the input $x$ 
+        and the filter $\bar{\mathbf{K}}$. We can then apply
+        an inverse FFT to the result, making the operation more efficient. On the other hand, though, we see that the SSM filter
+        is just as long as the sequence ($T$); its huge. This is a big downside, as we need to store all the parameters in memory.
+      </p>
+
+      <div class="plot-container">
+        <div class="plot-background-1" id="ssm_2_viz_4">
+          <img src="../../../static/2024/ssm_2_4.svg" alt="Convolution using FFT." width="525" height="131">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 4: Convolution using FFT.
+      </p>
+
+      <p> So, these two views allow us to compute the same output in different ways:
+        <ul>
+          <li>The recurrent view is memory and compute efficient, but sequential.</li>
+          <li>The convolutional view is memory heavy but can be parallelizable.</li>
+        </ul>
+        
+      Are there situations when one is better than the other? Well, yes! In a training regime (when the model is training and the whole input sequence
+      is seen ahead of time), we can use the parallelizable convolutional view. In an inference regime, where inputs are seen incrementally, we 
+      could use the efficient recurrent view.
+    </p>
+
+    <p>We are finally ready to see how SSMs can be incorporated into neural networks.</p>
+
+    </section>
+
+    <section id="SSM neural networks">
+      <h2>SSM neural networks</h2>
+
+      <p>How do we stack LSSL blocks so that we end up with a model with the same signature as modern neural networks? Well, an LSSL block maps a scalar to a scalar, 
+        but what if we want to map a scalar to a vector? Or a vector to a vector? In that case, we need to add a <span class="italic">head</span> dimension $P$.
+        Intead of having a single LSSL block, we can stack $P$ blocks, each mapping the input to a different output. These blocks may share parameters 
+        ($\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\Delta$), or each be trained independently.</p>
+
+      <p>Formally, we now may interpret input $\mathbf{X} \in \mathbb{R}^{(T, P)}$, with $P$ LSSLs stacked independently (heads), having output $\mathbf{Y} \in \mathbb{R}^{(T, P)}$.
+      We may also have input $\mathbf{X} \in \mathbb{R}^{(T)}$, with $P$ LSSLs stacked, having output also $\mathbf{Y} \in \mathbb{R}^{(T, P)}$
+      (each input goes through $P$ LSSLs).
+      The lesson here is that we can stack LSSL blocks to create a model that maps a sequence to another sequence, with the same signature as a modern neural network.</p>
+
+      <div class="plot-container ">
+        <div class="plot-background-1" id="ssm_2_viz_5">
+          <img src="../../../static/2024/ssm_2_5.svg" alt="Convolution using FFT." height=400 style="transform: scale(1.15);">
+        </div>
+        </div>
+      <p class="plot-caption">Figure 5: Multi-head SSM. The input signal can either be repeated or have multiple dimensions.
+      </p>
+
+      <p>We can then get this stack of LSSLs and add normalization before it, and dropout, activation and a skip connection after it (an example). Voilà, this is looking
+        more like a neural network layer. We can even connect many of these layers one after the other to finally get something analogous to a deep learning model. 
+        This can be used for classification or generation, just like a Transformer. Note that only parameters $\mathbf{B}$, $\mathbf{C}$ and $\Delta$ are learnable.
+        $\mathbf{A}$ is fixed and will need to have a particular <span class="italic">structure</span>.</p>
+
+      <div class="plot-container ">
+        <div class="plot-background-1" id="ssm_2_viz_6">
+          <img src="../../../static/2024/ssm_2_6.svg" alt="" height="385">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 6: zoom-in of an example SSM layer (top), part of a larger network (bottom).
+      </p>
+
+    </section>
+
+    <section id="LRD & HiPPO">
+      <h2>LRD & HiPPO</h2>
+
+      <p>Given how we have defined SSMs until now, and even with the SSM neural network design, there is a big problem. They were shown to 
+        have limitations when trying to remember long-term dependencies (remember <a href="#LRA">LRD</a> data?). Let's address this. </p>
+
+      <h3>Happy HiPPO: enabling long-term context</h3>
+
+      <p>As we have seen, the $\mathbf{A}$ matrix is the one that defines how the previous state influences the current one (expressions \ref{eq:ssm} and \ref{eq:ssm_dis}). 
+      One interpretation of this is that the $\mathbf{A}$ matrix compresses the information of the past into the current state. 
+      If we have a random $\mathbf{A}$ this compression is going to be bad, and previous context will vanish. Well, let's learn $\mathbf{A}$! Still, not only is it expensive,
+      it's also not enough. Well, then, is there any way to give $\mathbf{A}$ a structure that helps it compress the information better without having to train it? Introducing
+      the HiPPO matrix!</p>
+
+      <p><a href="#hippo">HiPPO (2020)</a> (High-Order Polynomial Projection Operator) defines a class of matrices that, in our case, allow continuous-time memorization of the state $h(t)$.
+      Using what's called as the HiPPO matrix as $\mathbf{A}$ enables the history of the state to be compressed in a way that can even be approximately reconstructed.
+      Just the change of a random inicialization of $\mathbf{A}$ to a HiPPO matrix improved MNIST classification of an SSM from $60\%$ to $98\%$ accuracy!</p>
+
+      <p>A HiPPO matrix has a specific structure:
+
+      $$
+      \mathbf{A}_{nk} = \begin{cases}
+      (2n + 1)^{\frac{1}{2}} (2k + 1)^{\frac{1}{2}} & \text{if } n > k \\
+      n + 1 & \text{if } n = k \\
+      0 & \text{if } n < k
+      \end{cases}
+      $$
+
+      And although the claims are nothing short of amazing, they are also a bit math heavy. They entail <span class="italic">Legendre polynomials</span>, and 
+      going into detail would probably make this too long. Intuitively, though:
+      
+      <ol>
+        <li>The matrix makes each hidden state value $h_i$ approximate a coefficient $c_i$.</li>
+        <li>For each value of $i$, a unique function exists (the $i_{th}$ Legendre Polynomial).</li>
+        <li>We use the sum of each Legendre polynomial, weighed by their respective coefficient, to approximate the state history.</li>
+        <li>Each step, the coefficients (again, values of hidden state) are updated by the HiPPO matrix $\mathbf{A}$. So, the state history gets updated.</li>
+      </ol>
+      </p>
+
+      <p style="margin-bottom: 1cm;"></p>
+
+      <div class="plot-container">
+        <div class="plot-background-1-interactive" id="ssm_2_viz_7">
+          <script src="../../../src/viz/2024/ssm_2_7.js"></script>
+        </div>
+      </div>
+      <p class="plot-caption">Figure 7: reconstruction of the state history via Legendre polynomials. $c_i$ (which would be the $h_i$) 
+        adjusts how much each Legendre polynomial (in blue) contributes to the reconstructed state history (in red). To show a clear distinction, shown are the 
+        $4_{th}$, $10_{th}$ and $28_{th}$ Legendre polynomials, top down.
+      </p>
+
+      <p style="margin-bottom: 1cm;"></p>
+
+      <p>Alas, even with HiPPO matrices, problems still plague these lands. Now, although a deep LSSL network can perform well on LRD, it has prohibitive computational and memory 
+        requirements, mainly due to the state representation (not on the recurrent view, as the requirements are constant). If we want these models to be competitive to 
+        comparably-sized RNNs, we need to dig further. Luckily, just one trick does it!</p>
+    </section>
+
+    <section id="Structured State Spaces">
+      <h2>Structured State Spaces</h2>
+      <p>In 2022, <a href="#S4">Structured State Spaces</a> (S4) were introduced. In S4, the authors basically showed how to address the computational and memory issues that we mentioned previously.
+      As we said, the issues mainly came from how the convolutional view, which was the one needed for training, required computing and keeping in memory the huge filter $\bar{\mathbf{K}}$.</p>
+
+      <p>If we look at Equation $\ref{eq:conv_filter}$, we notice how not only there is lots of parameters to store, but also how we need to compute powers of $\mathbf{A}$. This is a red flag. 
+      Motivated by the properties of diagonalizable matrices, S4 finds a way to represent the HiPPO matrix $\mathbf{A}$ so that the filter $\bar{\mathbf{K}}$ can be computed fast, and with less memory.
+      In the end (and after a lot of math), they end up decomposing $\mathbf{A} = \mathbf{\Lambda} - \mathbf{P} \mathbf{Q}^*$ into its diagonal $\mathbf{\Lambda}$ and vectors $\mathbf{P}$ and $\mathbf{Q}$, all learnable but initialized from
+      a HiPPO matrix. Overall, then, now we can say that $\mathbf{A} \in \mathbb{R}^{N}$. Not only that, its powers can be computed very fast and the prohibitive costs for computing the 
+      convolutional view are now gone. Again, sorry for not going into detail; sources are already amazing (<a href="#S4">paper</a>, <a href="#annotatedS4">The Annotated S4</a>)</p>
+
+      <p>Although the change presented here may seem complex, it only changes how the SSM is parametrized ($\mathbf{A}$ is substituted by $\mathbf{\Lambda}$, $\mathbf{P}$ and $\mathbf{Q}$). 
+        Updating how the filter $\bar{\mathbf{K}}$
+        is computed is the only change needed. This is a big win, as the rest of the model, and so the neural network design, remains the same!
+    </section>
+
+    <section id="Next up & references">
+      <h2>Next up</h2>
+      <p>
+        In this post, we explored ways to view an SSM, how we can use it for inference and train it, how it can be incorporated into a neural
+        network design, and how to address its computational and context limitations. In the <a href="../ssm_3_mambas">next post</a>, we will fix yet another shortcoming: linear-time-invariance. 
+        We will see what Mamba is and how to make SSMs focus on different parts of the input, just like attention mechanisms do. 
+        We will also establish a relation between SSMs and attention and present Mamba-2.
+      </p>
+
+      <h3>Citations</h3>
+      <p>If this has been useful and you want to cite it in an academic setting, please use the following bibtex. ❤️</p>
+
+      <div class="bibtex-container">
+        <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>
+        <pre class="bibtex" id="bibtex-text">
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}</pre>
+      </div>
+
+      <h3>References</h3>
+      <p><ul id="reference-list"></ul></p>
+
+    </section>
+
+    <h2>Discussion</h2>
+    <div id="disqus_thread"></div>
+    <script>
+        /**
+         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT 
+         *  THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR 
+         *  PLATFORM OR CMS.
+         *  
+         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: 
+         *  https://disqus.com/admin/universalcode/#configuration-variables
+         */
+        
+        var disqus_config = function () {
+            // Replace PAGE_URL with your page's canonical URL variable
+            this.page.url = "https://www.chus.space/blog/2024/ssm_2_networks";  
+            
+            // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+            this.page.identifier = "/blog/2024/ssm_2_networks"; 
+        };
+        
+        
+        (function() {  // REQUIRED CONFIGURATION VARIABLE: EDIT THE SHORTNAME BELOW
+            var d = document, s = d.createElement('script');
+            
+            // IMPORTANT: Replace EXAMPLE with your forum shortname!
+            s.src = 'https://ssmpost2.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>
+        Please enable JavaScript to view the 
+        <a href="https://disqus.com/?ref_noscript" rel="nofollow">
+            comments powered by Disqus.
+        </a>
+    </noscript>
+  </div>
+
+  </article>
+
+  </div>
+
+  <script>
+
+    // -------------------------------------------------- References --------------------------------------------------
+    const references = [
+      {id: "LSSL", author: "Gu et al", year: "2021", title: "Combining Recurrent, Convolutional, and Continuous-time Models with Linear State-Space Layers", url: "https://arxiv.org/pdf/2110.13985"},
+      {id: "LRA", author: "Tay et al", year: "2021", title: "Long Range Arena: A Benchmark for Efficient Transformers", url: "https://arxiv.org/abs/2011.04006"},
+      {id: "annotatedS4", author: "Sasha Rush, Sidd Karamcheti", year: "2022", title: "The Annotated S4", url: "https://srush.github.io/annotated-s4/"},
+      {id: "S4", author: "Albert Gu, Karan Goel, Christopher Ré", year: "2022", title: "Efficiently Modeling Long Sequences with Structured State Spaces", url: "https://arxiv.org/pdf/2111.00396"},
+      {id: "hippo", author: "Albert Gu, Tri Dao et al", year: "2020", title: "HiPPO: Recurrent Memory with Optimal Polynomial Projections", url: "https://arxiv.org/pdf/2008.07669"}
+    ];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const refList = document.getElementById('reference-list');
+      references.forEach(ref => {
+          const listItem = document.createElement('li');
+          listItem.id = ref.id;
+          listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. <a href="${ref.url}">link</a>`;
+          refList.appendChild(listItem);
+      });
+    });
+  </script>
+
+</body>
+
+</html>
