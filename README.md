@@ -1,3 +1,0 @@
-Hi :)
-
-domain in hostinger!!!
