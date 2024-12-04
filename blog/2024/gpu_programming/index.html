@@ -12,7 +12,7 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intro to SSMs | Chus</title>
+  <title>GPU programming | Chus</title>
   <link rel="stylesheet" href="../../../style.css">
   <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -81,11 +81,11 @@
     <article>
 
     <div class="blog-header">
-        <h1>GPU programming</h1>
-        <p class="tagline">In this post we explore what GPU programming is, why it's done, how, and (almost) everything you should consider to do it right.</p>
+        <h1>GPU programming (for Deep Learning)</h1>
+        <p class="tagline">In this post we explore what GPU programming is, why it's done, how, and (almost) everything you should consider to do it right. </p>
         <div class="header-date-links">
             <div class="header-date">
-                <span>November 2024</span>
+                <span>December 2024</span>
             </div>
             <div class="social-links">
                 <div id="copy-notification" style="display: none; /* other styling */">Copied!</div>
@@ -98,8 +98,65 @@
 
     <section id="Motivation & what you'll learn">
       <h2>Motivation & what you'll learn</h2>
-      introducimos la importancia de gpu computing hoy en dia, y explicamos que al salir de aquí uno debería tener un modelo mental correcto acerca de como se programa, y como funciona, una gpu. 
-      Quiero hacer un resumen contenido de la primera parte de PMPP, hasta performance considerations.
+      <h3>Motivation</h3>
+      <p>
+        In 1993, Jensen Huang, Chris Malachowsky, and Curtis Priem had a vision: graphics-based applications were going to be the next big computing wave, and accelerating them was going to enable it.
+        Thus was born NVIDIA, amongst other startups with similar visions. They developed the first graphics accelerator, or GPU, and went on to become the biggest player in the gaming market.
+      </p>
+
+      <p>
+        Of course, applications of accelerated computing were not limited to gaming. Nowadays, we use GPUs for scientific computing, machine learning, and more, and similar motivations already 
+        existed in the early 2000's. This is why, because of the painful developer experience of programming a GPU via OpenGL or DirectX (graphics APIs that required you to express all computations
+        in terms of shading a pixel), NVIDIA developed CUDA. The Compute Unified Device Architecture (CUDA) programming model simply made general GPU programming easier. NVIDIA
+        made a significant investment, because CUDA is not just software: area of the GPU silicon was reserved to enable it. This would turn out to be a really good strategic decision.
+      </p>
+
+      <p>
+        Backbone concepts such as convolutional neural networks, multilayer perceptrons, backpropagation, and others, were introduced in the 20th century.
+        Because of the limited computing capabilities, though, researchers at the time could only perform limited experiments. For example, if a particular model 
+        architecture needed certain hyperparameters to work well, they wouldn't be able to perform the search in a large enough space to find them, thus concluding that
+        the algorithm is limited. Or, if lots of scaling was needed, be it in terms of data, size, or both, they unfortunately could not even know it.
+        This lead to a certain (todo check) dissilusionment on DL from a big part of the research community. That is, until an unexpected alignment of these algorithmic methods
+        with the capabilities of accelerator devices.
+      </p>
+
+      <p>
+        In 2012, Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton won the ImageNet competition with AlexNet, and it made it clear that accelerating DL with GPUs was the way to go.
+        The intersection was too good, and actually made models powerful. Single Instruction Multiple Data (SIMD), which is the computing paradigm of GPUs, is exactly Deep Learning: 
+        a massive amount of data (tensors) to which the same operations are applied (matmuls, normalizations, sums...). NVIDIA GPUs were already almost ubiquitous. Not only in gaming PCs, but also in datacenters and integrated graphics in laptops!
+        They already had the market, as well as the platform. While developers and scientists at the time developed custom GPU programs (kernels) for DL, 
+        CUDA would later on allow for higher level software, such as PyTorch, JAX and others to interact with the GPUs. So were DL frameworks born. 
+        Other companies would follow suit, developing their own accelerator chips (Google TPUs, Amazon Trainium, AMD GPUs...), but all would follow the same paradigm. 
+      </p>
+
+      <p>
+        So, know that the DL revolution was enabled by accelerator chips! No current world-class model would possibly run without them. Whether you are a DL researcher, developer, or hobbyist,
+        it's useful, important, or even necessary, to understand them.
+      </p>
+
+      <h3>What you will learn</h3>
+      <p>
+        With this post, I want to lay down what I think are the key concepts that will make you successful when programming a GPU. You will not be learning 
+        how to program kernels in CUDA, ROCm, or any other parallel programming extension here: when starting to learn how to program, you are much better off focusing on first principles first,
+        rather than memorizing C, Python, or Java syntax!
+      </p>
+
+      <p>
+        I will use Deep Learning concepts to illustrate them, as that's my main line of work. On the other hand, modern DL implements many parallel programming techniques that I will not be covering here,
+        because they are not the topic of discussion. All in all, you will learn:
+        <ul>
+          <li>GPU internals: memory architecture, execution patterns, ...</li>
+          <li>Main optimizations to consider </li>
+        </ul>
+  
+        What I will present here is in the context of NVIDIA GPUs, because they are the most popular at the moment. Still, you will find that all other parallel accelerators have 
+        approximately the same architecture and are subject to many of the same pitfalls and optimizations. 
+      </p>
+
+      <p>
+        In conclusion, you will have a mental model, or a map, of how a GPU works and how to program one. This will allow you to understand why certain things are done, 
+        and why others are not. Let's go!
+      </p>
     </section>
 
     <section id="GPU computing: a basic model">
@@ -146,10 +203,9 @@
         <pre class="bibtex" id="bibtex-text">
 @misc{chus2024SSM,
       author = {Jesus M. Antonanzas},
-      title = {todo!},
+      title = {GPU programming: a comprehensive introduction},
       year = {2024},
-      howpublished = {\url{chus.space/blog/2024/gpu_programming}},
-      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+      howpublished = {\url{chus.space/blog/2024/gpu_programming}}
 }</pre>
       </div>
 
