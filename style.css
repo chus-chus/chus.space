@@ -9,13 +9,13 @@
 body {
     font-family: var(--vp-font-family-base);
     font-style: normal;
-    font-weight: 265;
+    font-weight: 270;
     background-color: #fffff4; /* #FBFBEF is warmer*/
     color: #343131;
     margin: 0;
     display: flex;
     flex-direction: column;
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.57;
     position: relative;
 }
@@ -67,7 +67,7 @@ body {
 
 /* center main body and adds margins left and right */
 .content-container {
-    max-width: 650px;
+    max-width: 690px;
     margin: 0 auto; /* centers container */
     padding: 40px; /* padding inside the container */
     width: 100%; /* it doesn't exceed viewport width */
