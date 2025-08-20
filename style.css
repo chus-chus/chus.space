@@ -100,6 +100,35 @@ a:hover {
     font-size: 0.86em;
   }
 
+/* Series header above the SSM trilogy */
+.series-header {
+    margin: 4px 0 10px 0;
+}
+
+.series-pill {
+    display: inline-block;
+    font-size: 0.78em;
+    color: #5e5a50;
+    background: #f3efdf;
+    border: 1px solid #e1d9c3;
+    border-radius: 999px;
+    padding: 3px 8px;
+    margin-bottom: 6px;
+}
+
+.series-title {
+    font-size: 1.3em;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+    margin: 4px 0 0 0;
+}
+
+.series-subtitle {
+    font-size: 0.98em;
+    color: #6c695f;
+    margin-top: 2px;
+}
+
 .hero {
     display: flex;
     align-items: center;
@@ -255,39 +284,64 @@ a:hover {
 }
 
 .home-blog-entry {
+    position: relative;
     margin: 0;
-    padding: 18px 22px;
-    border: 1px solid #bfb9aa;
-    border-radius: 12px;
-    background-color: #ffffff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 20px 28px;
+    border: 1px solid #e7ddc9;
+    border-radius: 16px;
+    background-color: #fffef8;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.home-blog-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    border-radius: 16px 0 0 16px;
+    background: linear-gradient(180deg, #d9c49b, #bda26b);
+    opacity: 0.8;
+    transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.home-blog-entry::after {
+    content: none;
 }
 
 .home-blog-entry:hover {
-    background-color: #fdfbf2;
-    border-color: #aea78f;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    background-color: #fffdf4;
+    border-color: #d9cfb6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
 }
 
+.home-blog-entry:hover::before {
+    width: 8px;
+    opacity: 1;
+}
+
+.home-blog-entry:hover::after { content: none; }
+
 .home-blog-title {
-    font-size: 1.32em;
-    color: #0b7ea6;
+    font-size: 1.22em;
+    color: #343131;
     text-decoration: none;
     margin-top: -2px;
-    letter-spacing: -0.01em;
-    font-weight: 550;
+    letter-spacing: -0.005em;
+    font-weight: 560;
 }
 
 .home-blog-entry:hover .home-blog-title {
+    color: #343131;
     text-decoration: underline;
 }
 
 .home-blog-date {
-    font-size: 0.9em;
+    font-size: 0.92em;
     color: #9a978e;
-    margin-top: 3px;
+    margin-top: 4px;
 }
 
 .home-blog-description {
