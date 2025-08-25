@@ -9,23 +9,23 @@
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://chus.space/about</loc>
+  <loc>https://chus.space/about/</loc>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://chus.space/contact</loc>
+  <loc>https://chus.space/contact/</loc>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://chus.space/blog/2024/ssm_3_mambas</loc>
+  <loc>https://chus.space/blog/2024/ssm_3_mambas/</loc>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://chus.space/blog/2024/ssm_2_networks</loc>
+  <loc>https://chus.space/blog/2024/ssm_2_networks/</loc>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://chus.space/blog/2024/ssm_1_context</loc>
+  <loc>https://chus.space/blog/2024/ssm_1_context/</loc>
   <priority>0.80</priority>
 </url>
 </urlset>
