@@ -196,3 +196,13 @@ In this post, we explored ways to view an SSM, how we can use it for inference a
   {"id": "hippo", "author": "Albert Gu, Tri Dao et al", "year": "2020", "title": "HiPPO: Recurrent Memory with Optimal Polynomial Projections", "url": "https://arxiv.org/pdf/2008.07669"}
 ]
 ```
+
+```bibtex
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}
+```

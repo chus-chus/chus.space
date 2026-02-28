@@ -189,3 +189,13 @@ We know their context, what they are and how they work. In the [next post](../ss
   {"id": "zerohold", "author": "Xu Chen", "year": "2022", "title": "Discretization of State-Space System Models", "url": "https://faculty.washington.edu/chx/teaching/me547/1-8_zohSS_slides.pdf"}
 ]
 ```
+
+```bibtex
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}
+```

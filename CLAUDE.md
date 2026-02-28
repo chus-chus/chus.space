@@ -103,7 +103,7 @@ A sidenote^[This appears in the right margin on wide screens.] inline in text.
 ```​
 ```
 
-Extra `<script>` tags (D3.js, math.js, etc.) go in a `` ```head `` block in the markdown — they're injected into `<head>`.
+Extra `<script>` tags (D3.js, math.js, etc.) go in a `` ```head `` block in the markdown — they're injected into `<head>`. A `` ```bibtex `` block renders the bibtex citation container with a copy button.
 
 ### Manual alternative
 

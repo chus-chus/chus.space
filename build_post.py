@@ -368,6 +368,7 @@ __TAGLINE__
 __BODY__
 
     <ul id="reference-list"></ul>
+__BIBTEX__
 
     </article>
 __POST_NAV__
@@ -384,7 +385,7 @@ __REFS_SCRIPT__
 """
 
 
-def build(meta, body_html, references, extra_head, rel_root, canonical):
+def build(meta, body_html, references, extra_head, bibtex, rel_root, canonical):
     """Fill the template."""
     title = meta.get('title', 'Untitled')
     date = meta.get('date', '')
@@ -399,6 +400,18 @@ def build(meta, body_html, references, extra_head, rel_root, canonical):
     extra_head_html = ''
     if extra_head:
         extra_head_html = '    ' + '\n    '.join(extra_head.strip().splitlines()) + '\n'
+
+    bibtex_html = ''
+    if bibtex:
+        bibtex_html = (
+            '    <h3>Citation</h3>\n'
+            '    <p>If this has been useful and you want to cite it, please use the following bibtex.</p>\n'
+            '    <div class="bibtex-container">\n'
+            '      <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>\n'
+            '      <pre class="bibtex" id="bibtex-text">\n'
+            '%s</pre>\n'
+            '    </div>' % bibtex.strip()
+        )
 
     refs_script = ''
     if references:
@@ -440,6 +453,7 @@ def build(meta, body_html, references, extra_head, rel_root, canonical):
     html = html.replace('__TAGLINE__', tagline_html)
     html = html.replace('__EXTRA_HEAD__', extra_head_html)
     html = html.replace('__BODY__', body_html)
+    html = html.replace('__BIBTEX__', bibtex_html)
     html = html.replace('__POST_NAV__', nav_html)
     html = html.replace('__REFS_SCRIPT__', refs_script)
 
@@ -467,6 +481,7 @@ def main():
     # Extract special blocks
     refs_raw, body = extract_fenced(body, 'references')
     extra_head, body = extract_fenced(body, 'head')
+    bibtex_raw, body = extract_fenced(body, 'bibtex')
 
     references = []
     if refs_raw:
@@ -490,7 +505,7 @@ def main():
     canonical = os.path.relpath(md_dir, root_dir).replace('\\', '/')
 
     # Build & write
-    html = build(meta, body_html, references, extra_head, rel_root, canonical)
+    html = build(meta, body_html, references, extra_head, bibtex_raw, rel_root, canonical)
     out_path = os.path.join(md_dir, 'index.html')
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(html)

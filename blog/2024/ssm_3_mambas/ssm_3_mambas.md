@@ -211,3 +211,13 @@ Writing this has been a blast. I hope you have enjoyed reading it as much as I h
   {"id": "megatron", "author": "Mohammad Shoeybi, Mostofa Patwary, Raul Puri et al", "year": "2019", "title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism", "url": "https://arxiv.org/abs/1909.08053"}
 ]
 ```
+
+```bibtex
+@misc{chus2024SSM,
+      author = {Jesus M. Antonanzas},
+      title = {State Space Models: from 0 to Mamba-2},
+      year = {2024},
+      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
+      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
+}
+```
