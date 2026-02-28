@@ -10,22 +10,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function copyToClipboard() {
     var baseUrl = window.location.href.split('#')[0]; // Remove hash
-    // temporary text area to hold the URL
-    var tempInput = document.createElement('textarea');
-    // Prevent styling from affecting layout
-    tempInput.style.position = 'absolute';
-    tempInput.style.left = '-9999px';
-    tempInput.value = baseUrl;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
 
-    // Show notification
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(baseUrl).then(showCopyNotification);
+    } else {
+        // Fallback for older browsers
+        var tempInput = document.createElement('textarea');
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        tempInput.value = baseUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showCopyNotification();
+    }
+}
+
+function showCopyNotification() {
     var notification = document.getElementById('copy-notification');
+    if (!notification) return;
     notification.style.display = 'block';
-    
-    // Hide notification after 2s
     setTimeout(function() {
         notification.style.display = 'none';
     }, 2000);

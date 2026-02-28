@@ -94,165 +94,84 @@ a:hover {
 
 /* --------------------------------- Index  ------------------------------------ */
 
-.tagline {
-    text-align: center;
-    margin-top: -20px;
-    font-size: 0.86em;
-  }
-
-/* Series header above the SSM trilogy */
-.series-header {
-    margin: 4px 0 10px 0;
+.intro {
+    margin: 10px 0 40px 0;
 }
 
-.series-pill {
-    display: inline-block;
-    font-size: 0.78em;
-    color: #5e5a50;
-    background: #f3efdf;
-    border: 1px solid #e1d9c3;
-    border-radius: 999px;
-    padding: 3px 8px;
-    margin-bottom: 6px;
+.intro h1 {
+    font-size: 1.8em;
+    margin: 0 0 12px 0;
 }
 
-.series-title {
-    font-size: 1.3em;
-    font-weight: 620;
-    letter-spacing: -0.01em;
-    margin: 4px 0 0 0;
+.intro-links {
+    font-size: 0.95em;
+    color: #666;
+    margin-top: 12px;
 }
 
-.series-subtitle {
-    font-size: 0.98em;
-    color: #6c695f;
-    margin-top: 2px;
+.writing-note {
+    font-size: 0.95em;
+    color: #666;
+    margin: -4px 0 16px 0;
 }
 
-.hero {
+.post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.post-list li {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 25px;
-    margin: 10px 0 30px 0;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e4da;
 }
 
-.hero-text h1 {
-    font-size: 2em;
-    margin: 0 0 5px 0;
+.post-list li:last-child {
+    border-bottom: none;
 }
 
-.hero-subtitle {
-    margin: 0 0 10px 0;
-    color: #5a5a5a;
-    font-weight: 450;
-}
-
-.hero-bio {
-    margin: 0 0 14px 0;
-}
-
-.hero-links {
-    display: flex;
-    gap: 10px;
-}
-
-.button-link {
-    border: 1px solid #333;
-    padding: 6px 10px;
-    border-radius: 6px;
-    color: #333;
-    text-decoration: none;
-}
-
-.button-link:hover {
-    text-decoration: none;
-    background-color: rgba(142, 105, 32, 0.08);
-}
-
-.button-link.secondary {
-    border-color: #777;
-    color: #444;
-}
-
-/* CTA pop for open to roles */
-.button-link.cta {
-    background-color: rgba(0, 136, 173, 0.09);
-    border-color: #0088ad;
-    color: #0a3d4d;
-    padding: 7px 12px;
-    font-weight: 500;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03), 0 2px 6px rgba(0, 136, 173, 0.10);
-    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.04s ease;
-}
-
-.button-link.cta:hover {
-    background-color: rgba(0, 136, 173, 0.14);
-    box-shadow: 0 2px 0 rgba(0,0,0,0.04), 0 4px 12px rgba(0, 136, 173, 0.16);
-}
-
-.button-link.cta:active {
-    transform: translateY(1px);
-}
-
-.hero-photo {
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 10px;
+.post-date {
+    color: #999;
+    font-size: 0.88em;
+    white-space: nowrap;
+    margin-left: 24px;
 }
 
 /* --------------------------------- About  ------------------------------------ */
 
 .timeline {
-    position: relative; /* for absolute positioning of the line */
-    padding-left: 20px; /* space for the line on the left */
-    margin: 20px auto;
+    margin: 28px 0;
 }
 
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 60px; /* align line to the left edge of the timeline */
-    top: 8px; /* start the line at the top */
-    bottom: 0; /* extend the line to the bottom */
-    width: 2px; /* line width */
-    background-color: #333; /* line color */
+.timeline-year {
+    font-size: 0.88em;
+    color: #999;
+    margin-top: 28px;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
 }
 
-.timeline-date {
-    position: absolute;
-    left: -55px; /* position the years correctly */
-    top: 1.5px;
-    font-weight: 400;
-    font-size: 13px;
+.timeline-year:first-child {
+    margin-top: 0;
 }
 
-.timeline-item {
-    position: relative;
-    margin-left: 50px; /* space for the star to sit on the line */
-    margin-bottom: 20px; /* spacing between items */
+.timeline-entry {
+    margin-bottom: 16px;
+    padding-left: 16px;
+    border-left: 2px solid #e0dcd2;
 }
 
-.timeline-item::before {
-    content: '⭐️';
-    position: absolute;
-    left: -16.91px;
-    top: 0.5px;
-    font-size: 12px;
+.timeline-role {
+    font-weight: 560;
 }
 
-.timeline-content {
-    max-width: 600px;
-    padding-right: 20px;
-    padding-left: 11px;
-    border-radius: 4px;
-    position: relative;
-}
-
-.timeline h4, .timeline p, .timeline h5 {
-    margin-top: 5px; /* space between title and description */
-    margin-bottom: 5px;
+.timeline-entry p {
+    margin: 4px 0 0 0;
+    color: #555;
+    font-size: 0.95em;
 }
 
 .personal-photo {
@@ -272,83 +191,6 @@ a:hover {
     font-size: 0.85em;
     color: #666;
     margin-top: -35px;
-}
-
-/* --------------------------------- Blog entries in homepage  ------------------------------------ */
-
-.home-blog-list {
-    list-style-type: none;
-    padding: 0;
-    display: grid;
-    gap: 16px;
-}
-
-.home-blog-entry {
-    position: relative;
-    margin: 0;
-    padding: 20px 28px;
-    border: 1px solid #e7ddc9;
-    border-radius: 16px;
-    background-color: #fffef8;
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.home-blog-entry::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    border-radius: 16px 0 0 16px;
-    background: linear-gradient(180deg, #d9c49b, #bda26b);
-    opacity: 0.8;
-    transition: width 0.2s ease, opacity 0.2s ease;
-}
-
-.home-blog-entry::after {
-    content: none;
-}
-
-.home-blog-entry:hover {
-    background-color: #fffdf4;
-    border-color: #d9cfb6;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
-}
-
-.home-blog-entry:hover::before {
-    width: 8px;
-    opacity: 1;
-}
-
-.home-blog-entry:hover::after { content: none; }
-
-.home-blog-title {
-    font-size: 1.22em;
-    color: #343131;
-    text-decoration: none;
-    margin-top: -2px;
-    letter-spacing: -0.005em;
-    font-weight: 560;
-}
-
-.home-blog-entry:hover .home-blog-title {
-    color: #343131;
-    text-decoration: underline;
-}
-
-.home-blog-date {
-    font-size: 0.92em;
-    color: #9a978e;
-    margin-top: 4px;
-}
-
-.home-blog-description {
-    font-size: 1.02em;
-    color: #4c4a45;
-    margin-top: 8px;
-    line-height: 1.6;
 }
 
 /* ----------------------------- Blog posts ------------------------------------ */
@@ -379,7 +221,7 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: px;
+    margin-bottom: 0;
 }
 
 .content-container.entry code {
@@ -430,7 +272,7 @@ a:hover {
 
 .fas.fa-link {
     /* favicon link size */
-    font-size: 00.95em;
+    font-size: 0.95em;
     margin-left: -15px;
     color: #333;
 }
@@ -478,44 +320,120 @@ a:hover {
     background-color: #9f9f9f; /* Darker green on hover */
 }
 
-/* ----------------------------- Entries - progress bar ------------------------------------ */
+/* ----------------------------- Entries - post navigation ------------------------------ */
+
+.post-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e0dcd2;
+    font-size: 0.95em;
+}
+
+.post-nav a {
+    max-width: 45%;
+}
+
+.post-nav-label {
+    display: block;
+    font-size: 0.8em;
+    color: #999;
+    margin-bottom: 2px;
+}
+
+.post-nav-next {
+    text-align: right;
+    margin-left: auto;
+}
+
+/* ----------------------------- Entries - citations ------------------------------------ */
+
+.cite-link {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+}
+
+.cite-link:hover {
+    text-decoration-style: solid;
+}
+
+.cite-popup {
+    position: absolute;
+    display: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.82em;
+    line-height: 1.45;
+    max-width: 340px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.cite-popup.visible {
+    display: block;
+}
+
+/* ----------------------------- Entries - sidenotes ------------------------------------ */
+
+.sidenote {
+    float: right;
+    clear: right;
+    margin-right: -230px;
+    width: 190px;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 0.82em;
+    line-height: 1.4;
+    color: #666;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.sidenote-number {
+    font-size: 0.75em;
+    color: #888;
+    vertical-align: super;
+    line-height: 0;
+}
+
+/* ----------------------------- Entries - sidebar TOC ------------------------------------ */
 
 #progress-container {
-    position: fixed; /* keep visible while scrolling */
-    top: 80px;
-    bottom: 0; /* Do not remove top and bottom */
-    left: 25px;
-    height: 100%;
-    width: 1px;
-    background-color: transparent; /* background */
-    z-index: 10; /* Ensure it's above other content */
-    height: 88%;    
+    position: fixed;
+    top: 100px;
+    left: 24px;
+    width: 170px;
+    z-index: 10;
 }
 
-#progress-bar {
-    background-color: #000;
-    width: 100%;
-    height: 0%;
-    background-color: #bababa;
-    /* increase distance to bottom */
-    bottom: 100px;
+#progress-container a {
+    display: block;
+    font-size: 0.78em;
+    line-height: 1.35;
+    color: #b0b0b0;
+    text-decoration: none;
+    padding: 4px 0 4px 12px;
+    border-left: 2px solid transparent;
+    transition: color 150ms, border-color 150ms;
 }
 
-.progress-marker {
-    position: absolute;
-    left: 100%; /* Place marker to the right of the progress bar */
-    transform: translateX(10px); /* Adjust horizontal position */
-    white-space: nowrap;
-    margin-left: -5px;
-    font-size: 0.85em;
-    color: #909090;
-    font-style: italic;
+#progress-container a.active {
+    color: #343131;
+    border-left-color: #343131;
+    font-weight: 450;
+}
+
+#progress-container a:hover {
+    color: #555;
     text-decoration: none;
 }
 
-.progress-marker.active {
-    color: #000;
-    font-weight: 450;
+.content-container.entry section {
+    scroll-margin-top: 60px;
 }
 
 #copy-notification {
@@ -584,6 +502,22 @@ a:hover {
     margin-top: 10px;
 }
 
+/* Sidenotes and sidebar TOC: fall back on narrower screens */
+@media (max-width: 1200px) {
+    .sidenote {
+        float: none;
+        display: block;
+        width: auto;
+        margin: 8px 0 8px 20px;
+        padding-left: 12px;
+        border-left: 2px solid #e0dcd2;
+    }
+
+    #progress-container {
+        display: none;
+    }
+}
+
 /* ------------------------- Mobile styles ------------------------- */
 @media (max-width: 600px) {
     #navbar {
@@ -605,21 +539,6 @@ a:hover {
         margin: -3px 0 0 10px;
     }
 
-    .tagline {
-        margin-top: 10px;
-        font-size: 0.85em;
-    }
-
-    .hero {
-        flex-direction: column-reverse;
-        align-items: flex-start;
-    }
-
-    .hero-photo {
-        width: 120px;
-        height: 120px;
-    }
-
     .content-container {
         width: 87%;
         max-width: 400px;
@@ -628,19 +547,6 @@ a:hover {
 
     .content-container h1 {
         font-size: 1.5em;
-    }
-
-    .timeline {
-        padding-left: 6px; /* align date, star and content */
-        margin: 15px auto;
-    }
-    
-    .timeline::before {
-        left: 46px; /* align line */
-    }
-
-    .timeline-date {
-        top: 1.5px;
     }
 
     .personal-photo {
@@ -660,8 +566,4 @@ a:hover {
         margin-bottom: 0;
     }
 
-    #progress-container {
-        /* delete it */
-        display: none;
-    }
 }

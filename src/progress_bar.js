@@ -1,69 +1,79 @@
-// scroll progress bar for entries
+// Sidebar table-of-contents for blog posts.
+// Builds a fixed TOC from <section> elements, highlights the active
+// section on scroll, and supports click-to-navigate.
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Select all the sections and the progress bar container
-    const sections = document.querySelectorAll('.entry section');
-    const progressBarContainer = document.getElementById('progress-container');
-    const progressBar = document.getElementById('progress-bar');
-    
-    // Determine the total height of the content for percentage calculation
-    const contentHeight = sections[sections.length - 1].offsetTop + sections[sections.length - 1].offsetHeight;
+    var sections = document.querySelectorAll('.entry section');
+    var container = document.getElementById('progress-container');
 
-    // Create markers
-    sections.forEach((section, index) => {
-        // Create an anchor element instead of a div
-        const marker = document.createElement('a');
-        marker.classList.add('progress-marker');
-        marker.textContent = section.getAttribute('id'); // Use the section's ID as text
-        // Set the href attribute to link to the section ID
-        marker.href = '#' + section.getAttribute('id');
-    
-        // Calculate position percentage (top offset / total content height)
-        const positionPercent = (section.offsetTop / contentHeight) * 100;
-        marker.style.top = Math.max(0, (positionPercent - 9)) + '%'; // Set the top position as a percentage
-        marker.style.position = 'absolute'; // Ensure the marker is positioned correctly
-        marker.style.cursor = 'pointer'; // Change the cursor to indicate it's clickable
-    
-        progressBarContainer.appendChild(marker); // Append marker to the progress container
+    if (!sections.length || !container) return;
+
+    container.innerHTML = '';
+
+    // Build TOC links
+    var links = [];
+    sections.forEach(function(section) {
+        var id = section.getAttribute('id');
+        if (!id) return;
+        var a = document.createElement('a');
+        a.href = '#' + id;
+        a.textContent = id;
+        container.appendChild(a);
+        links.push({ el: a, id: id });
     });
 
-    function updateProgressBar() {
-        let scrollDistance = window.scrollY + window.innerHeight / 2;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        let scrolledPercentage = Math.max(0, (scrollDistance / maxScroll) * 100 - 13);
-        progressBar.style.height = scrolledPercentage + '%';
+    if (!links.length) return;
 
-        let markers = document.querySelectorAll('.progress-marker'); // Directly use the marker elements
-        let closestMarkerIndex = null;
-        let closestDistance = Number.MAX_VALUE;
+    var clickedId = null;
 
-        // Compute markers' positions and find the closest marker
-        sections.forEach((section, index) => {
-            const positionPercent = (section.offsetTop / document.documentElement.scrollHeight) * 100;
-            const positionPixels = (positionPercent / 100) * document.documentElement.scrollHeight;
-
-            // Calculate the distance from the viewport's midpoint to the marker
-            let distance = Math.abs(scrollDistance - positionPixels - window.innerHeight / 2);
-
-            // Determine if this marker is the closest to the viewport's midpoint
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestMarkerIndex = index;
-            }
+    function setActive(id) {
+        links.forEach(function(link) {
+            link.el.classList.toggle('active', link.id === id);
         });
-
-        // Toggle the active class based on the closest marker
-        markers.forEach((marker, index) => {
-            if (index === closestMarkerIndex) {
-                marker.classList.add('active');
-            } else {
-                marker.classList.remove('active');
-            }
-        });
-
     }
 
-    window.addEventListener('scroll', updateProgressBar);
-    updateProgressBar(); // Initialize on page load
-});
+    // Click: force-activate until the user scrolls the section out of view
+    links.forEach(function(link) {
+        link.el.addEventListener('click', function() {
+            clickedId = link.id;
+            setActive(link.id);
+        });
+    });
 
+    function update() {
+        // If a TOC link was clicked, keep that section active while visible
+        if (clickedId) {
+            var el = document.getElementById(clickedId);
+            if (el) {
+                var r = el.getBoundingClientRect();
+                if (r.top < window.innerHeight && r.bottom > 0) return;
+            }
+            clickedId = null;
+        }
+
+        // The "reference line": a section becomes active when its heading
+        // scrolls above this line. Normally at 25% from the top.
+        //
+        // Near the bottom of the page, short sections can never reach 25%.
+        // So we smoothly shift the reference line downward as the user
+        // approaches the bottom, reaching 90% at the very end. This lets
+        // every section activate naturally during scrolling.
+        var vh = window.innerHeight;
+        var scrollBottom = window.scrollY + vh;
+        var pageHeight = document.documentElement.scrollHeight;
+        var distRatio = Math.min(1, (pageHeight - scrollBottom) / (vh * 0.8));
+        var refLine = vh * (0.25 + 0.65 * (1 - distRatio));
+
+        // Active = last section whose heading is above the reference line
+        var active = null;
+        sections.forEach(function(section) {
+            if (section.getBoundingClientRect().top <= refLine) {
+                active = section.getAttribute('id');
+            }
+        });
+        if (active) setActive(active);
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+});

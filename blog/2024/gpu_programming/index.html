@@ -2,75 +2,63 @@
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-CL61JF076E');
-  </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPU programming | Chus</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="icon" href="https://www.chus.space/favicon.ico?v=2"/>
-  <link rel="canonical" href="https://www.chus.space/blog/2024/ssm_1_context">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta property="og:type" content="article">
-  <!-- MODIFY FOREACH-->
-  <!-- entry title -->
-  <meta property="og:title" content="An introduction to State Space Models - Chus Antonanzas">
-  <!-- entry description -->
-  <meta name="description" content="Explore State Space Models (SSMs) in this introductory post. Learn about their history, how they work and their current role in machine learning with interactive visualizations." />
-  <meta property="og:description" content="Enter into the world of State Space Models (SSMs) with this introduction to their mechanics and evolution." />
-  <!-- entry name / entry image -->
-  <meta property="og:image" content="https://www.chus.space/static/ogimage.png"> 
-  <!-- entry name -->
-  <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_1_context">
-  <meta property="og:site_name" content="Chus Antonanzas">
-  <meta property="og:locale" content="en_US">
-  <script>
-    window.MathJax = {
-        tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$']],
-            packages: ['base', 'ams'],
-            tags: 'ams', // Enables AMS-style numbering
-            tagSide: 'right',
-            tagIndent: '0.8em'
-        },
-        options: {
-            ignoreHtmlClass: 'tex2jax_ignore',
-            processHtmlClass: 'tex2jax_process'
-        }
-    };
-  </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <script src="../../../src/progress_bar.js"></script>
-  <script src="../../../src/dynamic_share_url.js"></script>
-  <script src="../../../src/copy_bibtex.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-CL61JF076E');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU programming (for Deep Learning) | Chus</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://chus.space/favicon.ico?v=2"/>
+    <link rel="canonical" href="https://chus.space/blog/2024/gpu_programming">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="GPU programming (for Deep Learning) - Chus Antonanzas">
+    <meta name="description" content="An introduction to GPU programming: kernels, threads, blocks, and performance considerations." />
+    <meta property="og:description" content="An introduction to GPU programming: kernels, threads, blocks, and performance considerations." />
+    <meta property="og:image" content="https://chus.space/static/ogimage.png">
+    <meta property="og:url" content="https://chus.space/blog/2024/gpu_programming">
+    <meta property="og:site_name" content="Chus Antonanzas">
+    <meta property="og:locale" content="en_US">
+    <script>
+      window.MathJax = {
+          tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$']],
+              packages: ['base', 'ams'],
+              tags: 'ams',
+              tagSide: 'right',
+              tagIndent: '0.8em'
+          },
+          options: {
+              ignoreHtmlClass: 'tex2jax_ignore',
+              processHtmlClass: 'tex2jax_process'
+          }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
-
   <header>
       <nav id="navbar">
-          <div class="logo-and-title">
-              <a href="../../.." style="display: flex; align-items: center; text-decoration: none; color: inherit;">
-                  <h1>Chus Antonanzas</h1>
-              </a>
-          </div>
-          <ul>
-              <li><a href="../../../about">About</a></li>
-              <li><a href="../../../contact">Contact</a></li>
-          </ul>
-      </nav>
+        <div class="logo-and-title">
+            <a href="/" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                <h1>Chus Antonanzas</h1>
+            </a>
+        </div>
+        <ul>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
   </header>
 
   <div id="progress-container">
@@ -82,13 +70,13 @@
 
     <div class="blog-header">
         <h1>GPU programming (for Deep Learning)</h1>
-        <p class="tagline">In this post we explore what GPU programming is, why it's done, how, and (almost) everything you should consider to do it right. </p>
+        <p class="tagline">In this post we explore what GPU programming is, why it's done, how, and (almost) everything you should consider to do it right.</p>
         <div class="header-date-links">
             <div class="header-date">
                 <span>December 2024</span>
             </div>
             <div class="social-links">
-                <div id="copy-notification" style="display: none; /* other styling */">Copied!</div>
+                <div id="copy-notification" style="display: none;">Copied!</div>
                 <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
@@ -96,144 +84,44 @@
         <hr>
     </div>
 
-    <section id="Motivation & what you'll learn">
-      <h2>Motivation & what you'll learn</h2>
-      <h3>Motivation</h3>
-      <p>
-        In 1993, Jensen Huang, Chris Malachowsky, and Curtis Priem had a vision: graphics-based applications were going to be the next big computing wave, and accelerating them was going to enable it.
-        Thus was born NVIDIA, amongst other startups with similar visions. They developed the first graphics accelerator, or GPU, and went on to become the biggest player in the gaming market.
-      </p>
+      <section id="Motivation &amp; what you'll learn">
+      <h2>Motivation &amp; what you'll learn</h2>
+      <p>When NVIDIA was first created in 1993, its focus was on developing graphics processing hardware for the gaming and multimedia markets. Their GPUs (Graphics Processing Units) were initially designed to accelerate 3D graphics rendering, a computationally intensive task that benefits from parallel processing. As NVIDIA's GPUs evolved, they became increasingly powerful parallel processors capable of handling complex mathematical operations.</p>
+      <p>NVIDIA recognized the potential of GPUs for general-purpose computing beyond graphics, leading to the development of CUDA (Compute Unified Device Architecture) in 2006. CUDA allowed programmers to harness the parallel processing power of NVIDIA GPUs for scientific and engineering computations, data analysis, and other tasks that could benefit from massive parallelism.</p>
+      <p>The field of Deep Learning, whose algorithms date back to the 1980s and even earlier in some forms, experienced a significant boost as NVIDIA's GPUs became more powerful and accessible. Deep learning algorithms, particularly neural networks, require large amounts of data and significant computational resources to train, and GPUs proved to be well-suited for these tasks due to their parallel architecture.</p>
+      <p>In 2012, Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton used NVIDIA GPUs to train AlexNet, a deep convolutional neural network. AlexNet achieved groundbreaking results in the ImageNet Large Scale Visual Recognition Challenge, significantly outperforming previous methods and demonstrating the power of deep learning combined with GPU computing. This was a pivotal moment: it showed the world that GPUs could dramatically accelerate the training of deep neural networks, making previously impractical models feasible.</p>
+      <p>As a result of this and subsequent developments, the intersection between GPUs and Deep Learning has become a cornerstone of modern AI research and applications. GPUs (and other accelerators) are now the standard hardware for training and deploying deep learning models. PyTorch, JAX and others are frameworks that leverage CUDA, and virtually all systems use NVIDIA hardware. Other products are emerging though (AMD, Intel, Cerebras, ...), so this near-monopolistic situation is expected to change in the (very?) near future. Of course, hardware alone does not make a model; in the same manner that algorithms alone don't, either (although the compute scaling debate sometimes seems to say otherwise).</p>
+      <p>That being said, understanding GPU architecture and programming is a critical and powerful skill, as GPUs are the backbone of the systems that run our models. For people like me, that develop DL systems, understanding the underlying hardware is essential. But anyone working with models, be it for training or inference, can benefit from understanding how their GPU works: after all, your GPU is the one doing the work!</p>
+      <p>In this post, we will explore the basics of GPU programming: how they work, how to program them, and what to consider to do so effectively. We will use CUDA as our reference point, as it is the most widely used framework for GPU programming today, but the concepts are applicable to other frameworks and hardware as well.</p>
+      <p><em>[Remaining sections are under development.]</em></p>
+      </section>
 
-      <p>
-        Of course, applications of accelerated computing were not limited to gaming. Nowadays, we use GPUs for scientific computing, machine learning, and more, and similar motivations already 
-        existed in the early 2000's. This is why, because of the painful developer experience of programming a GPU via OpenGL or DirectX (graphics APIs that required you to express all computations
-        in terms of shading a pixel), NVIDIA developed CUDA. The Compute Unified Device Architecture (CUDA) programming model simply made general GPU programming easier. NVIDIA
-        made a significant investment, because CUDA is not just software: area of the GPU silicon was reserved to enable it. This would turn out to be a really good strategic decision.
-      </p>
-
-      <p>
-        Backbone concepts such as convolutional neural networks, multilayer perceptrons, backpropagation, and others, were introduced in the 20th century.
-        Because of the limited computing capabilities, though, researchers at the time could only perform limited experiments. For example, if a particular model 
-        architecture needed certain hyperparameters to work well, they wouldn't be able to perform the search in a large enough space to find them, thus concluding that
-        the algorithm is limited. Or, if lots of scaling was needed, be it in terms of data, size, or both, they unfortunately could not even know it.
-        This lead to a certain (todo check) dissilusionment on DL from a big part of the research community. That is, until an unexpected alignment of these algorithmic methods
-        with the capabilities of accelerator devices.
-      </p>
-
-      <p>
-        In 2012, Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton won the ImageNet competition with AlexNet, and it made it clear that accelerating DL with GPUs was the way to go.
-        The intersection was too good, and actually made models powerful. Single Instruction Multiple Data (SIMD), which is the computing paradigm of GPUs, is exactly Deep Learning: 
-        a massive amount of data (tensors) to which the same operations are applied (matmuls, normalizations, sums...). NVIDIA GPUs were already almost ubiquitous. Not only in gaming PCs, but also in datacenters and integrated graphics in laptops!
-        They already had the market, as well as the platform. While developers and scientists at the time developed custom GPU programs (kernels) for DL, 
-        CUDA would later on allow for higher level software, such as PyTorch, JAX and others to interact with the GPUs. So were DL frameworks born. 
-        Other companies would follow suit, developing their own accelerator chips (Google TPUs, Amazon Trainium, AMD GPUs...), but all would follow the same paradigm. 
-      </p>
-
-      <p>
-        So, know that the DL revolution was enabled by accelerator chips! No current world-class model would possibly run without them. Whether you are a DL researcher, developer, or hobbyist,
-        it's useful, important, or even necessary, to understand them.
-      </p>
-
-      <h3>What you will learn</h3>
-      <p>
-        With this post, I want to lay down what I think are the key concepts that will make you successful when programming a GPU. You will not be learning 
-        how to program kernels in CUDA, ROCm, or any other parallel programming extension here: when starting to learn how to program, you are much better off focusing on first principles first,
-        rather than memorizing C, Python, or Java syntax!
-      </p>
-
-      <p>
-        I will use Deep Learning concepts to illustrate them, as that's my main line of work. On the other hand, modern DL implements many parallel programming techniques that I will not be covering here,
-        because they are not the topic of discussion. All in all, you will learn:
-        <ul>
-          <li>GPU internals: memory architecture, execution patterns, ...</li>
-          <li>Main optimizations to consider </li>
-        </ul>
-  
-        What I will present here is in the context of NVIDIA GPUs, because they are the most popular at the moment. Still, you will find that all other parallel accelerators have 
-        approximately the same architecture and are subject to many of the same pitfalls and optimizations. 
-      </p>
-
-      <p>
-        In conclusion, you will have a mental model, or a map, of how a GPU works and how to program one. This will allow you to understand why certain things are done, 
-        and why others are not. Let's go!
-      </p>
-    </section>
-
-    <section id="GPU computing: a basic model">
-        <h2>GPU computing: a basic model</h2>
-        introducir un kernel facilito, y explicar de forma sencilla que cada thread se encarga de eso, la organizacion en bloques y grid, y otros conceptos básicos.
-    </section>
-
-    <section id="GPU architecture: how a GPU computes"></section>
-        <h2>GPU architecture, or how a GPU computes</h2>
-        como ya hemos introducido bloques y threads, exlicar la arquitectura de una gpu estándar: SMs (hasta los cores) y tipos de memoria
-    </section>
-
-    <section id="GPU computing: an advanced model"></section>
-        <h2>GPU computing: an advanced model</h2>
-        Hablar de warps, bloqueos y sincronizaciones de threads, accesos a memoria linealizados.
-    </section>
-
-    <section id="How to program a GPU right"></section>
-        <h2>How to program a GPU right</h2>
-        Basicamente poner las performance considerations
-    </section>
-
-    <section id="Good vs bad GPU programming"></section>
-        <h2>Good vs bad GPU programming</h2>
-        plantear un problema que resolvemos en la gpu. Primero lo resolvemos de forma naive, y luego vemos paso por paso como lo que hemos hecho no cumple con nuestras performance considerations.
-        Despues, lo arreglamos.
-    </section>
-
-    <section id="Conclusion"></section>
-        <h2>Conclusion</h2>
-    </section>
-
-    <section id="References">
+      <section id="References">
       <h2>References</h2>
+      </section>
 
-      <h3>References</h3>
-      <p><ul id="reference-list"></ul></p>
+    <ul id="reference-list"></ul>
 
-      <h3>Citations</h3>
-      <p>If this has been useful and you want to cite it in an academic setting, please use the following bibtex. ❤️</p>
-
-      <div class="bibtex-container">
-        <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>
-        <pre class="bibtex" id="bibtex-text">
-@misc{chus2024SSM,
-      author = {Jesus M. Antonanzas},
-      title = {GPU programming: a comprehensive introduction},
-      year = {2024},
-      howpublished = {\url{chus.space/blog/2024/gpu_programming}}
-}</pre>
-      </div>
-
-    </section>
-
-  </article>
+    </article>
 
   </div>
 
+<script src="../../../src/progress_bar.js"></script>
+<script src="../../../src/dynamic_share_url.js"></script>
+<script src="../../../src/copy_bibtex.js"></script>
 <script>
-
-// -------------------------------------------------- References --------------------------------------------------
 const references = [
-  {id: "attention", author: "Vaswani et al", year: "2017", title: "Attention Is All You Need", url: "https://arxiv.org/pdf/1706.03762"}
+  {
+    "id": "attention",
+    "author": "Vaswani et al",
+    "year": "2017",
+    "title": "Attention Is All You Need",
+    "url": "https://arxiv.org/pdf/1706.03762"
+  }
 ];
-
-document.addEventListener('DOMContentLoaded', function() {
-  const refList = document.getElementById('reference-list');
-  references.forEach(ref => {
-      const listItem = document.createElement('li');
-      listItem.id = ref.id;
-      listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. <a href="${ref.url}">link</a>`;
-      refList.appendChild(listItem);
-  });
-});
-
 </script>
+<script src="../../../src/citations.js"></script>
+<script src="../../../src/sidenotes.js"></script>
 
 </body>
-
 </html>

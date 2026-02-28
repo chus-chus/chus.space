@@ -1,23 +1,26 @@
 function copyBibtex() {
-    const bibtexText = document.getElementById("bibtex-text").innerText;
+    var bibtexEl = document.getElementById("bibtex-text");
+    if (!bibtexEl) return;
+    var bibtexText = bibtexEl.innerText;
 
-    // Create a temporary text area to copy the text
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = bibtexText;
-    document.body.appendChild(tempTextArea);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(bibtexText).then(showBibtexNotification);
+    } else {
+        // Fallback for older browsers
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = bibtexText;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextArea);
+        showBibtexNotification();
+    }
+}
 
-    // Select and copy the text
-    tempTextArea.select();
-    document.execCommand("copy");
-
-    // Remove the temporary text area
-    document.body.removeChild(tempTextArea);
-
-    // Show notification
+function showBibtexNotification() {
     var notification = document.getElementById('copy-notification');
+    if (!notification) return;
     notification.style.display = 'block';
-    
-    // Hide notification after 2s
     setTimeout(function() {
         notification.style.display = 'none';
     }, 2000);

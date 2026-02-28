@@ -2,75 +2,65 @@
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-CL61JF076E');
-  </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intro to SSMs | Chus</title>
-  <link rel="stylesheet" href="../../../style.css">
-  <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="icon" href="https://www.chus.space/favicon.ico?v=2"/>
-  <link rel="canonical" href="https://www.chus.space/blog/2024/ssm_1_context">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta property="og:type" content="article">
-  <!-- MODIFY FOREACH-->
-  <!-- entry title -->
-  <meta property="og:title" content="An introduction to State Space Models - Chus Antonanzas">
-  <!-- entry description -->
-  <meta name="description" content="Explore State Space Models (SSMs) in this introductory post. Learn about their history, how they work and their current role in machine learning with interactive visualizations." />
-  <meta property="og:description" content="Enter into the world of State Space Models (SSMs) with this introduction to their mechanics and evolution." />
-  <!-- entry name / entry image -->
-  <meta property="og:image" content="https://www.chus.space/static/ogimage.png"> 
-  <!-- entry name -->
-  <meta property="og:url" content="https://www.chus.space/blog/2024/ssm_1_context">
-  <meta property="og:site_name" content="Chus Antonanzas">
-  <meta property="og:locale" content="en_US">
-  <script>
-    window.MathJax = {
-        tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$']],
-            packages: ['base', 'ams'],
-            tags: 'ams', // Enables AMS-style numbering
-            tagSide: 'right',
-            tagIndent: '0.8em'
-        },
-        options: {
-            ignoreHtmlClass: 'tex2jax_ignore',
-            processHtmlClass: 'tex2jax_process'
-        }
-    };
-  </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <script src="../../../src/progress_bar.js"></script>
-  <script src="../../../src/dynamic_share_url.js"></script>
-  <script src="../../../src/copy_bibtex.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CL61JF076E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-CL61JF076E');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Space Models (1): introduction to SSMs | Chus</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://chus.space/favicon.ico?v=2"/>
+    <link rel="canonical" href="https://chus.space/blog/2024/ssm_1_context">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="State Space Models (1): introduction to SSMs - Chus Antonanzas">
+    <meta name="description" content="Explore State Space Models (SSMs) in this introductory post. Learn about their history, how they work and their current role in machine learning with interactive visualizations." />
+    <meta property="og:description" content="Enter into the world of State Space Models (SSMs) with this introduction to their mechanics and evolution." />
+    <meta property="og:image" content="https://chus.space/static/ogimage.png">
+    <meta property="og:url" content="https://chus.space/blog/2024/ssm_1_context">
+    <meta property="og:site_name" content="Chus Antonanzas">
+    <meta property="og:locale" content="en_US">
+    <script>
+      window.MathJax = {
+          tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$']],
+              packages: ['base', 'ams'],
+              tags: 'ams',
+              tagSide: 'right',
+              tagIndent: '0.8em'
+          },
+          options: {
+              ignoreHtmlClass: 'tex2jax_ignore',
+              processHtmlClass: 'tex2jax_process'
+          }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
 </head>
 
 <body>
-
   <header>
       <nav id="navbar">
-          <div class="logo-and-title">
-              <a href="../../.." style="display: flex; align-items: center; text-decoration: none; color: inherit;">
-                  <h1>Chus Antonanzas</h1>
-              </a>
-          </div>
-          <ul>
-              <li><a href="../../../about">About</a></li>
-              <li><a href="../../../contact">Contact</a></li>
-          </ul>
-      </nav>
+        <div class="logo-and-title">
+            <a href="/" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                <h1>Chus Antonanzas</h1>
+            </a>
+        </div>
+        <ul>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
   </header>
 
   <div id="progress-container">
@@ -82,13 +72,13 @@
 
     <div class="blog-header">
         <h1>State Space Models (1): introduction to SSMs</h1>
-        <p class="tagline">In this series, we explore how State Space Models (SSMs) work, their history, some intuitions, and recent advances, including Mamba and Mamba-2. </p>
+        <p class="tagline">In this series, we explore how State Space Models (SSMs) work, their history, some intuitions, and recent advances, including Mamba and Mamba-2.</p>
         <div class="header-date-links">
             <div class="header-date">
                 <span>June 10th, 2024</span>
             </div>
             <div class="social-links">
-                <div id="copy-notification" style="display: none; /* other styling */">Copied!</div>
+                <div id="copy-notification" style="display: none;">Copied!</div>
                 <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
@@ -96,334 +86,243 @@
         <hr>
     </div>
 
-    <section id="Intro">
+      <section id="Intro">
       <h2>Intro</h2>
-      <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. 
-        In the series, we will cover everything you need to know about how SSMs work to understand their current uses, how they became competitive with the state-of-the-art, all the way up to the most 
-        recent advances.</p>
-      <p>I have organized into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I'll focus on a particular subset
-        of advances in the field, because covering all of them would be a bit hard. I also have tried to keep as constant a notation as possible, 
-        given that the ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
-  
+      <p>Welcome to the first part of the State Space Model series! Motivated by their recent popularity and my own interest in the topic, I decided to explore State Space Models (SSMs) in depth. In the series, we will cover everything you need to know about how SSMs work to understand their current uses, how they became competitive with the state-of-the-art, all the way up to the most recent advances.</p>
+      <p>I have organized into a cohesive story what I consider to be the most important resources I could find on modern SSMs and their model contemporaries. I'll focus on a particular subset of advances in the field, because covering all of them would be a bit hard. I also have tried to keep as constant a notation as possible, given that the ways of presenting the material have been changing through the years. If you have any questions or suggestions please let me know!</p>
       <p>The series is divided into these parts:</p>
-        <ul>
-          <li><span class="bold">Part 1: Motivation and introduction to SSMs</span>
-            <div>You are here. We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</div>
-          </li>
-          
-          <li><span class="bold"><a href="../ssm_2_networks">Part 2: SSM neural networks and Structured State Spaces</a></span>
-            <div>We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</div>
-          </li>
-          <li><span class="bold"><a href="../ssm_3_mambas">Part 3: State Space Selectivity (Mamba) and Duality (Mamba-2)</a></span>
-            <div>We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention.
-              Speaking of, what's the relationship between SSMs and attention? In fact, they are surprisingly similar! What does this imply?
-            </div>
-          </li>
-        </ul>
-    </section>
-    
-    <section id="State Space Models of today">
+      <ul>
+        <li><strong>Part 1: Motivation and introduction to SSMs</strong> — You are here. We go through where SSMs are right now, how they entered the machine learning landscape, and what they are.</li>
+        <li><strong><a href="../ssm_2_networks">Part 2: SSM neural networks and Structured State Spaces</a></strong> — We cover how SSMs were incorporated into neural networks, their shortcomings, and S4, an immediate successor and improvement.</li>
+        <li><strong><a href="../ssm_3_mambas">Part 3: State Space Selectivity (Mamba) and Duality (Mamba-2)</a></strong> — We present Selective State Spaces and State Space Duality. Selectivity allows SSMs to focus on different parts of the input, like Attention. Speaking of, what's the relationship between SSMs and attention? In fact, they are surprisingly similar! What does this imply?</li>
+      </ul>
+      </section>
+
+      <section id="State Space Models of today">
       <h2>State Space Models of today</h2>
-
-      <p>The <a href="attention">Transformer (2017)</a> supremacy has been active for quite a few years now, and the ML discourse is mainly still centered around them. 
-        Many variations, tricks and hacks have been added on top of the original model, but the core mechanics stay the same: attention. Attention has allowed Transformers
-      to stay as the state of the art in many tasks (mainly related to language). Of course, the Transformer is not the only architecture that is of use today, because 
-      in some domains it's not quite. Still, its dominance is clear! </p>
-
-      <p> But yes, other areas are also actively innovating. MLPs, CNNs, RNNs and other architectures are constantly "receiving" updates, but can't really catch up. 
-        Researchers are trying to come up with architectures that can support our views on how the future of AI will look like. One family of model architectures, 
-        based on State Space Models, has been stirring up some attention by the community. 
-      </p>
-
-      <p><!-- On top of their task performance --> SSMs have properties that make them appealing. For example, <a href="#mamba">Mamba (2024)</a>, an SSM-based architecture, scales linearly with 
-        the length of the sequence, has unbounded context and is able to model long-range dependencies.
-
+      <p>The <a href="#attention">Transformer (2017)</a> supremacy has been active for quite a few years now, and the ML discourse is mainly still centered around them. Many variations, tricks and hacks have been added on top of the original model, but the core mechanics stay the same: attention. Attention has allowed Transformers to stay as the state of the art in many tasks (mainly related to language). Of course, the Transformer is not the only architecture that is of use today, because in some domains it's not quite. Still, its dominance is clear!</p>
+      <p>But yes, other areas are also actively innovating. MLPs, CNNs, RNNs and other architectures are constantly "receiving" updates, but can't really catch up. Researchers are trying to come up with architectures that can support our views on how the future of AI will look like. One family of model architectures, based on State Space Models, has been stirring up some attention by the community.</p>
+      <p>SSMs have properties that make them appealing. For example, <a href="#mamba">Mamba (2024)</a>, an SSM-based architecture, scales linearly with the length of the sequence, has unbounded context and is able to model long-range dependencies.</p>
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_1_viz_2">
-          <img src="../../../static/2024/ssm_1_2.png" alt="Mamba and Mamba-hybrid vs Transformer" width="400" height="260"">
-        </div>  
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_2.png" alt="Figure 1: accuracy of three comparably sized models, trained on the same data, on the five-shot MMLU task. Mamba-2-hybrid (an SSM model with attention) outperforms the Transformer. From Waleffe et al. (2024)." width="400" height="260">
+        </div>
       </div>
-      <p class="plot-caption">Figure 1: accuracy of three comparably sized models, trained on the same data, on the five-shot MMLU task. Mamba-2-hybrid (an SSM
-        model with attention) outperforms the Transformer. From <a href="#mambaBenchmark">Waleffe et al. (2024).</a></p>
+      <p class="plot-caption">Figure 1: accuracy of three comparably sized models, trained on the same data, on the five-shot MMLU task. Mamba-2-hybrid (an SSM model with attention) outperforms the Transformer. From Waleffe et al. (2024).</p>
+      <p>So, let's learn about SSMs and judge for ourselves!</p>
+      </section>
 
-      So, let's learn about SSMs and judge for ourselves!
-      </p>
-    </section>
-
-    <section id="State Space Models of yesterday">
+      <section id="State Space Models of yesterday">
       <h2>State Space Models of yesterday</h2>
-
-      <p>SSMs are not recent; they actually go back all they way to the mid 20-th century. 
-        In the 1960’s, Wiener’s and Kalman’s work on control theory introduced the concept of SSM for modeling linear systems. 
-        And while SSMs started being used in many fields such as computational neuroscience, researchers were only able to 
-        incorporate them effectively into deep learning until very recently for theoretical reasons. </p>
-      <p>In 2020, partially because model architectures could not model long sequence data <span class="italic">efficiently</span> and in the search of alternatives, the 
-        <a href="#LRA">Long-Range Arena</a> benchmark was presented. It focused on evaluating model quality under long context scenarios: data 
-        with Long Range Dependencies (LRD). In the paper, the authors found that for modeling that kind of data, it was hard 
-        to do better than vanilla Transformers.</p>
-      <p>The next year, <a href="#LSSL">Albert Gu and others (2021)</a> showed that although vanilla SSM blocks could be used in conjuntion with other deep 
-        learning techniques, they struggled to efficiently model LRD data. But, in the following years, the theoretical framework was 
-        improved drastically with techniques and ideas that we will explore in the next posts. Before going into that, though, 
-        what <span class="italic">are</span> SSMs?</p>
-
+      <p>SSMs are not recent; they actually go back all they way to the mid 20-th century. In the 1960's, Wiener's and Kalman's work on control theory introduced the concept of SSM for modeling linear systems. And while SSMs started being used in many fields such as computational neuroscience, researchers were only able to incorporate them effectively into deep learning until very recently for theoretical reasons.</p>
+      <p>In 2020, partially because model architectures could not model long sequence data <em>efficiently</em> and in the search of alternatives, the <a href="#LRA">Long-Range Arena</a> benchmark was presented. It focused on evaluating model quality under long context scenarios: data with Long Range Dependencies (LRD). In the paper, the authors found that for modeling that kind of data, it was hard to do better than vanilla Transformers.</p>
+      <p>The next year, <a href="#LSSL">Albert Gu and others (2021)</a> showed that although vanilla SSM blocks could be used in conjuntion with other deep learning techniques, they struggled to efficiently model LRD data. But, in the following years, the theoretical framework was improved drastically with techniques and ideas that we will explore in the next posts. Before going into that, though, what <em>are</em> SSMs?</p>
       <h3>The State Space Model</h3>
-
       <p>The idea of the SSM is the following: model each step in a sequence given its respective input and information about the previous state of the sequence.</p>
       <p>In particular, given a instant $t$ and an input signal $x(t)$, an SSM maps it to an output $y(t)$ while keeping track of a state representation $h(t)$:</p>
-
       $$
-      \begin{align}
-        h'(t) &= \mathbf{A} h(t) + \mathbf{B} x(t) \label{eq:ssm} \\
-        y(t) &= \mathbf{C}h(t) + \mathbf{D}x(t) \nonumber
-      \end{align}
-      $$
-
-      <p>Where $\mathbf{A}, \mathbf{B}, \mathbf{C}$ and $\mathbf{D}$ are weight matrices. Usually, the term $\mathbf{D}x(t)$ is not taken into account, 
-        because it can be equated to a skip connection and does not interact with the hidden state. We will assume this from now on. 
-      Also, we won't talk about dimensions in this post; they will be formalized in the second one.</p>
-
-      <p>We can look at the whole mapping of an input signal by an SSM:</p>
-
+\begin{align}
+  h'(t) &= \mathbf{A} h(t) + \mathbf{B} x(t) \label{eq:ssm} \\
+  y(t) &= \mathbf{C}h(t) + \mathbf{D}x(t) \nonumber
+\end{align}
+$$
+      <p>Where $\mathbf{A}, \mathbf{B}, \mathbf{C}$ and $\mathbf{D}$ are weight matrices. Usually, the term $\mathbf{D}x(t)$ is not taken into account, because it can be equated to a skip connection and does not interact with the hidden state. We will assume this from now on. Also, we won't talk about dimensions in this post; they will be formalized in the second one.</p>
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_1_viz_3">
-          <img src="../../../static/2024/ssm_1_3.svg" alt="General view of a continuous SSM" width="300" height="300" style="transform: translateX(-25px);">
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_3.svg" alt="Figure 2: A continuous signal x(t) is mapped by the SSM to a continuous signal y(t)." width="300" height="300" style="transform: translateX(-25px);">
         </div>
       </div>
-      <p class="plot-caption">Figure 2: A continuous signal $x(t)$ is mapped by the SSM to a continuous signal $y(t)$.</p>
-
-      <p>Equation \ref{eq:ssm} basically defines two things:
-        <ol>
-        <li>how the hidden state changes with respect to the current input and hidden state (the state representation) values. </li>
-        <li>how the output depends on the hidden state. </li>
-        </ol>
-
-      <p>A few notes about the components:
-        <ul>
-          <li>$\mathbf{A}$ defines how the previous hidden state influences the change of state. </li>
-          <li>$\mathbf{B}$ defines how the input influences the change of state. </li>
-          <li>$\mathbf{C}$ defines how the output depends on the hidden state. </li>
-        </ul>
-      </p>
-      
-      <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want
-        SSMs to work with sequences like their colleagues (and as in the next visualization), this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions
-      cannot be differentiated in the usual sense, so equation \ref{eq:ssm} is not valid. We need to <span class="bold">discretize</span> the SSM. </p>
-
-      <p style="margin-bottom: 1cm;"></p>
-
+      <p class="plot-caption">Figure 2: A continuous signal x(t) is mapped by the SSM to a continuous signal y(t).</p>
+      <p>Equation \ref{eq:ssm} basically defines two things:</p>
+      <ol>
+        <li>how the hidden state changes with respect to the current input and hidden state (the state representation) values.</li>
+        <li>how the output depends on the hidden state.</li>
+      </ol>
+      <p>A few notes about the components:</p>
+      <ul>
+        <li>$\mathbf{A}$ defines how the previous hidden state influences the change of state.</li>
+        <li>$\mathbf{B}$ defines how the input influences the change of state.</li>
+        <li>$\mathbf{C}$ defines how the output depends on the hidden state.</li>
+      </ul>
+      <p>Note how equation \ref{eq:ssm} works over the continuous space! Well, when working with signals, such a representation is common. In our case, and if we want SSMs to work with sequences like their colleagues (and as in the next visualization), this continuous representation is not completely accurate: sequences are discrete! Mathematically, discrete functions cannot be differentiated in the usual sense, so equation \ref{eq:ssm} is not valid. We need to <strong>discretize</strong> the SSM.</p>
       <div class="plot-container">
-        <div class="plot-background-1-interactive" id="ssm_1_viz_4"></div>
-        <script src="../../../src/viz/2024/ssm_1_4.js"></script>
+      <div class="plot-background-1-interactive" id="ssm_1_viz_4"></div>
+      <script src="../../../src/viz/2024/ssm_1_4.js"></script>
       </div>
-      <p class="plot-caption">Figure 3: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which
-        processes it and outputs a value (a prediction of the next input, in this case). The state $h$ is updated at every step. Values of parameters and hidden
-        state, as well as $\mathbf{D}$, are omitted.
-      </p>
+      <p class="plot-caption">Figure 3: interact with the "unfolded" view of an SSM! At every timestep, the input values are feed through the SSM, which processes it and outputs a value (a prediction of the next input, in this case). The state $h$ is updated at every step. Values of parameters and hidden state, as well as $\mathbf{D}$, are omitted.</p>
+      </section>
 
-      <p style="margin-bottom: 1cm;"></p>
-
-    </section>
-
-    <section id="Discretized State Space Models">
+      <section id="Discretized State Space Models">
       <h2>Discretized State Space Models</h2>
-
-      <p>The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval 
-        $\Delta$ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.</p>
-
-        <div class="plot-container">
-          <div class="plot-background-1" id="ssm_1_viz_5">
-          <img src="../../../static/2024/ssm_1_5.png" alt="Discretization of a signal" width="400" height="155">
+      <p>The discretization of a signal can be interpreted as sampling. For example, given the continuous function $x(t)$, we sample the element $x_t$ with time interval $\Delta$ ($x_t = x(\Delta t)$). This gives us an input sequence $(x_1, x_2, ...)$.</p>
+      <div class="plot-container">
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_5.png" alt="Figure 4: a continuous signal (left), and its sampled (discretized) version (right)." width="400" height="155">
         </div>
+      </div>
+      <p class="plot-caption">Figure 4: a continuous signal (left), and its sampled (discretized) version (right).</p>
+      <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the zero-order hold.</p>
+      <div class="plot-container">
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_6.png" alt="Figure 5: a discrete signal (left), and its transformation with zero-order hold (right). We have, again, a continuous signal (black trace)." width="400" height="155">
         </div>
-        <p class="plot-caption">Figure 4: a continuous signal (left), and its sampled (discretized) version (right).</p>
-        </p>
-
-      <p>In order to derive the discretized expression of the SSM, we observe how it behaves given a discrete input sequence. But, because the SSM cannot work
-        with discrete data, we interpret the discrete sequence as continuous! There are actually quite a few ways to do this, but a common one is the zero-order hold. </p>
-
-        <div class="plot-container">
-          <div class="plot-background-1" id="ssm_1_viz_6">
-          <img src="../../../static/2024/ssm_1_6.png" alt="Applying zero-order hold to a signal" width="400" height="155">
+      </div>
+      <p class="plot-caption">Figure 5: a discrete signal (left), and its transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
+      <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order hold). So,</p>
+      $$
+\begin{align}
+\bar{\mathbf{A}} &= f_A(\Delta, \mathbf{A}) \nonumber \\
+\bar{\mathbf{B}} &= f_B(\Delta, \mathbf{A}, \mathbf{B}) \nonumber \\
+\bar{\mathbf{C}} &= \mathbf{C} \nonumber
+\end{align}
+$$
+      <p>Matrix $\mathbf{C}$ is not discretized because it only depends on $h(t)$, which in turn depends on the discretized matrices $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$. Now, because the results are not trivial (a comprehensive explanation <a href="#zerohold">here</a>), I won't go into details about why the discretized expression is like it is. I'm presenting these formulas only because you might happen to see them in other posts. In the case of $f$ being zero-order hold, the discretized parameters can be computed as:</p>
+      $$
+\begin{align}
+  \bar{\mathbf{A}} &= e^{\Delta \mathbf{A}} \nonumber \\
+  \bar{\mathbf{B}} &= (\Delta \mathbf{A})^{-1} (e^{\Delta\mathbf{A}}-\mathbf{I}) \cdot \Delta \mathbf{B} \nonumber
+\end{align}
+$$
+      <p>The SSM can naturally work with sequence data! A large $\Delta$ will make the model take more into account the current input. The discretized version of the SSM is:</p>
+      $$
+\begin{align}
+ h_t &= \bar{\mathbf{A}} h_{t-1} + \bar{\mathbf{B}} x_t \label{eq:ssm_dis} \\
+ y_t &= \bar{\mathbf{C}} h_t \nonumber
+\end{align}
+$$
+      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continuous representation of A, B, etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series.</p>
+      <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, their discrete versions $\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$ and $\bar{\mathbf{C}} = \mathbf{C}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying formula $\ref{eq:ssm_dis}$.</p>
+      <div class="plot-container">
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_7.png" alt="Figure 6: discrete-time SSM." width="500" height="313">
         </div>
-        </div>
-        <p class="plot-caption">Figure 5: a discrete signal (left), and its transformation with zero-order hold (right). We have, again, a continuous signal (black trace).</p>
-        </p> 
-      
-      <p>We can study how the different parameters of the SSM behave under this reconstructed data. The "discretized" versions are annotated with an overhead line, 
-        and are dependent on the step size $\Delta$, which is a learnable parameter, and fixed discretization functions (like zero-order hold). So, 
+      </div>
+      <p class="plot-caption">Figure 6: discrete-time SSM.</p>
+      </section>
 
-        $$
-        \begin{align}
-        \bar{\mathbf{A}} &= f_A(\Delta, \mathbf{A}) \nonumber \\
-        \bar{\mathbf{B}} &= f_B(\Delta, \mathbf{A}, \mathbf{B}) \nonumber \\
-        \bar{\mathbf{C}} &= \mathbf{C} \nonumber
-        \end{align}
-        $$
-      </p>
-
-      <p> Matrix $\mathbf{C}$ is not discretized because it only depends on $h(t)$, which in turn depends on the discretized matrices $\bar{\mathbf{A}}$ and $\bar{\mathbf{B}}$.
-        Now, because the results are not trivial (a comprehensive explanation <a href="#zerohold">here</a>), I won't go into details about why the discretized expression is like it is. I'm presenting these formulas only because you might happen
-        to see them in other posts. In the case of $f$ being zero-order hold, the discretized parameters can be computed as:
-
-        $$
-        \begin{align}
-          \bar{\mathbf{A}} &= e^{\Delta \mathbf{A}} \nonumber \\
-          \bar{\mathbf{B}} &= (\Delta \mathbf{A})^{-1} (e^{\Delta\mathbf{A}}-\mathbf{I}) \cdot \Delta \mathbf{B} \nonumber
-        \end{align}
-        $$
-
-        The SSM can naturally work with sequence data! A large $\Delta$ will make the model take more into account the current input. 
-        The discretized version of the SSM is:
-
-        $$
-        \begin{align}
-         h_t &= \bar{\mathbf{A}} h_{t-1} + \bar{\mathbf{B}} x_t \label{eq:ssm_dis} \\
-         y_t &= \bar{\mathbf{C}} h_t \nonumber
-        \end{align}
-        $$
-
-      </p>
-        
-      <p>Now, the state equation refers to the update of the actual state, not its rate of change as in equation $\ref{eq:ssm}$. Note that the continuous representation of A, B, 
-        etc from equation \ref{eq:ssm} is still what is actually learned, and is later discretized. Recent works (2023) have proposed 
-        that this discretization step can be skipped and parametrize A and B directly. This is a bit easier to understand, but won't be actually used in the series. </p>
-
-      <p>To wrap up, for sequence data, an SSM will have a set of parameters $\mathbf{A}$, $\mathbf{B}$ and $\mathbf{C}$, their discrete versions
-        $\bar{\mathbf{A}}$, $\bar{\mathbf{B}}$ and $\bar{\mathbf{C}} = \mathbf{C}$, and will transform an input sequence $(x_1, x_2, ...)$ into a sequence $(y_1, y_2, ...)$ by recursively applying
-        formula $\ref{eq:ssm_dis}$.</p>
-
-        <div class="plot-container">
-          <div class="plot-background-1" id="ssm_1_viz_7">
-          <img src="../../../static/2024/ssm_1_7.png" alt="General view of an SSM" width="500" height="313">
-        </div>
-        </div>
-        <p class="plot-caption">Figure 6: discrete-time SSM.</p>
-
-    </section>
-
-    <section id="A mechanical example">
+      <section id="A mechanical example">
       <h2>A mechanical example</h2>
-
-      <p>Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing 
-        post <a href="#annotatedS4">The Annotated S4</a>.</p>
-
-      <p>Imagine we have a spring attached to a wall and supported by a horizontal surface. At the end of the spring there is a mass $m$ attached, like a weight. 
-        Over time ($t$) we pull on the mass with a force $u(t)$, making the spring bounce back and forth, dependent on its stiffness $k$ and the friction $b$. 
-        We constantly measure the position of the mass $y(t)$. </p>
-
+      <p>Now that we know what they are and how they are formulated, let's see a SSM in action! We take an example from the amazing post <a href="#annotatedS4">The Annotated S4</a>.</p>
+      <p>Imagine we have a spring attached to a wall and supported by a horizontal surface. At the end of the spring there is a mass $m$ attached, like a weight. Over time ($t$) we pull on the mass with a force $u(t)$, making the spring bounce back and forth, dependent on its stiffness $k$ and the friction $b$. We constantly measure the position of the mass $y(t)$.</p>
       <div class="plot-container">
-        <div class="plot-background-1" id="ssm_1_viz_8">
-          <img src="../../../static/2024/ssm_1_8.png" alt="The mechanical problem" width="300" height="210">
+        <div class="plot-background-1">
+          <img src="../../../static/2024/ssm_1_8.png" alt="Figure 7: The mechanical problem. A force is applied to a weight attached to a spring, causing it to stretch." width="300" height="210">
         </div>
       </div>
-      <p class="plot-caption" style="font-size: 0.7em;">Figure 7: The mechanical problem. A force is applied to a weight attached to a spring, causing it to stretch.</p>
-
+      <p class="plot-caption">Figure 7: The mechanical problem. A force is applied to a weight attached to a spring, causing it to stretch.</p>
       <p>To model this system, remember that force is mass times acceleration. In a differential equation, and in the case of our system:</p>
-
-      \begin{equation}
-      u(t) - b\cdot y'(t) - k\cdot y(t) = m\cdot y''(t)
-      \label{eq:mechanics_diff}
-      \end{equation}
-
-      <p>That is, the friction $b$ impacts speed, and the stiffness $k$ impacts position, all subtracting from the force we apply. All that is equal to the mass of the weight
-       times its acceleration. </p>
-       <p>We can express the system like an SSM: the rates of change of the system (speed and acceleration) are presented in equation
-       $\ref{eq:ssm}$ as $h'(t)$, meaning that the hidden state $h(t)$ is actually just the position and speed. 
-       We also know that the input of the system is the force that its being applied, and the output is the position of the weight. 
-       So, we can derive the expression of the SSM parameters (omitted for brevity):</p>
-
       $$
-      \begin{align}
-      A &= \begin{bmatrix}
-      0 & 1 \\
-      -\frac{k}{m} & -\frac{b}{m}
-      \end{bmatrix} \nonumber \\
-
-      B &= \begin{bmatrix}
-      0 \\
-      \frac{1}{m}
-      \end{bmatrix} \nonumber \\
-
-      C &= \begin{bmatrix}
-      1 & 0
-      \end{bmatrix} \nonumber
-      \end{align} 
+\begin{equation}
+u(t) - b\cdot y'(t) - k\cdot y(t) = m\cdot y''(t)
+\label{eq:mechanics_diff}
+\end{equation}
+$$
+      <p>That is, the friction $b$ impacts speed, and the stiffness $k$ impacts position, all subtracting from the force we apply. All that is equal to the mass of the weight times its acceleration.</p>
+      <p>We can express the system like an SSM: the rates of change of the system (speed and acceleration) are presented in equation $\ref{eq:ssm}$ as $h'(t)$, meaning that the hidden state $h(t)$ is actually just the position and speed. We also know that the input of the system is the force that its being applied, and the output is the position of the weight. So, we can derive the expression of the SSM parameters (omitted for brevity):</p>
       $$
+\begin{align}
+A &= \begin{bmatrix}
+0 & 1 \\
+-\frac{k}{m} & -\frac{b}{m}
+\end{bmatrix} \nonumber \\
 
-      <p>And there you have it. We can simulate it as an SMM. </p>
+B &= \begin{bmatrix}
+0 \\
+\frac{1}{m}
+\end{bmatrix} \nonumber \\
 
-      <p style="margin-bottom: 1cm;"></p>
-
+C &= \begin{bmatrix}
+1 & 0
+\end{bmatrix} \nonumber
+\end{align}
+$$
+      <p>And there you have it. We can simulate it as an SSM.</p>
       <div class="plot-container">
-        <div class="plot-background-1-interactive" id="ssm_1_viz_9"></div>
-        <script src="../../../src/viz/2024/ssm_1_9.js"></script>
+      <div class="plot-background-1-interactive" id="ssm_1_viz_9"></div>
+      <script src="../../../src/viz/2024/ssm_1_9.js"></script>
       </div>
-      <p class="plot-caption">Figure 8: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values.
-        Under the hood, an SSM just like the one presented in the post is running (although we use <span class="italic">bilinear</span> discretization). 
-        Stiffness $k$ and step size $\Delta$ are shown scaled down 100x and up 1000x, respectively. Decrease $\Delta$ and the simulation will go slower.
-        Also, imagine that the horizontal line is a spring :)</p>
-      </p>
+      <p class="plot-caption">Figure 8: interact with the mechanical problem! Grab the weight, pull it, let go, and inspect the changing values. Under the hood, an SSM just like the one presented in the post is running (although we use <em>bilinear</em> discretization). Stiffness $k$ and step size $\Delta$ are shown scaled down 100x and up 1000x, respectively. Decrease $\Delta$ and the simulation will go slower.</p>
+      </section>
 
-      <p style="margin-bottom: 1cm;"></p>
-
-    </section>
-
-    <section id="Next up & references">
+      <section id="Next up">
       <h2>Next up</h2>
+      <p>We know their context, what they are and how they work. In the <a href="../ssm_2_networks">next post</a>, we are going to see how SSMs were incorporated into neural networks and scaled up.</p>
+      </section>
 
-      We know their context, what they are and how they work.
-      In the <a href="../ssm_2_networks">next post</a>, we are going to see how SSMs were incorporated into 
-      neural networks and made effective via some cool math trickery.
+      <section id="References">
+      <h2>References</h2>
+      </section>
 
-      <h3>Citations</h3>
-      <p>If this has been useful and you want to cite it in an academic setting, please use the following bibtex. ❤️</p>
+    <ul id="reference-list"></ul>
 
-      <div class="bibtex-container">
-        <button class="bibtex-copy-btn" onclick="copyBibtex()">📋</button>
-        <pre class="bibtex" id="bibtex-text">
-@misc{chus2024SSM,
-      author = {Jesus M. Antonanzas},
-      title = {State Space Models: from 0 to Mamba-2},
-      year = {2024},
-      howpublished = {\url{chus.space/blog/2024/ssm_1_context}},
-      note = {P1: intro to SSMs; P2: nets & S4; P3: Mamba & Mamba-2}
-}</pre>
-      </div>
-
-      <h3>References</h3>
-      <p><ul id="reference-list"></ul></p>
-
-    </section>
-
-  </article>
-
+    </article>
+    <nav class="post-nav">
+      <span></span>
+      <a class="post-nav-next" href="/blog/2024/ssm_2_networks">
+        <span class="post-nav-label">Next</span>
+        SSM networks and S4 &rarr;
+      </a>
+    </nav>
   </div>
 
+<script src="../../../src/progress_bar.js"></script>
+<script src="../../../src/dynamic_share_url.js"></script>
+<script src="../../../src/copy_bibtex.js"></script>
 <script>
-
-// -------------------------------------------------- References --------------------------------------------------
 const references = [
-  {id: "attention", author: "Vaswani et al", year: "2017", title: "Attention Is All You Need", url: "https://arxiv.org/pdf/1706.03762"},
-  {id: "mambaBenchmark", author: "Waleffe et al", year: "2024", title: "An Empirical Study of Mamba-based Language Models", url: "https://arxiv.org/pdf/2406.07887"},
-  {id: "LSSL", author: "Gu et al", year: "2021", title: "Combining Recurrent, Convolutional, and Continuous-time Models with Linear State-Space Layers", url: "https://arxiv.org/pdf/2110.13985"},
-  {id: "LRA", author: "Tay et al", year: "2021", title: "Long Range Arena: A Benchmark for Efficient Transformers", url: "https://arxiv.org/abs/2011.04006"},
-  {id: "mamba", author: "Albert Gu, Tri Dao", year: "2024", title: "Mamba: Linear-Time Sequence Modeling with Selective State Spaces", url: "https://arxiv.org/pdf/2312.00752"},
-  {id: "annotatedS4", author: "Sasha Rush, Sidd Karamcheti", year: "2022", title: "The Annotated S4", url: "https://srush.github.io/annotated-s4/"},
-  {id: "zerohold", author: "Xu Chen", year: "2022", title: "Discretization of State-Space System Models", url: "https://faculty.washington.edu/chx/teaching/me547/1-8_zohSS_slides.pdf"}
+  {
+    "id": "attention",
+    "author": "Vaswani et al",
+    "year": "2017",
+    "title": "Attention Is All You Need",
+    "url": "https://arxiv.org/pdf/1706.03762"
+  },
+  {
+    "id": "mambaBenchmark",
+    "author": "Waleffe et al",
+    "year": "2024",
+    "title": "An Empirical Study of Mamba-based Language Models",
+    "url": "https://arxiv.org/pdf/2406.07887"
+  },
+  {
+    "id": "LSSL",
+    "author": "Gu et al",
+    "year": "2021",
+    "title": "Combining Recurrent, Convolutional, and Continuous-time Models with Linear State-Space Layers",
+    "url": "https://arxiv.org/pdf/2110.13985"
+  },
+  {
+    "id": "LRA",
+    "author": "Tay et al",
+    "year": "2021",
+    "title": "Long Range Arena: A Benchmark for Efficient Transformers",
+    "url": "https://arxiv.org/abs/2011.04006"
+  },
+  {
+    "id": "mamba",
+    "author": "Albert Gu, Tri Dao",
+    "year": "2024",
+    "title": "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+    "url": "https://arxiv.org/pdf/2312.00752"
+  },
+  {
+    "id": "annotatedS4",
+    "author": "Sasha Rush, Sidd Karamcheti",
+    "year": "2022",
+    "title": "The Annotated S4",
+    "url": "https://srush.github.io/annotated-s4/"
+  },
+  {
+    "id": "zerohold",
+    "author": "Xu Chen",
+    "year": "2022",
+    "title": "Discretization of State-Space System Models",
+    "url": "https://faculty.washington.edu/chx/teaching/me547/1-8_zohSS_slides.pdf"
+  }
 ];
-
-document.addEventListener('DOMContentLoaded', function() {
-  const refList = document.getElementById('reference-list');
-  references.forEach(ref => {
-      const listItem = document.createElement('li');
-      listItem.id = ref.id;
-      listItem.innerHTML = `${ref.author}. (${ref.year}). <i>${ref.title}</i>. <a href="${ref.url}">link</a>`;
-      refList.appendChild(listItem);
-  });
-});
-
 </script>
+<script src="../../../src/citations.js"></script>
+<script src="../../../src/sidenotes.js"></script>
 
 </body>
-
 </html>
