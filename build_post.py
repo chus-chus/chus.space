@@ -18,6 +18,8 @@ Body:
     fenced code blocks, images.
 
     ## headings become <section> boundaries with IDs.
+    Add {toc_subsections} to a ## heading to include that section's
+    ### entries in the sidebar TOC.
 
 Extensions:
     ^[text]           Sidenote (margin note on wide screens)
@@ -121,12 +123,45 @@ def restore(html, blocks):
 
 # ── Inline Markdown ─────────────────────────────────────────────────────────
 
-def inline(text):
+def _convert_sidenotes(text):
+    """Convert sidenotes ^[...], supporting nested [] (e.g. links)."""
+    out = []
+    i = 0
+
+    while i < len(text):
+        if text.startswith('^[', i):
+            j = i + 2
+            depth = 1
+            while j < len(text):
+                if text[j] == '[':
+                    depth += 1
+                elif text[j] == ']':
+                    depth -= 1
+                    if depth == 0:
+                        break
+                j += 1
+
+            if depth == 0:
+                inner = text[i + 2:j]
+                inner_html = inline(inner, allow_sidenotes=False, escape_amp=False)
+                out.append('<span class="sidenote">%s</span>' % inner_html)
+                i = j + 1
+                continue
+
+        out.append(text[i])
+        i += 1
+
+    return ''.join(out)
+
+
+def inline(text, allow_sidenotes=True, escape_amp=True):
     """Convert inline Markdown to HTML."""
     # HTML-escape plain text (but not Markdown syntax chars)
-    text = text.replace('&', '&amp;')
+    if escape_amp:
+        text = text.replace('&', '&amp;')
     # Sidenotes: ^[text]
-    text = re.sub(r'\^\[([^\]]+)\]', r'<span class="sidenote">\1</span>', text)
+    if allow_sidenotes:
+        text = _convert_sidenotes(text)
     # Links: [text](url)
     text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
     # Bold: **text**
@@ -137,6 +172,18 @@ def inline(text):
 
 
 # ── Block-level Markdown ────────────────────────────────────────────────────
+
+def parse_h2_toc_marker(heading):
+    """Parse optional h2 marker: {toc_subsections[=true|false]}."""
+    m = re.search(r'\s*\{toc_subsections(?:\s*=\s*(true|false))?\}\s*$',
+                  heading, flags=re.IGNORECASE)
+    if not m:
+        return heading, None
+
+    flag_raw = m.group(1)
+    enabled = True if flag_raw is None else flag_raw.lower() == 'true'
+    clean_heading = heading[:m.start()].rstrip()
+    return clean_heading, enabled
 
 def blocks(text):
     """Convert block-level Markdown to HTML."""
@@ -178,8 +225,11 @@ def blocks(text):
         # h2
         if s.startswith('## ') and not s.startswith('### '):
             flush()
-            heading = s[3:]
-            out.append('      <h2>%s</h2>' % inline(heading))
+            heading, toc_subsections = parse_h2_toc_marker(s[3:])
+            attrs = ''
+            if toc_subsections is not None:
+                attrs = ' data-toc-subsections="%s"' % ('true' if toc_subsections else 'false')
+            out.append('      <h2%s>%s</h2>' % (attrs, inline(heading)))
             i += 1
             continue
 
@@ -188,6 +238,30 @@ def blocks(text):
             flush()
             heading = s[4:]
             out.append('      <h3>%s</h3>' % inline(heading))
+            i += 1
+            continue
+
+        # h4
+        if s.startswith('#### '):
+            flush()
+            heading = s[5:]
+            out.append('      <h4>%s</h4>' % inline(heading))
+            i += 1
+            continue
+
+        # h5
+        if s.startswith('##### '):
+            flush()
+            heading = s[6:]
+            out.append('      <h5>%s</h5>' % inline(heading))
+            i += 1
+            continue
+
+        # h6
+        if s.startswith('###### '):
+            flush()
+            heading = s[7:]
+            out.append('      <h6>%s</h6>' % inline(heading))
             i += 1
             continue
 
@@ -259,14 +333,21 @@ def wrap_sections(html):
     in_section = False
 
     for line in lines:
-        m = re.match(r'^(\s*)<h2>(.*?)</h2>$', line)
+        m = re.match(r'^(\s*)<h2([^>]*)>(.*?)</h2>$', line)
         if m:
             indent = m.group(1)
-            heading = re.sub(r'<[^>]+>', '', m.group(2))
+            h2_attrs = m.group(2) or ''
+            heading_html = m.group(3)
+            heading = re.sub(r'<[^>]+>', '', heading_html)
+            section_attrs = ''
+            if re.search(r'\bdata-toc-subsections="true"', h2_attrs):
+                section_attrs = ' data-toc-subsections="true"'
+            elif re.search(r'\bdata-toc-subsections="false"', h2_attrs):
+                section_attrs = ' data-toc-subsections="false"'
             if in_section:
                 out.append('%s</section>\n' % indent)
-            out.append('%s<section id="%s">' % (indent, heading))
-            out.append(line)
+            out.append('%s<section id="%s"%s>' % (indent, heading, section_attrs))
+            out.append('%s<h2>%s</h2>' % (indent, heading_html))
             in_section = True
         else:
             out.append(line)
@@ -378,6 +459,8 @@ __POST_NAV__
 <script src="__REL__/src/dynamic_share_url.js"></script>
 <script src="__REL__/src/copy_bibtex.js"></script>
 __REFS_SCRIPT__
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="__REL__/src/code_highlight.js"></script>
 <script src="__REL__/src/sidenotes.js"></script>
 
 </body>

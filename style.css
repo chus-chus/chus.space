@@ -224,13 +224,94 @@ a:hover {
     margin-bottom: 0;
 }
 
-.content-container.entry code {
-    background-color: #f4f4f4;
-    padding: 2px 4px;
+.content-container.entry :not(pre) > code {
+    background-color: #f5f2ea;
+    border: 1px solid #e7decc;
+    padding: 0 4px;
     border-radius: 4px;
     font-family: var(--vp-font-family-mono);
-    font-size: 0.95em;
-    color: #c7254e;
+    font-size: 0.82em;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #3d4250;
+}
+
+.content-container.entry pre:not(.bibtex) {
+    margin: 18px 0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #ddd4be;
+    background-color: #f7f3e8;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.content-container.entry pre:not(.bibtex) code {
+    display: block;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+    color: #2f3441;
+    font-size: 0.84em;
+    line-height: 1.55;
+    white-space: pre;
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+.content-container.entry pre:not(.bibtex) code.hljs {
+    color: #1f2430;
+}
+
+.content-container.entry .hljs-comment,
+.content-container.entry .hljs-quote {
+    color: #6b6f7a;
+    font-style: italic;
+}
+
+.content-container.entry .hljs-keyword,
+.content-container.entry .hljs-selector-tag,
+.content-container.entry .hljs-literal,
+.content-container.entry .hljs-doctag {
+    color: #5a3ea0;
+    font-weight: 550;
+}
+
+.content-container.entry .hljs-title,
+.content-container.entry .hljs-title.function_,
+.content-container.entry .hljs-function .hljs-title {
+    color: #0f4f78;
+}
+
+.content-container.entry .hljs-string,
+.content-container.entry .hljs-regexp,
+.content-container.entry .hljs-meta .hljs-string {
+    color: #1f6a52;
+}
+
+.content-container.entry .hljs-number,
+.content-container.entry .hljs-symbol,
+.content-container.entry .hljs-bullet {
+    color: #8b531f;
+}
+
+.content-container.entry .hljs-type,
+.content-container.entry .hljs-class .hljs-title,
+.content-container.entry .hljs-attr,
+.content-container.entry .hljs-attribute {
+    color: #8b2f57;
+}
+
+.content-container.entry .hljs-variable,
+.content-container.entry .hljs-template-variable,
+.content-container.entry .hljs-params {
+    color: #3d3a54;
+}
+
+.content-container.entry .hljs-meta,
+.content-container.entry .hljs-built_in {
+    color: #42538a;
 }
 
 .content-container.entry .blog-header {
@@ -410,24 +491,60 @@ a:hover {
     z-index: 10;
 }
 
-#progress-container a {
+#progress-container .toc-section {
+    margin-bottom: 2px;
+}
+
+#progress-container .toc-section-link,
+#progress-container .toc-subsection-link {
     display: block;
-    font-size: 0.78em;
+    position: relative;
     line-height: 1.35;
     color: #b0b0b0;
     text-decoration: none;
-    padding: 4px 0 4px 12px;
     border-left: 2px solid transparent;
-    transition: color 150ms, border-color 150ms;
+    transition: color 150ms, border-color 150ms, font-weight 150ms;
 }
 
-#progress-container a.active {
+#progress-container .toc-section-link {
+    font-size: 0.78em;
+    padding: 4px 0 4px 12px;
+}
+
+#progress-container .toc-subsections {
+    margin-left: 12px;
+}
+
+#progress-container .toc-subsection-link {
+    font-size: 0.72em;
+    padding: 3px 0 3px 12px;
+}
+
+#progress-container .toc-section.subsection-active .toc-section-link {
+    color: #7a7a7a;
+    font-weight: 390;
+}
+
+#progress-container .toc-section-link.active,
+#progress-container .toc-subsection-link.active {
     color: #343131;
-    border-left-color: #343131;
     font-weight: 450;
 }
 
-#progress-container a:hover {
+#progress-container .toc-section-link.active::before,
+#progress-container .toc-subsection-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    bottom: 1px;
+    width: 2px;
+    border-radius: 999px;
+    background: #343131;
+}
+
+#progress-container .toc-section-link:hover,
+#progress-container .toc-subsection-link:hover {
     color: #555;
     text-decoration: none;
 }
@@ -564,6 +681,15 @@ a:hover {
     
     .content-container.entry .meta-info {
         margin-bottom: 0;
+    }
+
+    .content-container.entry pre:not(.bibtex) {
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .content-container.entry pre:not(.bibtex) code {
+        font-size: 0.8em;
     }
 
 }

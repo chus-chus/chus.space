@@ -25,3 +25,4 @@ dist-ssr
 
 /cursor
 server.py
+__pycache__
