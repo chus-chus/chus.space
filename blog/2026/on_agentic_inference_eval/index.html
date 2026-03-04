@@ -11,7 +11,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluating Inference System Performance with Agentic Workloads | Chus</title>
+    <title>Evaluating Inference Performance with Agentic Workloads | Chus</title>
     <link rel="stylesheet" href="../../../style.css">
     <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -20,7 +20,7 @@
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Evaluating Inference System Performance with Agentic Workloads - Chus Antonanzas">
+    <meta property="og:title" content="Evaluating Inference Performance with Agentic Workloads - Chus Antonanzas">
     <meta name="description" content="" />
     <meta property="og:description" content="" />
     <meta property="og:image" content="https://chus.space/static/ogimage.png">
@@ -69,7 +69,7 @@
     <article>
 
     <div class="blog-header">
-        <h1>Evaluating Inference System Performance with Agentic Workloads</h1>
+        <h1>Evaluating Inference Performance with Agentic Workloads</h1>
 
         <div class="header-date-links">
             <div class="header-date">
@@ -100,11 +100,7 @@
       <p>So, when we want to fully evaluate the performance of an inference system, we don't just want to test it against the simple, traditional workloads, but also against agentic ones. Naively, we might think: just run OpenClaw against the inference system, give it some tasks, measure the timings. This does not work for rigorous evaluation, though:</p>
       <ul>
         <li><strong>Reproducibility.</strong> LLM outputs are non-deterministic. The same task produces different tool-call sequences on different runs. The workload itself changes between experiments, making A/B comparisons impossible.</li>
-      </ul>
-      <ul>
         <li><strong>Control.</strong> You cannot isolate variables. Want to test what happens when fan-out increases from 2 to 8, or when think time between requests grows? With a real agent, you cannot control that. With a benchmark framework, you change a parameter.</li>
-      </ul>
-      <ul>
         <li><strong>Instrumentation.</strong> A benchmark framework measures what you need. Time to first token, time between tokens, cache hit rates, at the right granularity, without instrumenting someone else's code.</li>
       </ul>
       <p>What we want is to replicate the <em>shape</em> of agentic workloads. The structure, the timing, the distributions, without running an agent. A benchmark framework that generates these workloads programmatically and consistently.</p>
@@ -114,11 +110,7 @@
       <p>We decompose OpenClaw's execution into its principles, one at a time. For each, we show how it shapes the inference workload, run experiments to measure the impact, and interpret the results from the inference system's perspective. By the end, you will know:</p>
       <ol>
         <li>How agentic sessions are characterized: not linear conversations but graphs of requests with dependencies, variable timing, and nested sub-sessions with different distributions of context sizes.</li>
-      </ol>
-      <ol>
         <li>How to replicate them in a benchmark: by characterizing the distributions that define their shape and generating matching synthetic sessions.</li>
-      </ol>
-      <ol>
         <li>Why it matters: inference systems behave differently under agentic load, and evaluating on the wrong workload might not give you the full picture.</li>
       </ol>
       </section>
@@ -148,7 +140,7 @@
 
       <section id="An agentic workload, principle by principle" data-toc-subsections="true">
       <h2>An agentic workload, principle by principle</h2>
-      <p>Now that we know why agentic evaluations are important and are familiar with the basics of inference evaluation, we can start characterizing an agentic workload. We do this by dissecting OpenClaw<span class="sidenote">Technically, OpenClaw is not an agentic system in the strict sense. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about the Pi agents running on OpenClaw.</span> step by step: each section introduces one principle of how it operates, shows how it shapes the requests hitting the inference system, and where relevant, we run experiments to measure the effect.</p>
+      <p>Now that we know why agentic evaluations are important and are familiar with the basics of inference evaluation, we can start characterizing an agentic workload. We do this by dissecting OpenClaw<span class="sidenote">Technically, OpenClaw is not an agentic system in the strict sense. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about the Pi agents running on OpenClaw.</span> step by step: each section introduces one principle of how it operates, shows how it shapes the requests hitting the inference system, and where relevant, we run experiments to measure the effect. We extract principles from real OpenClaw telemetry based on real sessions.<span class="sidenote">All experiment results, extra visualizations and telemetry is available in the <a href="https://github.com/chus-chus/blogpost-agentic-workloads">repo</a> for this post.</span></p>
       <h3>The agentic loop</h3>
       <p>Imagine we have an OpenClaw instance running. We are communicating with it via our preferred interface, having a back-and-forth conversation with it, and we ask it to perform a particular task. When the user message arrives, OpenClaw starts a loop comprised of several stages. We can roughly categorize each step as: Compose, Infer, Check, Execute and Append. First, it composes the new message from history plus new context and sends it to the LLM for inference. It checks if the LLM response was a final answer or if it decided to call tools first. For example, it might need to read a file, run a command, search the web. If so, the system executes the tool calls concurrently and appends all results to history. This loop usually repeats until the model decides it has completed the user's request.</p>
       <pre><code class="language-python">def prompt(user_input, session):
@@ -184,52 +176,85 @@
       <h3>1. Monotonic context growth</h3>
       <p>In the above loop, we can see how every inference request includes the <em>full</em> conversation history. The model needs to see everything that happened before to produce a coherent next step: all user messages, assistant responses, tool results and other content.</p>
       <p>This means that each request in the chain is strictly larger than the previous one. Turn N's input contains everything from turns 1 through N-1, plus whatever new context was added. This means that every request is assembled as follows (approximate numbers for Pi agents):</p>
-      <pre><code>[system_prompt]      ~2,000-5,000 tokens   (constant)
-[tool_definitions]   ~1,000-3,000 tokens   (constant)
+      <pre><code>[system_prompt]      ~10,000 tokens   (mostly constant)
+[tool_definitions]   ~1,000-3,000 tokens   (mostly constant)
 [message_history]    grows with each turn
 [new_input]          latest user message, tool results and other content</code></pre>
       <p>We can write an approximation of the input token count $n$ for turn N as:</p>
       $$n_N = S + D + \sum_{i=1}^{N} (U_i + A_i + R_i + X_i)$$
-      <p>where $S$ is the system prompt, $D$ the tool definitions, $U_i$ the user input at turn $i$, $A_i$ the assistant response, $R_i$ the tool results (zero if no tools were called that turn), and $X_i$ injected or synthetic history turns<span class="sidenote">For example, subagent summaries that get injected into the parent's context</span>. The key observation: input grows monotonically.</p>
+      <p>where $S$ is the system prompt, $D$ the tool definitions, $U_i$ the user input at turn $i$, $A_i$ the assistant response, $R_i$ the tool results (zero if no tools were called that turn), and $X_i$ other content such as injected or synthetic history turns<span class="sidenote">For example, subagent summaries that get injected into the parent's context</span>. The key observation: input grows monotonically.</p>
       <p>?figure: context growth over turns, stacked area chart showing system prompt (flat), tool defs (flat), accumulated history (growing) etc, new input (thin slice on top)</p>
       <h4>Why this matters for the inference system</h4>
       <p>This is arguably one of the most important properties of agentic workloads. The prefix overlap<span class="sidenote">Defined as the ratio of the shared consecutive tokens, from the start, to the total tokens in the input.</span> between consecutive requests is very large, and it can reach 90-99% of the input. In other words, request N and N+1 share almost all of their tokens. As the context horizon of LLMs grows, this overlap will tend to 100%.</p>
       <p>An inference system that exploits this via prefix caching<span class="sidenote">Prefix caching means reusing the KV-cache computed for request N when processing request N+1. Since the shared prefix is identical, the system only needs to compute KV entries for the new tokens. This turns prefill into an approximately constant-cost operation, but requires complex cache management.</span> only needs to prefill the new tokens at each turn. All modern inference systems do this, but performance differences arise due to how they manage the cache.</p>
       <p>This has direct cost implications. If you evaluate an inference system on independent requests (where there is no prefix to cache), you will never observe this effect. The system might look fast because each request is self-contained and small. Switch to a multi-turn agentic workload, and the system's prefill performance depends almost entirely on how well it handles prefix caching.</p>
       <h4>Experiment 1: multi-turn sessions with prefix caching</h4>
-      <p>To make this concrete, we run a simple experiment. We compare the same workload with an inference system with enabled and disabled prefix caching. The workload is comprised of sessions that are linear chains of requests with growing context, mimicking the agentic pattern we just described.</p>
-      <p>We use <a href="https://github.com/project-vajra/veeksha">Veeksha</a>, an open-source benchmarking framework for LLM inference systems that I have been directly involved in developing. Veeksha supports sessions as graphs of requests with dependencies, configurable timing, prefix caching simulation, and more. We use it throughout the rest of this post. Here is the how the configuration for the multi-turn workload approximately looks like<span class="sidenote">All results and full configuration files are available in <a href="https://github.com/chus-chus/blogpost-agentic-workloads">this repository</a>.</span>. Take a moment to understand it, as it will help you understand the workload.</p>
-      <pre><code class="language-yaml"># Q: how are sessions dispatched to the inference system?
-traffic_scheduler:
-  type: concurrent # with a concurrency-based scheduler...
-  target_concurrent_sessions: 1 # ...that allows one session at a time
-
-# Q: how are sessions generated?
+      <p>To make this concrete, we run a simple experiment.</p>
+      <ol>
+        <li>First, we ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.</li>
+        <li>We measure statistical properties of the resulting trace: token counts, timings, etc.</li>
+        <li>We generate a synthetic workload from the trace that mimics the agentic pattern we just described.</li>
+        <li>We compare the same workload with an inference system with different prefix caching settings.</li>
+      </ol>
+      <p>To run the benchmarks, we use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> v0.2.2, an open-source benchmarking framework for LLM inference systems that we (the GeorgiaTech Systems for AI Lab) are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timing, prefix caching simulation, replicating real-world workloads, and more. We use it throughout the rest of this post.</p>
+      <p><strong>Trace analysis</strong></p>
+      <p>When the agent is stopped, we have an output OpenClaw trace that looks like this:</p>
+      <ul>
+        <li>1 linear chain of requests</li>
+        <li>130 requests in total, with median input and output length of 490 and 214 tokens, respectively<span class="sidenote">median 1570 and 612, biased by a few long context requests</span></li>
+        <li>A median waiting time of 32ms between requests (after previous request finished, mean of 6s biased by my 2 slow interventions)</li>
+        <li>A used context length of 117k tokens</li>
+        <li>A total of 8.2 million token cache reads</li>
+      </ul>
+      <p>So, 3 total user requests (prompt + 2 interventions) resulted in 43x the number of inference requests, each with hundreds of input tokens.</p>
+      <p><strong>The synthetic workload</strong></p>
+      <p>We now see that these agentic sessions can get very long very fast. Let's now measure the actual inference performance numbers with similar sessions. Here is the how the configuration for the multi-turn workload approximately looks like. We set numbers that approximate the above trace characteristics based on the medians. Take a moment to understand it, as it will help you understand the workload and the rest of the experiments.</p>
+      <pre><code class="language-yaml"># Q: how are sessions generated?
 session_generator:
   type: synthetic # synthetically, with a linear (chain) shape
   session_graph:
     type: linear
-    num_request_generator: # each session has between 10 and 30 turns
+    num_request_generator: # each session has between 100 and 150 turns
       type: uniform
-      min: 10
-      max: 30
-  channels: # each turn introduces between 200 and 500 new tokens from the user...
+      min: 110
+      max: 150
+    request_wait_generator:
+      type: poisson
+      arrival_rate: 0.032 # turns wait a mean of 32ms before being dispatched
+  channels: # each turn introduces between 1200 and 1800 new tokens from the user...
     - type: text
       body_length_generator:
         type: uniform
-        min: 200
-        max: 500
-  output_spec: # ... and 100 to 300 new tokens from the assistant
+        min: 400
+        max: 600
+  output_spec: # ... and 150 to 250 new tokens from the assistant
     text:
       output_length_generator:
         type: uniform
-        min: 100
-        max: 300
+        min: 150
+        max: 250
 
-# We dispatch 50 sessions in total
+# Q: how are sessions dispatched to the inference system?
+traffic_scheduler:
+  type: concurrent # with a concurrency-based scheduler...
+  target_concurrent_sessions: 1 # ...that allows one session at a time
+
+# We dispatch 5 sessions in total
 runtime:
-  max_sessions: 50</code></pre>
+  max_sessions: 5
+
+seed: 77 # seeded run!</code></pre>
+      <p>We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 94GB GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache<span class="sidenote">TODO note on offloading, cite</span>.</p>
       <p>?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).</p>
+      <p><strong>What is happening?</strong></p>
+      <ul>
+        <li>Replica A: The system keeps prefix cache in GPU memory, and prefill compute times are close to constant for each turn.</li>
+        <li>Replica B: The system has prefix cache disabled, and prefill compute times are increase with each turn.</li>
+        <li>Replica C: While the system keeps prefix cache in GPU memory, it uses a different strategy to offload the KV cache to CPU for better potential reuse of KVs. Prefill compute times are still close to constant for each turn, but if the GPU memory is limited, different offloading strategies might cause recomputation to happen in more turns.</li>
+      </ul>
+      <h3>2. Irregular context growth</h3>
+      <p>no experiment here</p>
+      <p>Let us now consider how each LLM replica is assumed to be able to serve multiple users at the same time. Each <em>human</em> user can have multiple concurrent sessions, and the system needs to be able to handle this.</p>
       </section>
 
     <ul id="reference-list"></ul>
