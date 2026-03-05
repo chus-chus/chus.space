@@ -208,14 +208,14 @@ To make this concrete, we run a simple experiment.
 3. We generate a synthetic workload from the trace that mimics the agentic pattern we just described.  
 4. We compare the same workload with an inference system with different prefix caching settings.
 
-To run the benchmarks, we use [Veeksha](https://github.com/project-vajra/veeksha) v0.2.2, an open-source benchmarking framework for LLM inference systems that we (the GeorgiaTech Systems for AI Lab) are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timing, prefix caching simulation, replicating real-world workloads, and more. We use it throughout the rest of this post. 
+To run the benchmarks, we use [Veeksha](https://github.com/project-vajra/veeksha) v0.2.2, an open-source benchmarking framework for LLM inference systems that we are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more. We use it throughout the rest of this post. 
 
 **Trace analysis**
 
 When the agent is stopped, we have an output OpenClaw trace that looks like this:
 
 - 1 linear chain of requests
-- 130 requests in total, with median input and output length of 490 and 214 tokens, respectively^[median 1570 and 612, biased by a few long context requests]
+- 130 requests in total, with median input and output length of 490 and 214 tokens, respectively.^[median 1570 and 612, biased by a few long context requests] Every pair of requests is roughly the model deciding to call a tool and then observing the result. Interestingly, we don't see the model deciding to call a batch of tools at once.
 - A median waiting time of 32ms between requests (after previous request finished, mean of 6s biased by my 2 slow interventions)
 - A used context length of 117k tokens
 - A total of 8.2 million token cache reads
@@ -266,18 +266,32 @@ seed: 77 # seeded run!
 
 We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 94GB GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache^[TODO note on offloading, cite].
 
-
-
 ?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).
 
 **What is happening?**
 
-- Replica A: The system keeps prefix cache in GPU memory, and prefill compute times are close to constant for each turn.
-- Replica B: The system has prefix cache disabled, and prefill compute times are increase with each turn.
+- Replica A: The system keeps prefix cache in GPU memory, and prefill compute times grow slowly with each turn.
+- Replica B: The system has prefix cache disabled, and prefill compute times increase fast (often close to quadratic at long contexts) with each turn due to recomputation of KVs.
 - Replica C: While the system keeps prefix cache in GPU memory, it uses a different strategy to offload the KV cache to CPU for better potential reuse of KVs. Prefill compute times are still close to constant for each turn, but if the GPU memory is limited, different offloading strategies might cause recomputation to happen in more turns.
+
+![Figure 1: TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s.](../../../static/2026/on_agentic_inference_eval/exp_1_ttfc.png){width=600 height=324}
+
+If we zoom in on prefill times for replicas A and C:
+
+![Figure 2: Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p50 and p95. A 2% gain might seem modest, but it is notable at scale.](../../../static/2026/on_agentic_inference_eval/exp_1_ttfc_zoomed.png){width=600 height=324}
+
+**Takeaway**
+
+Agentic workloads are **extremely long-context** by default, and in this regime efficient state handling becomes increasingly important.
+
+?figure: a basic long context linear dag
 
 ### 2. Irregular context growth
 
-no experiment here
+At any point in an agentic loop, the model might decide to call a tool. The nature of each tool call is different, each one having its own output length distribution. A file read might return a few hundred tokens, while a web search might return a few thousand. There are other context growth events that can happen, like subagents sending summaries and artifacts to the parent agent. The arrival pattern of these events
+
+no experiment here, but we do characerize the arrival pattern of these events
+
+
 
 Let us now consider how each LLM replica is assumed to be able to serve multiple users at the same time. Each *human* user can have multiple concurrent sessions, and the system needs to be able to handle this.

@@ -196,7 +196,7 @@
         <li>We generate a synthetic workload from the trace that mimics the agentic pattern we just described.</li>
         <li>We compare the same workload with an inference system with different prefix caching settings.</li>
       </ol>
-      <p>To run the benchmarks, we use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> v0.2.2, an open-source benchmarking framework for LLM inference systems that we (the GeorgiaTech Systems for AI Lab) are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timing, prefix caching simulation, replicating real-world workloads, and more. We use it throughout the rest of this post.</p>
+      <p>To run the benchmarks, we use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> v0.2.2, an open-source benchmarking framework for LLM inference systems that we are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more. We use it throughout the rest of this post.</p>
       <p><strong>Trace analysis</strong></p>
       <p>When the agent is stopped, we have an output OpenClaw trace that looks like this:</p>
       <ul>
@@ -248,10 +248,23 @@ seed: 77 # seeded run!</code></pre>
       <p>?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).</p>
       <p><strong>What is happening?</strong></p>
       <ul>
-        <li>Replica A: The system keeps prefix cache in GPU memory, and prefill compute times are close to constant for each turn.</li>
-        <li>Replica B: The system has prefix cache disabled, and prefill compute times are increase with each turn.</li>
+        <li>Replica A: The system keeps prefix cache in GPU memory, and prefill compute times grow slowly with each turn.</li>
+        <li>Replica B: The system has prefix cache disabled, and prefill compute times increase fast (often close to quadratic at long contexts) with each turn due to recomputation of KVs.</li>
         <li>Replica C: While the system keeps prefix cache in GPU memory, it uses a different strategy to offload the KV cache to CPU for better potential reuse of KVs. Prefill compute times are still close to constant for each turn, but if the GPU memory is limited, different offloading strategies might cause recomputation to happen in more turns.</li>
       </ul>
+      <div class="plot-container">
+        <div class="plot-background-1">
+          <img src="../../../static/2026/on_agentic_inference_eval/exp_1_ttfc.png" alt="Figure 1: TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s." width="600" height="324">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 1: TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s.</p>
+      <p>If we zoom in on prefill times for replicas A and C:</p>
+      <div class="plot-container">
+        <div class="plot-background-1">
+          <img src="../../../static/2026/on_agentic_inference_eval/exp_1_ttfc_zoomed.png" alt="Figure 2: Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p95." width="600" height="324">
+        </div>
+      </div>
+      <p class="plot-caption">Figure 2: Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p95.</p>
       <h3>2. Irregular context growth</h3>
       <p>no experiment here</p>
       <p>Let us now consider how each LLM replica is assumed to be able to serve multiple users at the same time. Each <em>human</em> user can have multiple concurrent sessions, and the system needs to be able to handle this.</p>
