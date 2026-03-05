@@ -127,7 +127,7 @@ graph structure piece by piece as we dissect OpenClaw.
 
 ## An agentic workload, principle by principle {toc_subsections}
 
-Now that we know why agentic evaluations are important and are familiar with the basics of inference evaluation, we can start characterizing an agentic workload. We do this by dissecting OpenClaw^[Technically, OpenClaw is not an agentic system in the strict sense. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about the Pi agents running on OpenClaw.] step by step: each section introduces one principle of how it operates, shows how it shapes the requests hitting the inference system, and where relevant, we run experiments to measure the effect. We extract principles from real OpenClaw telemetry based on real sessions.^[All experiment results, extra visualizations and telemetry is available in the [repo](https://github.com/chus-chus/blogpost-agentic-workloads) for this post.]
+Now that we know why agentic evaluations are important and are familiar with the basics of inference evaluation, we can start characterizing an agentic workload. We do this by dissecting OpenClaw^[Technically, OpenClaw is not an agentic system in the strict sense. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about Pi agents running on OpenClaw.] step by step: each section introduces one principle of how it operates, shows how it shapes the requests hitting the inference system, and where relevant, we run experiments to measure the effect. We extract principles from real OpenClaw telemetry based on real sessions.^[All experiment results, extra visualizations and telemetry is available in the [repo](https://github.com/chus-chus/blogpost-agentic-workloads) for this post.]
 
 ### The agentic loop
 
@@ -264,7 +264,7 @@ runtime:
 seed: 77 # seeded run!
 ```
 
-We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 94GB GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache^[TODO note on offloading, cite].
+We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache^[TODO note on offloading, cite].
 
 ?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).
 
@@ -292,6 +292,6 @@ At any point in an agentic loop, the model might decide to call a tool. The natu
 
 no experiment here, but we do characerize the arrival pattern of these events
 
-
+### n. Subagent spawning
 
 Let us now consider how each LLM replica is assumed to be able to serve multiple users at the same time. Each *human* user can have multiple concurrent sessions, and the system needs to be able to handle this.
