@@ -409,7 +409,7 @@ In real agentic traces this incremental-input distribution is broad and usually
 heavy-tailed. Most steps add a modest amount of tokens, but a small number add
 very large bursts.
 
-!label[principle-3-heavy-tail]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.}
+!label[principle-3-heavy-tail]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.}
 ![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=530 height=270}
 
 The first-order consequence is TTFT variance. Two requests with similar total
