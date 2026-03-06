@@ -333,6 +333,7 @@ that approximate the above trace characteristics based on the medians. Take a
 moment to understand it, as it will help you understand the workload and the
 rest of the experiments.
 
+!label[exp-1-workload-config]{The synthetic workload configuration for the multi-turn sessions with prefix caching.}
 ```yaml
 # Q: how are sessions generated?
 session_generator:
@@ -392,7 +393,7 @@ If we zoom in on prefill times for replicas A and C:
 **Takeaway**
 
 Agentic workloads are long-lived, stateful traces with extremely high prefix
-reuse. In this regime, efficient state handling matters.
+reuse. In this regime, efficient state handling matters. # TODO 1st, 2nd order consequences
 
 ### 3. Heavy-tailed incremental input
 
@@ -409,7 +410,7 @@ heavy-tailed. Most steps add a modest amount of tokens, but a small number add
 very large bursts.
 
 !label[principle-3-heavy-tail]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.}
-![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=600 height=300}
+![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=530 height=270}
 
 The first-order consequence is TTFT variance. Two requests with similar total
 context length can have very different prefill costs depending on how large the
@@ -418,6 +419,13 @@ bursts occupy prefill capacity for longer, which can perturb batching and
 worsen tail latency for other sessions sharing the system. # TODO cite disagg chunk etc
 
 For benchmarking, the direct consequence is that we should not model context growth as a
-smooth average increment per turn, or sample from uniform distributions.
+smooth average increment per turn, or sample from uniform distributions. In Veeksha's spec (!ref[exp-1-workload-config]), this means we change `channels.text.body_length_generator` from `uniform` to:
+
+```yaml
+body_length_generator:
+  type: inverse_gaussian
+  mean: 815
+  shape: 203 # controls dispersion, lower -> more heavy-tailed
+```
 
 ### n. Session branching via sub-agents
