@@ -215,7 +215,7 @@
       </ul>
       <p><strong>The synthetic workload</strong></p>
       <p>We now have the first empirical parameters of the trace: chain depth, per-request token counts, wait times, and prefix reuse. Let us now measure the actual inference performance numbers with similar sessions. Here is how the configuration for the multi-turn workload approximately looks. We set numbers that approximate the above trace characteristics based on the medians. Take a moment to understand it, as it will help you understand the workload and the rest of the experiments.</p>
-      <pre><code class="language-yaml"># Q: how are sessions generated?
+      <div class="code-chunk" id="exp-1-workload-config" data-block-kind="code"><pre><code class="language-yaml"># Q: how are sessions generated?
 session_generator:
   type: synthetic # synthetically, with a linear (chain) shape
   session_graph:
@@ -249,7 +249,7 @@ traffic_scheduler:
 runtime:
   max_sessions: 5
 
-seed: 77 # seeded run!</code></pre>
+seed: 77 # seeded run!</code></pre><p class="code-caption">Code chunk 2: The synthetic workload configuration for the multi-turn sessions with prefix caching.</p></div>
       <p>We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache<span class="sidenote">TODO note on offloading, cite</span>.</p>
       <p>?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).</p>
       <p><strong>What is happening?</strong></p>
@@ -276,20 +276,24 @@ seed: 77 # seeded run!</code></pre>
         <p class="plot-caption">Figure 2: Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p50 and p95. A 2% gain might seem modest, but it is notable at scale.</p>
       </div>
       <p><strong>Takeaway</strong></p>
-      <p>Agentic workloads are long-lived, stateful traces with extremely high prefix reuse. In this regime, efficient state handling matters.</p>
+      <p>Agentic workloads are long-lived, stateful traces with extremely high prefix reuse. In this regime, efficient state handling matters. # TODO 1st, 2nd order consequences</p>
       <h3>3. Heavy-tailed incremental input</h3>
       <p>Prefix reuse does not mean the amount of new work per step is constant. At any point in an agentic loop, the model might append a small memory lookup, a medium shell output, a huge file read, or a large batch of tool results. There are other context-injection events too, like sub-agents sending summaries and artifacts to the parent agent. Statistically, the quantity that matters is the incremental input size between consecutive requests: the number of fresh, non-cached tokens added on top of the shared prefix.</p>
       <p>In real agentic traces this incremental-input distribution is broad and usually heavy-tailed. Most steps add a modest amount of tokens, but a small number add very large bursts.</p>
       <div class="figure-block" id="principle-3-heavy-tail" data-block-kind="figure">
         <div class="plot-container">
           <div class="plot-background-1">
-            <img src="../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png" alt="" width="600" height="390">
+            <img src="../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png" alt="" width="530" height="270">
           </div>
         </div>
         <p class="plot-caption">Figure 3: Empirical vs fitted distributions of new input tokens for the trace in <a href="#experiment-1" class="block-ref">Experiment 1: multi-turn sessions with prefix caching</a>. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.</p>
       </div>
       <p>The first-order consequence is TTFT variance. Two requests with similar total context length can have very different prefill costs depending on how large the fresh tail is. The second-order consequence is scheduling interference: large bursts occupy prefill capacity for longer, which can perturb batching and worsen tail latency for other sessions sharing the system. # TODO cite disagg chunk etc</p>
-      <p>For benchmarking, the direct consequence is that we should not model context growth as a smooth average increment per turn, or sample from uniform distributions.</p>
+      <p>For benchmarking, the direct consequence is that we should not model context growth as a smooth average increment per turn, or sample from uniform distributions. In Veeksha's spec (<a href="#exp-1-workload-config" class="block-ref">Code chunk 2</a>), this means we change <code>channels.text.body_length_generator</code> from <code>uniform</code> to:</p>
+      <pre><code class="language-yaml">body_length_generator:
+  type: inverse_gaussian
+  mean: 815
+  shape: 203 # controls dispersion, lower -&gt; more heavy-tailed</code></pre>
       <h3>n. Session branching via sub-agents</h3>
       <p>So far the session graph has remained a chain. Sub-agent spawning is the first point where the topology itself changes. OpenClaw can spawn isolated child sessions, each with its own history, system prompt, tools, and execution loop, while the parent waits for them to finish and report back.</p>
       <p>Statistically, this introduces a new set of variables: branching factor, child-session length distribution, parent idle duration while children run, and the fraction of parent history inherited by the child. In OpenClaw that last quantity is close to zero: children start mostly fresh rather than reusing the full parent context. The result is a DAG of dependent sessions rather than a single chain.</p>
