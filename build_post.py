@@ -25,6 +25,9 @@ Extensions:
     ^[text]           Sidenote (margin note on wide screens)
     $...$             Inline math (MathJax)
     $$...$$           Display math (MathJax)
+    ## heading {#id}  Assign an explicit reference ID to a section heading
+    !label[id]{text}  Label the next image or fenced code block, with optional caption
+    !ref[id]          Reference a labeled figure/code block or anchored section
     [text](#refId)    Citation link (dotted underline, hover popover)
     Raw HTML lines    Passed through unchanged
 
@@ -49,6 +52,10 @@ import json
 
 
 # ── Frontmatter & special blocks ────────────────────────────────────────────
+
+REF_ID_PATTERN = r'[A-Za-z0-9_:-]+'
+BLOCK_LABEL_RE = re.compile(r'^!label\[(' + REF_ID_PATTERN + r')\](?:\{(.*)\})?$')
+BLOCK_REF_RE = re.compile(r'!ref\[(' + REF_ID_PATTERN + r')\]')
 
 def parse_frontmatter(text):
     """Extract frontmatter dict and body from the full text."""
@@ -76,6 +83,56 @@ def extract_fenced(text, label):
     return None, text
 
 
+def html_escape(text):
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def html_attr_escape(text):
+    return html_escape(text).replace('"', '&quot;')
+
+
+def parse_block_label(text):
+    m = BLOCK_LABEL_RE.match(text)
+    if not m:
+        return None
+    return {
+        'id': m.group(1),
+        'caption': m.group(2),
+    }
+
+
+def parse_heading_markers(heading, allow_toc_subsections=False):
+    """Parse trailing heading markers like {#id} and {toc_subsections}."""
+    heading_id = None
+    toc_subsections = None
+    text = heading.rstrip()
+
+    while True:
+        matched = False
+
+        if allow_toc_subsections:
+            m = re.search(r'\s*\{toc_subsections(?:\s*=\s*(true|false))?\}\s*$',
+                          text, flags=re.IGNORECASE)
+            if m:
+                flag_raw = m.group(1)
+                toc_subsections = True if flag_raw is None else flag_raw.lower() == 'true'
+                text = text[:m.start()].rstrip()
+                matched = True
+                continue
+
+        m = re.search(r'\s*\{#(' + REF_ID_PATTERN + r')\}\s*$', text)
+        if m:
+            heading_id = m.group(1)
+            text = text[:m.start()].rstrip()
+            matched = True
+            continue
+
+        if not matched:
+            break
+
+    return text, heading_id, toc_subsections
+
+
 # ── Protection: keep math & code from being mangled ─────────────────────────
 
 def protect(text):
@@ -83,7 +140,13 @@ def protect(text):
     blocks = []
 
     def save(m):
-        blocks.append(m.group(0))
+        raw = m.group(0)
+        if raw.startswith('```'):
+            blocks.append({'kind': 'code_fence', 'raw': raw, 'label': None, 'caption': None})
+        elif raw.startswith('`') and raw.endswith('`'):
+            blocks.append({'kind': 'inline_code', 'raw': raw})
+        else:
+            blocks.append({'kind': 'math', 'raw': raw})
         return '\x00P%d\x00' % (len(blocks) - 1)
 
     # Fenced code blocks (``` at start of line)
@@ -101,19 +164,32 @@ def protect(text):
 
 def restore(html, blocks):
     """Put protected blocks back, converting code fences to <pre><code>."""
-    for i, raw in enumerate(blocks):
+    for i, block in enumerate(blocks):
         ph = '\x00P%d\x00' % i
+        raw = block['raw']
         if raw.startswith('```'):
             lines = raw.split('\n')
             info = lines[0][3:].strip()
             code = '\n'.join(lines[1:-1])
             # Escape HTML inside code
-            code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            code = html_escape(code)
             cls = ' class="language-%s"' % info if info else ''
-            replacement = '<pre><code%s>%s</code></pre>' % (cls, code)
+            code_html = '<pre><code%s>%s</code></pre>' % (cls, code)
+            label = block.get('label')
+            if label:
+                caption_text = '__BLOCK_REF__%s__' % label
+                custom_caption = block.get('caption')
+                if custom_caption:
+                    caption_text += ': ' + inline(custom_caption)
+                replacement = (
+                    '<div class="code-chunk" id="%s" data-block-kind="code">'
+                    '%s<p class="code-caption">%s</p></div>'
+                ) % (label, code_html, caption_text)
+            else:
+                replacement = code_html
         elif raw.startswith('`') and raw.endswith('`'):
             inner = raw[1:-1]
-            inner = inner.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            inner = html_escape(inner)
             replacement = '<code>%s</code>' % inner
         else:
             replacement = raw  # math — pass through as-is
@@ -173,24 +249,18 @@ def inline(text, allow_sidenotes=True, escape_amp=True):
 
 # ── Block-level Markdown ────────────────────────────────────────────────────
 
-def parse_h2_toc_marker(heading):
-    """Parse optional h2 marker: {toc_subsections[=true|false]}."""
-    m = re.search(r'\s*\{toc_subsections(?:\s*=\s*(true|false))?\}\s*$',
-                  heading, flags=re.IGNORECASE)
-    if not m:
-        return heading, None
+def placeholder_index(text):
+    m = re.match(r'^\x00P(\d+)\x00$', text)
+    return int(m.group(1)) if m else None
 
-    flag_raw = m.group(1)
-    enabled = True if flag_raw is None else flag_raw.lower() == 'true'
-    clean_heading = heading[:m.start()].rstrip()
-    return clean_heading, enabled
 
-def blocks(text):
+def blocks(text, protected_blocks):
     """Convert block-level Markdown to HTML."""
     lines = text.split('\n')
     out = []
     para = []
     i = 0
+    pending_label = None
 
     def flush():
         if para:
@@ -198,9 +268,27 @@ def blocks(text):
             out.append('      <p>%s</p>' % content)
             para.clear()
 
+    def flush_pending_label():
+        nonlocal pending_label
+        if pending_label is not None:
+            if pending_label.get('caption') is not None:
+                out.append('      <p>!label[%s]{%s}</p>' % (pending_label['id'], pending_label['caption']))
+            else:
+                out.append('      <p>!label[%s]</p>' % pending_label['id'])
+            pending_label = None
+
     while i < len(lines):
         line = lines[i]
         s = line.strip()
+
+        label = parse_block_label(s)
+        if label:
+            flush()
+            if pending_label is not None:
+                flush_pending_label()
+            pending_label = label
+            i += 1
+            continue
 
         # Blank line → end paragraph
         if not s:
@@ -211,6 +299,14 @@ def blocks(text):
         # Protected block alone on a line (display math or code block)
         if re.match(r'^\x00P\d+\x00$', s):
             flush()
+            block_idx = placeholder_index(s)
+            block = protected_blocks[block_idx]
+            if pending_label and block.get('kind') == 'code_fence':
+                block['label'] = pending_label['id']
+                block['caption'] = pending_label.get('caption')
+                pending_label = None
+            elif pending_label:
+                flush_pending_label()
             out.append('      ' + s)
             i += 1
             continue
@@ -218,6 +314,7 @@ def blocks(text):
         # Raw HTML passthrough
         if s.startswith('<'):
             flush()
+            flush_pending_label()
             out.append('      ' + s)
             i += 1
             continue
@@ -225,10 +322,17 @@ def blocks(text):
         # h2
         if s.startswith('## ') and not s.startswith('### '):
             flush()
-            heading, toc_subsections = parse_h2_toc_marker(s[3:])
+            flush_pending_label()
+            heading, heading_id, toc_subsections = parse_heading_markers(
+                s[3:], allow_toc_subsections=True
+            )
             attrs = ''
             if toc_subsections is not None:
-                attrs = ' data-toc-subsections="%s"' % ('true' if toc_subsections else 'false')
+                attrs += ' data-toc-subsections="%s"' % ('true' if toc_subsections else 'false')
+            if heading_id:
+                attrs += ' data-section-id="%s" data-ref-text="%s"' % (
+                    heading_id, html_attr_escape(heading)
+                )
             out.append('      <h2%s>%s</h2>' % (attrs, inline(heading)))
             i += 1
             continue
@@ -236,38 +340,63 @@ def blocks(text):
         # h3
         if s.startswith('### '):
             flush()
-            heading = s[4:]
-            out.append('      <h3>%s</h3>' % inline(heading))
+            flush_pending_label()
+            heading, heading_id, _ = parse_heading_markers(s[4:])
+            attrs = ''
+            if heading_id:
+                attrs = ' id="%s" data-block-kind="section" data-ref-text="%s"' % (
+                    heading_id, html_attr_escape(heading)
+                )
+            out.append('      <h3%s>%s</h3>' % (attrs, inline(heading)))
             i += 1
             continue
 
         # h4
         if s.startswith('#### '):
             flush()
-            heading = s[5:]
-            out.append('      <h4>%s</h4>' % inline(heading))
+            flush_pending_label()
+            heading, heading_id, _ = parse_heading_markers(s[5:])
+            attrs = ''
+            if heading_id:
+                attrs = ' id="%s" data-block-kind="section" data-ref-text="%s"' % (
+                    heading_id, html_attr_escape(heading)
+                )
+            out.append('      <h4%s>%s</h4>' % (attrs, inline(heading)))
             i += 1
             continue
 
         # h5
         if s.startswith('##### '):
             flush()
-            heading = s[6:]
-            out.append('      <h5>%s</h5>' % inline(heading))
+            flush_pending_label()
+            heading, heading_id, _ = parse_heading_markers(s[6:])
+            attrs = ''
+            if heading_id:
+                attrs = ' id="%s" data-block-kind="section" data-ref-text="%s"' % (
+                    heading_id, html_attr_escape(heading)
+                )
+            out.append('      <h5%s>%s</h5>' % (attrs, inline(heading)))
             i += 1
             continue
 
         # h6
         if s.startswith('###### '):
             flush()
-            heading = s[7:]
-            out.append('      <h6>%s</h6>' % inline(heading))
+            flush_pending_label()
+            heading, heading_id, _ = parse_heading_markers(s[7:])
+            attrs = ''
+            if heading_id:
+                attrs = ' id="%s" data-block-kind="section" data-ref-text="%s"' % (
+                    heading_id, html_attr_escape(heading)
+                )
+            out.append('      <h6%s>%s</h6>' % (attrs, inline(heading)))
             i += 1
             continue
 
         # Horizontal rule
         if s in ('---', '***', '___'):
             flush()
+            flush_pending_label()
             out.append('      <hr>')
             i += 1
             continue
@@ -284,19 +413,39 @@ def blocks(text):
                     key = pair[0]
                     val = pair[1] if pair[1] else pair[2]
                     img_attrs += ' %s="%s"' % (key, val)
-            out.append('      <div class="plot-container">')
-            out.append('        <div class="plot-background-1">')
-            out.append('          <img src="%s" alt="%s"%s>' % (src, cap, img_attrs))
-            out.append('        </div>')
-            out.append('      </div>')
-            if cap:
-                out.append('      <p class="plot-caption">%s</p>' % inline(cap))
+            if pending_label:
+                out.append('      <div class="figure-block" id="%s" data-block-kind="figure">' % pending_label['id'])
+                out.append('        <div class="plot-container">')
+                out.append('          <div class="plot-background-1">')
+                out.append('            <img src="%s" alt="%s"%s>' % (src, cap, img_attrs))
+                out.append('          </div>')
+                out.append('        </div>')
+                raw_caption = pending_label.get('caption')
+                if raw_caption is None:
+                    raw_caption = cap
+                caption_text = inline(raw_caption) if raw_caption else ''
+                caption_prefix = '__BLOCK_REF__%s__' % pending_label['id']
+                if caption_text:
+                    out.append('        <p class="plot-caption">%s: %s</p>' % (caption_prefix, caption_text))
+                else:
+                    out.append('        <p class="plot-caption">%s</p>' % caption_prefix)
+                out.append('      </div>')
+                pending_label = None
+            else:
+                out.append('      <div class="plot-container">')
+                out.append('        <div class="plot-background-1">')
+                out.append('          <img src="%s" alt="%s"%s>' % (src, cap, img_attrs))
+                out.append('        </div>')
+                out.append('      </div>')
+                if cap:
+                    out.append('      <p class="plot-caption">%s</p>' % inline(cap))
             i += 1
             continue
 
         # Unordered list
         if re.match(r'^[-*]\s', s):
             flush()
+            flush_pending_label()
             out.append('      <ul>')
             while i < len(lines) and re.match(r'^\s*[-*]\s', lines[i]):
                 item = re.sub(r'^\s*[-*]\s', '', lines[i])
@@ -308,6 +457,7 @@ def blocks(text):
         # Ordered list
         if re.match(r'^\d+\.\s', s):
             flush()
+            flush_pending_label()
             out.append('      <ol>')
             while i < len(lines) and re.match(r'^\s*\d+\.\s', lines[i]):
                 item = re.sub(r'^\s*\d+\.\s', '', lines[i])
@@ -317,11 +467,68 @@ def blocks(text):
             continue
 
         # Otherwise: paragraph text
+        flush_pending_label()
         para.append(s)
         i += 1
 
     flush()
+    flush_pending_label()
     return '\n'.join(out)
+
+
+def resolve_block_references(html):
+    """Turn labeled blocks and anchored sections into links."""
+    labels = {}
+    figure_count = 0
+    code_count = 0
+    protected_segments = []
+
+    for m in re.finditer(r'<[^>]+\bdata-block-kind="(figure|code|section)"[^>]*>', html):
+        tag = m.group(0)
+        kind_match = re.search(r'\bdata-block-kind="(figure|code|section)"', tag)
+        id_match = re.search(r'\bid="([^"]+)"', tag)
+        ref_text_match = re.search(r'\bdata-ref-text="([^"]*)"', tag)
+        if not kind_match or not id_match:
+            continue
+        label = id_match.group(1)
+        kind = kind_match.group(1)
+        ref_text = ref_text_match.group(1) if ref_text_match else None
+        if label in labels:
+            print('Warning: duplicate block label: %s' % label, file=sys.stderr)
+            continue
+        if kind == 'figure':
+            figure_count += 1
+            labels[label] = 'Figure %d' % figure_count
+        elif kind == 'code':
+            code_count += 1
+            labels[label] = 'Code chunk %d' % code_count
+        else:
+            labels[label] = ref_text or label
+
+    for label, ref_text in labels.items():
+        html = html.replace('__BLOCK_REF__%s__' % label, ref_text)
+
+    def protect_segment(m):
+        protected_segments.append(m.group(0))
+        return '\x00R%d\x00' % (len(protected_segments) - 1)
+
+    html = re.sub(r'<pre><code\b[^>]*>.*?</code></pre>', protect_segment, html, flags=re.DOTALL)
+    html = re.sub(r'<code>.*?</code>', protect_segment, html, flags=re.DOTALL)
+
+    def replace_ref(m):
+        label = m.group(1)
+        ref_text = labels.get(label)
+        if ref_text is None:
+            print('Warning: unresolved block reference: %s' % label, file=sys.stderr)
+            return m.group(0)
+        return '<a href="#%s" class="block-ref">%s</a>' % (label, ref_text)
+
+    html = BLOCK_REF_RE.sub(replace_ref, html)
+
+    for i, segment in enumerate(protected_segments):
+        html = html.replace('\x00R%d\x00' % i, segment)
+
+    return html
 
 
 # ── Section wrapping ────────────────────────────────────────────────────────
@@ -339,14 +546,20 @@ def wrap_sections(html):
             h2_attrs = m.group(2) or ''
             heading_html = m.group(3)
             heading = re.sub(r'<[^>]+>', '', heading_html)
+            section_id_match = re.search(r'\bdata-section-id="([^"]+)"', h2_attrs)
+            ref_text_match = re.search(r'\bdata-ref-text="([^"]+)"', h2_attrs)
+            section_id = section_id_match.group(1) if section_id_match else heading
+            section_ref_text = ref_text_match.group(1) if ref_text_match else heading
             section_attrs = ''
             if re.search(r'\bdata-toc-subsections="true"', h2_attrs):
                 section_attrs = ' data-toc-subsections="true"'
             elif re.search(r'\bdata-toc-subsections="false"', h2_attrs):
                 section_attrs = ' data-toc-subsections="false"'
+            if section_id_match:
+                section_attrs += ' data-block-kind="section" data-ref-text="%s"' % section_ref_text
             if in_section:
                 out.append('%s</section>\n' % indent)
-            out.append('%s<section id="%s"%s>' % (indent, heading, section_attrs))
+            out.append('%s<section id="%s"%s>' % (indent, section_id, section_attrs))
             out.append('%s<h2>%s</h2>' % (indent, heading_html))
             in_section = True
         else:
@@ -577,9 +790,10 @@ def main():
     body, protected = protect(body)
 
     # Convert
-    body_html = blocks(body)
+    body_html = blocks(body, protected)
     body_html = wrap_sections(body_html)
     body_html = restore(body_html, protected)
+    body_html = resolve_block_references(body_html)
 
     # Compute paths
     md_dir = os.path.dirname(os.path.abspath(md_path))

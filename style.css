@@ -619,6 +619,26 @@ a:hover {
     margin-top: 10px;
 }
 
+.code-chunk {
+    margin: 18px 0;
+}
+
+.code-caption {
+    color: rgba(131, 131, 131, 1);
+    font-size: 0.82em;
+    font-weight: 450;
+    margin: 10px 0 0 0;
+    text-align: center;
+}
+
+.content-container.entry .code-chunk pre:not(.bibtex) {
+    margin: 0;
+}
+
+.block-ref {
+    font-weight: 500;
+}
+
 /* Sidenotes and sidebar TOC: fall back on narrower screens */
 @media (max-width: 1200px) {
     .sidenote {
