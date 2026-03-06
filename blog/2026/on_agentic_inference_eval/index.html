@@ -286,7 +286,7 @@ seed: 77 # seeded run!</code></pre><p class="code-caption">Code chunk 2: The syn
             <img src="../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png" alt="" width="530" height="270">
           </div>
         </div>
-        <p class="plot-caption">Figure 3: Empirical vs fitted distributions of new input tokens for the trace in <a href="#experiment-1" class="block-ref">Experiment 1: multi-turn sessions with prefix caching</a>. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.</p>
+        <p class="plot-caption">Figure 3: Empirical vs fitted distributions of new input tokens for the trace in <a href="#experiment-1" class="block-ref">Experiment 1: multi-turn sessions with prefix caching</a>. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.</p>
       </div>
       <p>The first-order consequence is TTFT variance. Two requests with similar total context length can have very different prefill costs depending on how large the fresh tail is. The second-order consequence is scheduling interference: large bursts occupy prefill capacity for longer, which can perturb batching and worsen tail latency for other sessions sharing the system. # TODO cite disagg chunk etc</p>
       <p>For benchmarking, the direct consequence is that we should not model context growth as a smooth average increment per turn, or sample from uniform distributions. In Veeksha's spec (<a href="#exp-1-workload-config" class="block-ref">Code chunk 2</a>), this means we change <code>channels.text.body_length_generator</code> from <code>uniform</code> to:</p>
@@ -295,10 +295,6 @@ seed: 77 # seeded run!</code></pre><p class="code-caption">Code chunk 2: The syn
   mean: 815
   shape: 203 # controls dispersion, lower -&gt; more heavy-tailed</code></pre>
       <h3>n. Session branching via sub-agents</h3>
-      <p>So far the session graph has remained a chain. Sub-agent spawning is the first point where the topology itself changes. OpenClaw can spawn isolated child sessions, each with its own history, system prompt, tools, and execution loop, while the parent waits for them to finish and report back.</p>
-      <p>Statistically, this introduces a new set of variables: branching factor, child-session length distribution, parent idle duration while children run, and the fraction of parent history inherited by the child. In OpenClaw that last quantity is close to zero: children start mostly fresh rather than reusing the full parent context. The result is a DAG of dependent sessions rather than a single chain.</p>
-      <p>The first-order consequence for the inference system is genuine concurrency. Instead of one long-lived session, it now sees multiple independent request streams in parallel, each with its own KV-cache and its own distributions of input length, output length, and wait times. The second-order consequence is memory pressure and cache-retention stress: the parent's cache may need to survive while children run for seconds or minutes, and the scheduler must interleave several related sessions fairly.</p>
-      <p>This is where simple workload models based only on "number of users" stop being sufficient. An agentic trace with branching must be described as a session graph, not just as a bag of independent requests or even as a set of linear conversations.</p>
       </section>
 
     <ul id="reference-list"></ul>
