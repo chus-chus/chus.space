@@ -395,7 +395,7 @@ If we zoom in on prefill times for replicas A and C:
 Agentic workloads are long-lived, stateful traces with extremely high prefix
 reuse. In this regime, efficient state handling matters. # TODO 1st, 2nd order consequences
 
-### 3. Token-count heterogeneity {#sec:prefill-hetero}
+### 3. Token-count heterogeneity {#sec:token-heavy-tail}
 
 Prefix reuse does not mean the amount of new work per step is constant. At any
 point in an agentic loop, the model might append a small memory lookup, a medium
@@ -457,8 +457,40 @@ Where:
 
 ### 4. Bursty timing
 
+Agentic systems are being provided with increasing ways to interact with the world. File read and write, program execution, API calls to other systems, computer use, and soon independent real-world + task navigation, we can consider them tool calls in our agentic loop of !ref[agentic-loop-pseudo]. The idle time between subsequent requests in a session is dictated mainly by three factors:
+
+1. If user turn, how much the user takes to respond
+2. If tool turn, the nature of it. A test suite might take minutes, a file read might take tens of ms.
+3. Dispatch inefficiencies of the agentic system.
+
+In the context of session graphs, we define the property `wait_after_ready` of a node (request) as the time between completion of the last parent request and the dispatch time of the node. If we take a look at its distribition in our sample trace, we see how almost 80% of the waits are less than 100ms, while the upper tail is heavy with 6% being larger than 10 seconds. This effect is similar to that of the input and output token distributions.
+
+Again, this heavy-tail effect has implications beyond workload shape. During idle periods of a session, its KVs stays unused. This in turn increases the chance that, due to memory pressure and cache policies, at least a fraction of cache won't be resident by the time the next request of the session is dispatched. It will then have to pay a recomputation cost.
+
+#### Experiment 2: think-time gaps
+
+In this experiment we benchmark the same system as in !ref[experiment-1] with two synthetic workloads. Both workloads share all session arrivals and token distributions, for both input and output. However, workload 1 contains a long, linear session with uniform, short `wait_after_ready` gaps, while workload 2 varies the wait gaps for that same session to be long. We then measure TTFCs for that same session in both runs. If memory pressure is high enough, we will see how wait times by themselves cause the behavior described above.
+
+For memory pressure to reach the levels that we need it to, we are going to change hardware. A GPU with 95GB of HBM like the H100 is going to absorb most of the cache without much pressure, especially for a small-ish model like Llama-3.1-8B. # TODO memory fraction for weights, activations, cache.
+
+TODO results
+
+**Note: about fidelity on synthetic workloads**
+
+While the empirical distribution of wait times roughly matches that of the tokens, a best-fit analysis tells us that it's actually not well described by a single, smooth distribution; a spike+tail description fits best. I measured another, arguably more complete and representative, trace and got similar results. So, does this mean that a benchmarking framework should include ways of sampling wait times according to complex spike+tail generators? I argue that with synthetic workloads, we care more about preserving clarity and the broad operational regime instead. An inverse Gaussian or lognormal distribution, would do it.
+
+If we care about absolute fidelity a better option is to **replay traces**, preserving every detail of the original workload instead of approximating it. This option is especially useful for those who already have a lot of production traffic.^[Veeksha can do this for a variety of trace types, like agentic ones directly from Claude Code or OpenClaw, while preserving the DAG, token and timing distributions of the workload.]
+
+?figure wait after ready in graph?
+
+### 5. Session branching
+
+constant scaffold # this can probably be merged with 3.2 prefix reuse. we would have two subsections - local and cross-session prefixes
+
+prefix invalidation: about this, we might be able to include it in prefill and decode discontinuities. a few reasons for this: 1 comes from the outer loop of the agentic system as a failsafe for current architectural fallbacks, so i don't know if it's fundamental enough and 2 it just creates moderately sized decodes and prefill, which might fit in the heavy-tail description of those two phases.
+
+------ 
+
 topology -> node -> edge -> discontinutities -> cross-session (w branching)
 
-prefix invalidation
-session branching
-constant scaffold
+independence of properties: high waits might be correlated with high prefill bursts, or low waits with small prefills. Probably application dependent.
