@@ -69,7 +69,7 @@ inference requests, their input and output lengths, how much prefix each
 request shares with the previous one, and how much time passes between
 dependent requests.
 
-We dissect OpenClaw, an open-source agentic system with broad adoption (and
+We use as OpenClaw as reference, an open-source agentic system with broad adoption (and
 hype)^[We use it not only because we can read the source: it's also
 representative with sub-agent spawning, parallel execution, context management,
 and more]. The principles we extract apply to any agentic system like Claude
@@ -133,7 +133,7 @@ the generalization. That is, a graph of requests with dependencies.
 
 In this framework, an independent request is a session with one node. A linear conversation is a
 session where nodes form a chain, one after the other. An agentic session can be a chain too, but it can also be a DAG: when an agent spawns sub-agents, each runs its own chain of inference requests in parallel. We are going to build up this
-graph structure piece by piece as we dissect OpenClaw.
+graph structure piece by piece.
 
 ?figure: three session types side by side: single node, linear chain, DAG
 
@@ -301,7 +301,7 @@ systems that otherwise use prefix caching and the same model. If
 you evaluate an inference system on independent requests, where there is no
 prefix to cache, you never observe this regime.
 
-#### Experiment 1: multi-turn sessions with prefix caching {#experiment-1}
+#### Experiment 1: multi-turn sessions {#experiment-1}
 
 To make this concrete, we run a simple experiment. 
 
@@ -395,37 +395,70 @@ If we zoom in on prefill times for replicas A and C:
 Agentic workloads are long-lived, stateful traces with extremely high prefix
 reuse. In this regime, efficient state handling matters. # TODO 1st, 2nd order consequences
 
-### 3. Heavy-tailed incremental input
+### 3. Token-count heterogeneity {#sec:prefill-hetero}
 
 Prefix reuse does not mean the amount of new work per step is constant. At any
 point in an agentic loop, the model might append a small memory lookup, a medium
-shell output, a huge file read, or a large batch of tool results. There are other context-injection events
-too, like sub-agents sending summaries and artifacts to the parent agent.
-Statistically, the quantity that matters is the incremental input size between
-consecutive requests: the number of fresh, non-cached tokens added on top of
-the shared prefix.
+shell output, a huge file read, or a large batch of tool results. There are
+other context-injection events too, like sub-agents sending summaries and
+artifacts to the parent agent. Similarly, the distribution of output tokens in
+an agentic workload is dictated by a variety of events. Many inference requests
+return small messages, where the model selects tools or acknowledges results.
+They usually stem from intermediate control events in the loop of
+!ref[agentic-loop-pseudo]. Others, like turn ends, where models modify
+artifacts or respond to the user, or context overflows, where the model needs to
+compact the full history, generate large answers.
 
-In real agentic traces this incremental-input distribution is broad and usually
-heavy-tailed. Most steps add a modest amount of tokens, but a small number add
-very large bursts.
+Statistically, the quantities that matter are the incremental input size between
+consecutive requests, that is, the number of fresh, non-cached tokens added on
+top of the shared prefix, and the number of output tokens generated per request.
 
-!label[principle-3-heavy-tail]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, pareto, normal and inverse gaussian distributions, and found that the latter fits best.}
+In real agentic traces both distributions are broad and usually heavy-tailed.
+Most steps add a modest amount of tokens and generate short outputs, but a small
+number create very large bursts.
+
+!label[principle-3-heavy-tail-prefill]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, Pareto, normal and inverse Gaussian distributions, and found that the latter fits best.}
 ![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=530 height=270}
 
-The first-order consequence is TTFT variance. Two requests with similar total
-context length can have very different prefill costs depending on how large the
-fresh tail is. The second-order consequence is scheduling interference: large
-bursts occupy prefill capacity for longer, which can perturb batching and
-worsen tail latency for other sessions sharing the system. # TODO cite disagg chunk etc
+This same observation also applies to the decode phase. In fact, performing the
+same fitting experiments on output tokens also yields the inverse Gaussian as
+the best fit for our empirical data in experiment !ref[experiment-1].
 
-For benchmarking, the direct consequence is that we should not model context growth as a
-smooth average increment per turn, or sample from uniform distributions. In Veeksha's spec (!ref[exp-1-workload-config]), this means we change `channels.text.body_length_generator` from `uniform` to:
+!label[principle-4-heavy-tail-decode]{Empirical vs fitted distributions of generated output tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 14000 tokens). Same tested distributions as for the input tokens, and same best-fit.}
+![](../../../static/2026/on_agentic_inference_eval/output_tokens_fit_p95_linear.png){width=530 height=270}
+
+The first-order consequence is that both prefill and decode work are
+heterogeneous across the trace rather than roughly constant per turn. Two
+requests with similar total context length can have very different prefill costs
+depending on how large the fresh tail is, and some generations are much longer
+than others. The second-order consequences are different for the two phases.
+Large fresh-token bursts create prefill interference: they occupy prefill
+capacity for longer, which can perturb batching and worsen tail latency for
+other sessions sharing the system. Long generations remain active for longer,
+which extends the lifetime of the KV and changes batch characteristics.
+Depending on the inference engine, this can affect metrics such as throughput, completion
+latency, TBT, or fairness under mixed workloads. # TODO cite disagg chunk etc
+
+For benchmarking, the direct consequence is that we should not model either side
+with smooth average increments per turn, or sample from uniform distributions.
+In Veeksha's spec (!ref[exp-1-workload-config]), this means we change
+`channels.text.body_length_generator` and `output_spec.text.output_length_generator` from `uniform` to:
 
 ```yaml
 body_length_generator:
   type: inverse_gaussian
-  mean: 815
-  shape: 203 # controls dispersion, lower -> more heavy-tailed
+  mean: m
+  shape: s # controls dispersion, lower -> more heavy-tailed
 ```
 
-### n. Session branching via sub-agents
+Where: 
+- `m` is ~815 for input tokens and ~615 for output tokens
+- `s` is ~200 for input tokens and ~145 for output tokens
+
+### 4. Bursty timing
+
+topology -> node -> edge -> discontinutities -> cross-session (w branching)
+
+prefix invalidation
+session branching
+constant scaffold
