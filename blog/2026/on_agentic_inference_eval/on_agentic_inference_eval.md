@@ -1,5 +1,5 @@
 ---
-title: Evaluating Inference Performance with Agentic Workloads  
+## title: Evaluating Inference Performance with Agentic Workloads  
 date: February 28th, 2026  
 tagline:  
 description:  
@@ -114,7 +114,7 @@ and decodes across a workload.^[In this post we focus on text-only requests beca
 - **TBT**: time between tokens. The interval between consecutive output tokens. Measures decode speed.
 - **TPOT**: time per output token. Mean TBT across a request.
 - **E2E latency**: total time from request submission to last output token.
-- **Throughput (token or request)**: Often measured as tokens per second (tokens processed / e2e latency), but also represents requests per second being handled by the system.
+- **Throughput (token or request)**: Often measured as tokens per second (tokens processed / e2e latency), but can also mean requests per second being handled by the system.
 
 ?figure: request timeline to inference metrics mapping
 
@@ -152,6 +152,7 @@ results to history. This loop usually repeats until the model decides it has
 completed the user's request.
 
 !label[agentic-loop-pseudo]{A typical agentic loop.}
+
 ```python
 def prompt(user_input, session):
   session.history.append({"role": "user", "content": user_input})
@@ -258,7 +259,7 @@ whatever new context was added. This means that every request is assembled as
 follows (approximate numbers for Pi agents):
 
 ```
-[system_prompt]      order of 10^4 tokens (mostly constant)
+[system_prompt]      order of 10^4 tokens
 [tool_definitions]   order of 10^3 to 10^4 tokens
 [message_history]    grows with each turn
 [new_input]          latest user message, tool results and other content
@@ -286,6 +287,10 @@ large, and it can reach 90-99% of the input. In other words, request $N$ and
 request $N+1$ share almost all of their tokens. As the context horizon of LLMs
 grows, this overlap will tend to 100%.
 
+On top of this, there is the **constant scaffold** that is the system prompt and tool
+definitions. This is an extremely high-value target for caching, as in most cases
+it's repeated accross all requests and sessions.
+
 The first-order consequence is on prefill work. An inference system that
 exploits this via prefix caching^[Prefix caching means reusing the KV-cache
 computed for request $N$ when processing request $N+1$. Since the shared prefix
@@ -305,9 +310,9 @@ prefix to cache, you never observe this regime.
 
 To make this concrete, we run a simple experiment. 
 
-1. First, we ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.
-2. We measure statistical properties of the resulting trace: token counts, timings, etc.  
-3. We generate a synthetic workload from the trace that mimics the agentic pattern we just described.  
+1. First, we ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.^[Note that all numbers of trace characteristics in this post are probably going to be underestimating what power users and more advanced agentic harnesses generate.]
+2. We measure statistical properties of the resulting trace: token counts, timings, etc.
+3. We generate a synthetic workload from the trace that mimics the agentic pattern we just described.
 4. We compare the same workload with an inference system with different prefix caching settings.
 
 To run the benchmarks, we use [Veeksha](https://github.com/project-vajra/veeksha) v0.2.2, an open-source benchmarking framework for LLM inference systems that we are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more. We use it throughout the rest of this post. 
@@ -334,6 +339,7 @@ moment to understand it, as it will help you understand the workload and the
 rest of the experiments.
 
 !label[exp-1-workload-config]{The synthetic workload configuration for the multi-turn sessions with prefix caching.}
+
 ```yaml
 # Q: how are sessions generated?
 session_generator:
@@ -383,12 +389,12 @@ We run the above workload independently against three Llama-3.1-8B-Instruct repl
 - Replica C: While the system keeps prefix cache in GPU memory, it uses a different strategy to offload the KV cache to CPU for better potential reuse of KVs. Prefill compute times are still close to constant for each turn, but if the GPU memory is limited, different offloading strategies might cause recomputation to happen in more turns.
 
 !label[exp-1-ttfc]{TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s.}
-![](../../../static/2026/on_agentic_inference_eval/exp_1_ttfc.png){width=600 height=324}
+{width=600 height=324}
 
 If we zoom in on prefill times for replicas A and C:
 
 !label[exp-1-ttfc-zoomed]{Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p50 and p95. A 2% gain might seem modest, but it is notable at scale.}
-![](../../../static/2026/on_agentic_inference_eval/exp_1_ttfc_zoomed.png){width=600 height=324}
+{width=600 height=324}
 
 **Takeaway**
 
@@ -418,14 +424,14 @@ Most steps add a modest amount of tokens and generate short outputs, but a small
 number create very large bursts.
 
 !label[principle-3-heavy-tail-prefill]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, Pareto, normal and inverse Gaussian distributions, and found that the latter fits best.}
-![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=530 height=270}
+{width=530 height=270}
 
 This same observation also applies to the decode phase. In fact, performing the
 same fitting experiments on output tokens also yields the inverse Gaussian as
 the best fit for our empirical data in experiment !ref[experiment-1].
 
 !label[principle-4-heavy-tail-decode]{Empirical vs fitted distributions of generated output tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 14000 tokens). Same tested distributions as for the input tokens, and same best-fit.}
-![](../../../static/2026/on_agentic_inference_eval/output_tokens_fit_p95_linear.png){width=530 height=270}
+{width=530 height=270}
 
 The first-order consequence is that both prefill and decode work are
 heterogeneous across the trace rather than roughly constant per turn. Two
@@ -452,8 +458,15 @@ body_length_generator:
 ```
 
 Where: 
+
 - `m` is ~815 for input tokens and ~615 for output tokens
 - `s` is ~200 for input tokens and ~145 for output tokens
+
+**Prefix invalidation**
+
+In OpenClaw in particular, when the context length reaches its limit, there is a compaction event. The event creates a request asking the model to summarise, and then a new session is created with the summary as fresh context. This effectively invalidates the prefix of the original session.
+
+We can model this event with the previous notes for prefill and decode heterogeneity, as it just creates moderately sized decodes (for summarisation) and prefill (new session with fresh summary), which fits in their heavy-tail description.
 
 ### 4. Bursty timing
 
@@ -465,17 +478,9 @@ Agentic systems are being provided with increasing ways to interact with the wor
 
 In the context of session graphs, we define the property `wait_after_ready` of a node (request) as the time between completion of the last parent request and the dispatch time of the node. If we take a look at its distribition in our sample trace, we see how almost 80% of the waits are less than 100ms, while the upper tail is heavy with 6% being larger than 10 seconds. This effect is similar to that of the input and output token distributions.
 
-Again, this heavy-tail effect has implications beyond workload shape. During idle periods of a session, its KVs stays unused. This in turn increases the chance that, due to memory pressure and cache policies, at least a fraction of cache won't be resident by the time the next request of the session is dispatched. It will then have to pay a recomputation cost.
+Again, this heavy-tail effect has implications beyond workload shape. During idle periods of a session, its KVs stays unused. This in turn increases the chance that, due to memory pressure and cache policies, at least a fraction of cache won't be resident by the time the next request of the session is dispatched. It will then have to pay a recomputation cost. This is not necessarily bad, as it might be the correct global decision; the point is that it creates a cache allocation trade-off, thus hurting other local properties.
 
-#### Experiment 2: think-time gaps
-
-In this experiment we benchmark the same system as in !ref[experiment-1] with two synthetic workloads. Both workloads share all session arrivals and token distributions, for both input and output. However, workload 1 contains a long, linear session with uniform, short `wait_after_ready` gaps, while workload 2 varies the wait gaps for that same session to be long. We then measure TTFCs for that same session in both runs. If memory pressure is high enough, we will see how wait times by themselves cause the behavior described above.
-
-For memory pressure to reach the levels that we need it to, we are going to change hardware. A GPU with 95GB of HBM like the H100 is going to absorb most of the cache without much pressure, especially for a small-ish model like Llama-3.1-8B. # TODO memory fraction for weights, activations, cache.
-
-TODO results
-
-**Note: about fidelity on synthetic workloads**
+**Fidelity on synthetic workloads**
 
 While the empirical distribution of wait times roughly matches that of the tokens, a best-fit analysis tells us that it's actually not well described by a single, smooth distribution; a spike+tail description fits best. I measured another, arguably more complete and representative, trace and got similar results. So, does this mean that a benchmarking framework should include ways of sampling wait times according to complex spike+tail generators? I argue that with synthetic workloads, we care more about preserving clarity and the broad operational regime instead. An inverse Gaussian or lognormal distribution, would do it.
 
@@ -485,11 +490,46 @@ If we care about absolute fidelity a better option is to **replay traces**, pres
 
 ### 5. Session branching
 
-constant scaffold # this can probably be merged with 3.2 prefix reuse. we would have two subsections - local and cross-session prefixes
+The session characteristics described until now have all been describing linear sessions. A big component of agentic workloads, though, is how agents can spawn subagents. Similar to how cells organised into specialised subsystems (organs) in nature, as agentic capabilities of models increase we will see further and further hierarchical delegation of work; each subagent focused on some particular task.
 
-prefix invalidation: about this, we might be able to include it in prefill and decode discontinuities. a few reasons for this: 1 comes from the outer loop of the agentic system as a failsafe for current architectural fallbacks, so i don't know if it's fundamental enough and 2 it just creates moderately sized decodes and prefill, which might fit in the heavy-tail description of those two phases.
+In practice, there are many ways to implement subagents and their reporting strategies.^[Should agents communicate accross hierarchites? Only to their parents? Peers?] In the case of the OpenClaw harness, the subagent flow is:
 
------- 
+1. Agent decides to spawn a subagent. It does so by calling the `sessions_spawn` tool, which asyncronously spawns a subagent.
+2. Subagent starts with its own system prompt plus the task description from the parent as context. It does not inherit the full context.
+3. When finished, the subagent announces the results back to the parent. The parent receives a message with the subagent's output.
+4. Nesting depth (subsubagents and more) and number of allowed spawns per agent are configurable, as well as max concurrency.
+
+In the context of the DAG that is an agentic session, this means that any node can have multiple children or parents. It isn't a linear chain anymore. Fan-out and fan-in degrees can be bigger than 1, which creates dependencies between requests in a way that we didn't have before. It also introduces context inheretance dynamics between nodes (not all nodes inherit the full history).
+
+?[figure agentic session. explain dependencies for wait_after_ready]
+
+To illustrate this, we ask OpenClaw to produce a high-quality knowledge graph and analysis of all major AI frameworks. We nudge it to make use of subagents, each dedicated to researching some part of a particular framework. When we reach the OpenAI rate limit (~5 minutes), the session is:
+
+- 575 requests total
+- 35 sessions (spawns)
+- ~3.2M total input tokens
+- ~150k total output tokens
+- 44 requests deep on the longest path
+- 25 requests wide at the maximum width
+- A max fan-in and fan-out degree of 2.
+
+Do check out how the graph looks here. TODO ref
+
+When building an agentic benchmark, we need to consider details such as branching factor, depth and length of child sessions and history inheretance ratios. It will directly affect the total pressure of the workload on the inference system's memory, compute and scheduling states.
+
+#### Experiment 2
+
+We now show how two workloads of the same work volume, but differing in shape, can affect the reported performance of the system. Workload A is a sequence of short linear sessions, while workload B is a sequence of generic DAG workloads. They both have the same total number of new input and output tokens, so work volume is equal. We run them independently against the same, but fresh, system. Model and system are the same as in !ref[experiment-1].
+
+
+
+## Wrapping up {toc_subsections}
+
+### The full picture
+
+
+
+---
 
 topology -> node -> edge -> discontinutities -> cross-session (w branching)
 
