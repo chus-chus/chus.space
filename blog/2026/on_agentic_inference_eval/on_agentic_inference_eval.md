@@ -77,17 +77,19 @@ Code, because they all share the same high-level execution patterns.
 
 Each principle corresponds to one part of this statistical description:
 request-graph topology, prefix reuse, incremental input size, inter-request
-timing, output-length heterogeneity, reset events, and cross-session shared
-scaffolding. For each, we connect the trace statistic to the inference system
+timing and input and output-length heterogeneity. For each, we connect the trace 
+statistic to the inference system
 in two ways. First-order consequences are direct changes in work: more
 prefills, more decode tokens, larger fresh-token tails, or more concurrent
 sessions. Second-order consequences are what those first-order changes do to
-cache retention, scheduling, fairness, batching, and memory pressure. By the
-end, you will know:
+cache retention, scheduling, fairness, batching, and memory pressure. We aim to present:
 
 1. How to describe agentic traces statistically: as session graphs plus distributions over token counts, waits, shared prefixes, and branching.
 2. How to replicate them in a benchmark: by measuring those distributions from real traces and generating matching synthetic sessions.
 3. Why it matters: inference systems behave differently under agentic load, and evaluating on the wrong workload might not give you the full picture.
+
+Throughout, Veeksha is the framework we use to instantiate and measure
+these workload models in the experiments.
 
 ## Prerequisites {#sec:prerequisites}
 
@@ -203,7 +205,7 @@ this loop as trace statistics.
 
 ?figure: the agentic loop. i think it can replace the pseudocode. we will keep constructing a visualization of the workload as we go along, and this image should serve as a base.
 
-## An agentic workload, principle by principle {toc_subsections} {#sec:agentic-workload}
+## An agentic workload {toc_subsections} {#sec:agentic-workload}
 
 Now that we know why agentic evaluations are important and are familiar with
 the basics of inference evaluation, what a session is, and how the agentic loop
@@ -233,7 +235,7 @@ cycle can therefore turn one human request into many inference requests.
 
 Statistically, the quantity we care about is not "user turns" but the
 distribution of inference requests per user task, or equivalently the depth of
-these dependency chains. In the trace we analyze in !ref[experiment-1], 3 user interventions
+these dependency chains. In the trace underlying !ref[experiment-1], 3 user interventions
 expand into 130 inference requests. In the near future, we can expect
 agentic loops to generate thousands of inference requests per user task.
 
@@ -306,16 +308,21 @@ systems that otherwise use prefix caching and the same model. If
 you evaluate an inference system on independent requests, where there is no
 prefix to cache, you never observe this regime.
 
-#### Experiment 1: multi-turn sessions {#experiment-1}
+#### Case study 1: multi-turn sessions {#experiment-1}
 
-To make this concrete, we run a simple experiment. 
+To make the workload regime concrete, we start from one real multi-turn coding
+trace and derive a simple synthetic workload from it.
 
 1. First, we ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.^[Note that all numbers of trace characteristics in this post are probably going to be underestimating what power users and more advanced agentic harnesses generate.]
-2. We measure statistical properties of the resulting trace: token counts, timings, etc.
+2. We measure statistical properties of the resulting trace: token counts, timings, prefix reuse, etc.
 3. We generate a synthetic workload from the trace that mimics the agentic pattern we just described.
-4. We compare the same workload with an inference system with different prefix caching settings.
+4. We compare that workload with and without prefix caching.
 
-To run the benchmarks, we use [Veeksha](https://github.com/project-vajra/veeksha) v0.2.2, an open-source benchmarking framework for LLM inference systems that we are releasing alongside this post. Veeksha supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more. We use it throughout the rest of this post. 
+To run the benchmarks, we use [Veeksha](https://github.com/project-vajra/veeksha)
+v0.2.2, an open-source benchmarking framework for LLM inference systems. It
+supports sessions as graphs of requests with dependencies, configurable
+timings, prefix caching simulations, replicating real-world workloads,
+microbenchmarks, and more.
 
 **Trace analysis**
 
@@ -378,7 +385,10 @@ runtime:
 seed: 77 # seeded run!
 ```
 
-We run the above workload independently against three Llama-3.1-8B-Instruct replicas, each one running on vLLM 0.16.0 and a single H100 GPU. We override the maximum context length and set it to 128k. Replica A uses the default prefix cache configuration, replica B has it disabled, and replica C has it enabled but changes the KV cache offloading strategy to use lmcache^[TODO note on offloading, cite].
+We run the above workload independently against two Llama-3.1-8B-Instruct
+replicas, each one running on vLLM 0.16.0 and a single H100 GPU. We override
+the maximum context length and set it to 128k. Replica A uses the default
+prefix cache configuration, while replica B has it disabled.
 
 ?figure: TTFT vs. turn number. Without prefix caching: accelerating curve (re-prefilling growing context). With prefix caching: roughly flat (only new tokens prefilled each turn).
 
@@ -386,20 +396,18 @@ We run the above workload independently against three Llama-3.1-8B-Instruct repl
 
 - Replica A: The system keeps prefix cache in GPU memory, and prefill compute times grow slowly with each turn.
 - Replica B: The system has prefix cache disabled, and prefill compute times increase fast (often close to quadratic at long contexts) with each turn due to recomputation of KVs.
-- Replica C: While the system keeps prefix cache in GPU memory, it uses a different strategy to offload the KV cache to CPU for better potential reuse of KVs. Prefill compute times are still close to constant for each turn, but if the GPU memory is limited, different offloading strategies might cause recomputation to happen in more turns.
 
 !label[exp-1-ttfc]{TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s.}
-{width=600 height=324}
-
-If we zoom in on prefill times for replicas A and C:
-
-!label[exp-1-ttfc-zoomed]{Zoomed in TTFC CDFs. We observe a mean TTFC gain of about 2.3% on this workload by using lmcache, with the biggest gains at around p50 and p95. A 2% gain might seem modest, but it is notable at scale.}
 {width=600 height=324}
 
 **Takeaway**
 
 Agentic workloads are long-lived, stateful traces with extremely high prefix
-reuse. In this regime, efficient state handling matters. # TODO 1st, 2nd order consequences
+reuse. Agentic sessions become dominated by prefix reuse and cache handling.
+Enabling prefix caching changes the latency profile; once that is
+true, other properties such as cache retention across idle gaps, eviction
+policy, offloading strategy, and scheduler behavior can become another source
+of performance differences.
 
 ### 3. Token-count heterogeneity {#sec:token-heavy-tail}
 
@@ -428,7 +436,8 @@ number create very large bursts.
 
 This same observation also applies to the decode phase. In fact, performing the
 same fitting experiments on output tokens also yields the inverse Gaussian as
-the best fit for our empirical data in experiment !ref[experiment-1].
+the best fit for our empirical data in the multi-turn workload of
+!ref[experiment-1].
 
 !label[principle-4-heavy-tail-decode]{Empirical vs fitted distributions of generated output tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 14000 tokens). Same tested distributions as for the input tokens, and same best-fit.}
 {width=530 height=270}
@@ -517,20 +526,93 @@ Do check out how the graph looks here. TODO ref
 
 When building an agentic benchmark, we need to consider details such as branching factor, depth and length of child sessions and history inheretance ratios. It will directly affect the total pressure of the workload on the inference system's memory, compute and scheduling states.
 
-#### Experiment 2
+#### Case study 2
 
-We now show how two workloads of the same work volume, but differing in shape, can affect the reported performance of the system. Workload A is a sequence of short linear sessions, while workload B is a sequence of generic DAG workloads. They both have the same total number of new input and output tokens, so work volume is equal. We run them independently against the same, but fresh, system. Model and system are the same as in !ref[experiment-1].
+We now compare two workloads of the same fresh token volume, but that differ in shape. Workload A is a sequence of short linear sessions, while workload B is a sequence of generic DAG workloads. They both have the same total number of new input and output tokens, so from the application's perspective they do the same amount of work. This does not imply identical inference work: the DAG workload may decode at longer effective context lengths and induce different cache reuse patterns. That distinction is intentional. The point is to show that, even under the same user-visible token budget, workload shape alone can change the reported performance of the system. We run them independently against the same, but fresh, system. Model and system are the same as in !ref[experiment-1].
+
+Matched fresh-token volume:
+- rate traffic
+- linear: 5 requests. 500 in, 300 out. 30 sessions * 5 = 150 reqs. Total new in: 150 * 500 = 75000 tok, total new out: 150 * 300 = 45000. Total theoretical cache: 30 * ((500 + 300) * 10) = 240k. 
+- dag: 15 requests (3 linear dags each). 10 sessions * 15 = 150 reqs.
+
+0, parent none
+1, parent 0
+
+-- branch
+
+2, parent 1
+3, parent 1
+4, parent 1
+
+5, parent 2
+6, parent 2
+7, parent 2
+
+8, parent 3
+9, parent 3
+10, parent 3
+
+11, parent 4
+12, parent 4
+13, parent 4
+
+14, parents 1, 7, 10, 13
 
 
+  - - - -
+- - - - - 
+  - - - - 
 
-## Wrapping up {toc_subsections}
+  - - - -
+- - - - - 
+  - - - - 
 
-### The full picture
 
+## The full picture {toc_subsections} {#sec:putting-it-all-together}
 
+### TLRD
 
----
+We can now compress the whole argument into one workload model. A single
+agentic session is usually a DAG of parallel inference chains 
+with partial history inheritance: one user task
+expands into many inference requests, consecutive requests share most of their prefix, fresh
+input and output sizes vary widely, waits are bursty, and occasional compaction
+events invalidate the prefix.
 
-topology -> node -> edge -> discontinutities -> cross-session (w branching)
+In shorthand:
 
-independence of properties: high waits might be correlated with high prefill bursts, or low waits with small prefills. Probably application dependent.
+- Request expansion: the think-act-observe loop turns one user task into a long chain of dependent requests.
+- Stateful prefix reuse: full-history appends make consecutive requests share most of their prefix, though compaction or partial-history handoffs can reset or reduce that reuse.
+- Token-count heterogeneity: tool results, summaries and final answers create broad fresh-input and output distributions, including compaction events that generate summary decodes and prefill restarts.
+- Bursty timing: tool latency, user think time and dispatch overhead create broad `wait_after_ready` gaps.
+- Session branching: `sessions_spawn` turns one chain into a DAG with fan-out, width and partial history inheritance, while repeated agent and subagent scaffolds create reuse opportunities across sessions.
+
+### Simple vs. agentic workloads: you need both
+
+Simple workloads are useful to measure raw prefill or
+decode performance and isolate confounding variables. Agentic workloads 
+reveal deeper effects in inference systems, like cache
+retention under bursty traffic, scheduling fairness under mixed concurrency,
+memory pressure from long-lived sessions, and the combined effects of request
+expansion, branching and prefix invalidation.
+
+## Conclusion {#sec:conclusion}
+
+Three takeaways:
+
+1. Agentic traces are structured as session graphs plus distributions over
+   token counts, waits, prefix reuse, invalidations and branching.
+2. We can benchmark them without running a real agent by measuring those
+   distributions and generating synthetic sessions from them. Replaying traces
+   is also useful.
+3. This matters because inference systems behave differently under agentic
+   load, so the wrong workload can give the wrong conclusion.
+
+### Where to go from here
+
+We use [Veeksha](https://github.com/project-vajra/veeksha) here because it can
+express session graphs, replay traces, and generate synthetic workloads. If
+you want to try these ideas on your own inference system, the
+[repository](https://github.com/project-vajra/veeksha) and
+[documentation](https://project-vajra.github.io/veeksha) are a good
+starting point.
