@@ -1,9 +1,10 @@
 ---
-## title: Evaluating Inference Performance with Agentic Workloads  
+title: Agentic Workloads for Inference Evaluation
 date: February 28th, 2026  
-tagline:  
-description:  
-og_description:  
+tagline: Why simple chat benchmarks are not enough, and how to model agentic workloads instead; through the lens of inference performance evaluation.
+description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
+og_description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
+prev: /blog/2024/ssm_3_mambas | Mamba and Mamba-2
 copyright: © 2026 Jesus M. Antonanzas. All rights reserved.
 ---
 
@@ -18,7 +19,7 @@ against each other, you test them under the same conditions.
 
 Common popular inference benchmarking projects do this: nightly benchmarks across systems,
 telling you which is fastest or most efficient, giving you the most bang for your buck. But when we say one system
-is "better" or "worse", in what context do we mean? An inference system might be 
+is "better" or "worse", in what context do we mean? [Artificial Analysis](#artificial-analysis) and [InferenceX](#inferencemax) are useful examples of this benchmarking style. An inference system might be 
 excellent at bursty, short-context workloads, while subpar at long-context ones. 
 Another might shine with quantized models on specific hardware. The
 definition of "good" depends entirely on the workload. For us to test an inference system
@@ -32,10 +33,11 @@ And even though simple workloads are useful for that same reason and because the
 
 ### The workload gap {#sec:intro-workload-gap}
 
-This means that there is a growing disconnect between what we benchmark and what runs in production. The dominant
-LLM applications today are agentic systems, not chatbots. OpenClaw,
+This means that there is a growing disconnect between what we benchmark and what runs in production. Many prominent
+LLM applications today are agentic systems rather than simple chatbots. OpenClaw,
 Claude Code, Cursor, etc. run sessions with parallel tool calls, growing context and sub-agent
-delegation. The workload they place on an inference system looks nothing like a
+delegation (see [OpenClaw sub-agents](#openclaw-subagents), [Claude Code subagents](#claude-code-subagents), and
+[Cursor subagents](#cursor-subagents)). The workload they place on an inference system looks nothing like a
 linear conversation or independent random requests.
 
 How an inference system handles linear requests versus agentic sessions; these
@@ -72,8 +74,10 @@ dependent requests.
 We use as OpenClaw as reference, an open-source agentic system with broad adoption (and
 hype)^[We use it not only because we can read the source: it's also
 representative with sub-agent spawning, parallel execution, context management,
-and more]. The principles we extract apply to any agentic system like Claude
-Code, because they all share the same high-level execution patterns.
+and more]. The principles we extract apply to many agentic systems like Claude
+Code, because they share the same high-level execution patterns of tool use,
+result appending, and subagent delegation (see [OpenAI Agents SDK](#openai-agents-sdk),
+[Claude Code subagents](#claude-code-subagents), and [Cursor subagents](#cursor-subagents)).
 
 Each principle corresponds to one part of this statistical description:
 request-graph topology, prefix reuse, incremental input size, inter-request
@@ -91,7 +95,7 @@ cache retention, scheduling, fairness, batching, and memory pressure. We aim to 
 Throughout, Veeksha is the framework we use to instantiate and measure
 these workload models in the experiments.
 
-## Prerequisites {#sec:prerequisites}
+## Prerequisites {toc_subsections} {#sec:prerequisites}
 
 Before we get into OpenClaw, let's set up our shared vocabulary and execution
 model. If you work with inference systems, this will be familiar; if you don't,
@@ -103,7 +107,8 @@ An inference system handles user requests. When a request arrives, the system
 computes and saves the keys and values of the input tokens: the prefill.
 Then, it generates output tokens one at a time: the decode. In practice, the
 system deals with many concurrent requests, carefuly managing scheduling, CPU/GPU overlap, memory management, etc.
-All optimizations on top of this, like advanced KV-cache policies, chunking, prefill-decode disaggregation, speculative decoding, and more, are generally strategies to make the prefill, decode, or both faster or more efficient under concurrency.
+All optimizations on top of this, like advanced KV-cache policies, chunking, prefill-decode disaggregation, speculative decoding, and more, are generally strategies to make the prefill, decode, or both faster or more efficient under concurrency (see [PagedAttention](#pagedattention),
+[Orca](#orca), [DistServe](#distserve), and the [Speculative Decoding Survey](#speculative-decoding-survey)).
 
 ?figure: an inference system from the highest level
 
@@ -125,7 +130,7 @@ hardware and pricing data. We can measure TTFT and TBT because modern inference
 APIs stream tokens back, so we can observe each one as it arrives. Some systems
 batch output tokens into chunks for efficiency, so we actually prefer TTFC (time to
 first chunk) and TBC (time between chunks) instead for agnostic evaluation.^[As of now, inference systems report streaming information differently, and there isn't a standard way of seeing the number of output tokens in output chunks. Counting the number of tokens in a chunk accurately is not always possible due to tokenization mismatches.] Same idea but slightly
-coarser.
+coarser (see [OpenAI streaming responses](#openai-streaming) and [Anthropic streaming messages](#anthropic-streaming)).
 
 ### What is a session? {#sec:prerequisites-a-session}
 
@@ -298,7 +303,8 @@ exploits this via prefix caching^[Prefix caching means reusing the KV-cache
 computed for request $N$ when processing request $N+1$. Since the shared prefix
 is identical, the system only needs to compute KV entries for the new tokens.
 This turns prefill into an approximately constant-cost operation, but requires
-complex cache management.] only needs to prefill the new tokens at each turn.
+complex cache management.] only needs to prefill the new tokens at each turn
+(see [vLLM prefix caching](#vllm-prefix-caching)).
 One that does not exploit it recomputes the entire growing history from
 scratch.
 
@@ -398,7 +404,7 @@ prefix cache configuration, while replica B has it disabled.
 - Replica B: The system has prefix cache disabled, and prefill compute times increase fast (often close to quadratic at long contexts) with each turn due to recomputation of KVs.
 
 !label[exp-1-ttfc]{TTFC CDFs. With prefix caching: prefill times range from ~50ms to 0.35s. Without prefix caching: prefill times range from ~50ms to 10s.}
-{width=600 height=324}
+![](../../../static/2026/on_agentic_inference_eval/exp_1_ttfc.png){width=600 height=324}
 
 **Takeaway**
 
@@ -432,7 +438,7 @@ Most steps add a modest amount of tokens and generate short outputs, but a small
 number create very large bursts.
 
 !label[principle-3-heavy-tail-prefill]{Empirical vs fitted distributions of new input tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, Pareto, normal and inverse Gaussian distributions, and found that the latter fits best.}
-{width=530 height=270}
+![](../../../static/2026/on_agentic_inference_eval/new_tokens_fit_p95_linear.png){width=530 height=270}
 
 This same observation also applies to the decode phase. In fact, performing the
 same fitting experiments on output tokens also yields the inverse Gaussian as
@@ -440,7 +446,7 @@ the best fit for our empirical data in the multi-turn workload of
 !ref[experiment-1].
 
 !label[principle-4-heavy-tail-decode]{Empirical vs fitted distributions of generated output tokens for the trace in !ref[experiment-1]. Cropped to 95th percentile (max value is around 14000 tokens). Same tested distributions as for the input tokens, and same best-fit.}
-{width=530 height=270}
+![](../../../static/2026/on_agentic_inference_eval/output_tokens_fit_p95_linear.png){width=530 height=270}
 
 The first-order consequence is that both prefill and decode work are
 heterogeneous across the trace rather than roughly constant per turn. Two
@@ -452,7 +458,8 @@ capacity for longer, which can perturb batching and worsen tail latency for
 other sessions sharing the system. Long generations remain active for longer,
 which extends the lifetime of the KV and changes batch characteristics.
 Depending on the inference engine, this can affect metrics such as throughput, completion
-latency, TBT, or fairness under mixed workloads. # TODO cite disagg chunk etc
+latency, TBT, or fairness under mixed workloads (see [Orca](#orca), [DistServe](#distserve),
+and [Sarathi-Serve](#sarathi-serve)).
 
 For benchmarking, the direct consequence is that we should not model either side
 with smooth average increments per turn, or sample from uniform distributions.
@@ -506,7 +513,7 @@ In practice, there are many ways to implement subagents and their reporting stra
 1. Agent decides to spawn a subagent. It does so by calling the `sessions_spawn` tool, which asyncronously spawns a subagent.
 2. Subagent starts with its own system prompt plus the task description from the parent as context. It does not inherit the full context.
 3. When finished, the subagent announces the results back to the parent. The parent receives a message with the subagent's output.
-4. Nesting depth (subsubagents and more) and number of allowed spawns per agent are configurable, as well as max concurrency.
+4. Nesting depth (subsubagents and more) and number of allowed spawns per agent are configurable, as well as max concurrency (see [OpenClaw session tools](#openclaw-session-tools) and [OpenClaw sub-agents](#openclaw-subagents)).
 
 In the context of the DAG that is an agentic session, this means that any node can have multiple children or parents. It isn't a linear chain anymore. Fan-out and fan-in degrees can be bigger than 1, which creates dependencies between requests in a way that we didn't have before. It also introduces context inheretance dynamics between nodes (not all nodes inherit the full history).
 
@@ -535,40 +542,8 @@ Matched fresh-token volume:
 - linear: 5 requests. 500 in, 300 out. 30 sessions * 5 = 150 reqs. Total new in: 150 * 500 = 75000 tok, total new out: 150 * 300 = 45000. Total theoretical cache: 30 * ((500 + 300) * 10) = 240k. 
 - dag: 15 requests (3 linear dags each). 10 sessions * 15 = 150 reqs.
 
-0, parent none
-1, parent 0
 
--- branch
-
-2, parent 1
-3, parent 1
-4, parent 1
-
-5, parent 2
-6, parent 2
-7, parent 2
-
-8, parent 3
-9, parent 3
-10, parent 3
-
-11, parent 4
-12, parent 4
-13, parent 4
-
-14, parents 1, 7, 10, 13
-
-
-  - - - -
-- - - - - 
-  - - - - 
-
-  - - - -
-- - - - - 
-  - - - - 
-
-
-## The full picture {toc_subsections} {#sec:putting-it-all-together}
+## The full picture {#sec:putting-it-all-together}
 
 ### TLRD
 
@@ -598,15 +573,11 @@ expansion, branching and prefix invalidation.
 
 ## Conclusion {#sec:conclusion}
 
-Three takeaways:
+There are three main takeaways that I'd like the reader to take from this:
 
-1. Agentic traces are structured as session graphs plus distributions over
-   token counts, waits, prefix reuse, invalidations and branching.
-2. We can benchmark them without running a real agent by measuring those
-   distributions and generating synthetic sessions from them. Replaying traces
-   is also useful.
-3. This matters because inference systems behave differently under agentic
-   load, so the wrong workload can give the wrong conclusion.
+1. Agentic traces are structured as session graphs plus distributions over token counts, waits, prefix reuse, invalidations and branching.
+2. We can benchmark them without running a real agent by measuring those distributions and generating synthetic sessions from them. Replaying traces is also useful.
+3. This matters because inference systems behave differently under agentic load, so the wrong workload can give the wrong conclusion.
 
 ### Where to go from here
 
@@ -615,4 +586,26 @@ express session graphs, replay traces, and generate synthetic workloads. If
 you want to try these ideas on your own inference system, the
 [repository](https://github.com/project-vajra/veeksha) and
 [documentation](https://project-vajra.github.io/veeksha) are a good
-starting point.
+starting point. Thank you for reading.
+
+## References
+
+```references
+[
+  {"id": "inferencemax", "author": "InferenceX", "year": "2023", "title": "InferenceX (formerly InferenceMAX)", "url": "https://inferencex.semianalysis.com"},
+  {"id": "artificial-analysis", "author": "Artificial Analysis", "year": "2026", "title": "Artificial Analysis Evaluations", "url": "https://artificialanalysis.ai/evaluations"},
+  {"id": "openai-agents-sdk", "author": "OpenAI", "year": "2026", "title": "OpenAI Agents SDK: Running agents and tools", "url": "https://openai.github.io/openai-agents-python/running_agents/"},
+  {"id": "claude-code-subagents", "author": "Anthropic", "year": "2026", "title": "Claude Code Docs: Create custom subagents", "url": "https://docs.anthropic.com/en/docs/claude-code/subagents"},
+  {"id": "cursor-subagents", "author": "Cursor", "year": "2026", "title": "Cursor Docs: Subagents", "url": "https://cursor.com/docs/agent/subagents"},
+  {"id": "openclaw-session-tools", "author": "OpenClaw", "year": "2026", "title": "OpenClaw Docs: Session Tools", "url": "https://docs.openclaw.ai/concepts/session-tool"},
+  {"id": "openclaw-subagents", "author": "OpenClaw", "year": "2026", "title": "OpenClaw Docs: Sub-Agents", "url": "https://docs.clawd.bot/tools/subagents"},
+  {"id": "pagedattention", "author": "Kwon et al", "year": "2023", "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention", "url": "https://arxiv.org/abs/2309.06180"},
+  {"id": "orca", "author": "Yu et al", "year": "2022", "title": "Orca: A Distributed Serving System for Transformer-Based Generative Models", "url": "https://www.usenix.org/system/files/osdi22-yu.pdf"},
+  {"id": "distserve", "author": "Zhong et al", "year": "2024", "title": "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving", "url": "https://openreview.net/forum?id=sNifYctwnP"},
+  {"id": "sarathi-serve", "author": "Agrawal et al", "year": "2024", "title": "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve", "url": "https://arxiv.org/abs/2403.02310"},
+  {"id": "speculative-decoding-survey", "author": "Xia et al", "year": "2024", "title": "Unlocking Efficiency in Large Language Model Inference: A Comprehensive Survey of Speculative Decoding", "url": "https://arxiv.org/abs/2401.07851"},
+  {"id": "openai-streaming", "author": "OpenAI", "year": "2026", "title": "Streaming API responses", "url": "https://platform.openai.com/docs/guides/streaming-responses"},
+  {"id": "anthropic-streaming", "author": "Anthropic", "year": "2026", "title": "Streaming Messages", "url": "https://docs.anthropic.com/claude/reference/streaming"},
+  {"id": "vllm-prefix-caching", "author": "vLLM Project", "year": "2026", "title": "Automatic Prefix Caching", "url": "https://docs.vllm.ai/en/stable/design/prefix_caching.html"}
+]
+```
