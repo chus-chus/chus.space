@@ -1,10 +1,10 @@
-// dynamically update twitter and clipboard urls
+// dynamically update social share and clipboard urls
 
 document.addEventListener('DOMContentLoaded', function() {
-    var twitterBtn = document.querySelector('a[aria-label="Twitter"]');
-    if (twitterBtn) {
+    var xBtn = document.querySelector('a[data-share="x"]');
+    if (xBtn) {
         var baseUrl = window.location.href.split('#')[0]; // Remove hash
-        twitterBtn.href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(baseUrl);
+        xBtn.href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(baseUrl);
     }
 });
 

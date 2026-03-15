@@ -26,9 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var hideTimeout;
 
+    function popupHtml(ref) {
+        var html = '<strong>' + ref.author + '</strong> (' + ref.year + ')<br><i>' + ref.title + '</i>';
+        if (ref.url) {
+            html += '<br><a class="cite-popup-link" href="' + ref.url + '" target="_blank" rel="noopener noreferrer">' + ref.url + '</a>';
+        }
+        return html;
+    }
+
     function showPopup(link, ref) {
         clearTimeout(hideTimeout);
-        popup.innerHTML = '<strong>' + ref.author + '</strong> (' + ref.year + ')<br><i>' + ref.title + '</i>';
+        popup.innerHTML = popupHtml(ref);
         popup.classList.add('visible');
 
         // Position: prefer above the link, fall back to below

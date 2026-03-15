@@ -26,3 +26,4 @@ dist-ssr
 /cursor
 server.py
 __pycache__
+/scripts

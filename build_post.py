@@ -15,7 +15,7 @@ Frontmatter (between --- markers):
 
 Body:
     Standard Markdown: headings, paragraphs, bold, italic, links, lists,
-    fenced code blocks, images.
+    fenced code blocks, images, tables.
 
     ## headings become <section> boundaries with IDs.
     Add {toc_subsections} to a ## heading to include that section's
@@ -26,12 +26,12 @@ Extensions:
     $...$             Inline math (MathJax)
     $$...$$           Display math (MathJax)
     ## heading {#id}  Assign an explicit reference ID to a section heading
-    !label[id]{text}  Label the next image or fenced code block, with optional caption
-    !ref[id]          Reference a labeled figure/code block or anchored section
+    !label[id]{text}  Label the next image, table, or fenced code block, with optional caption
+    !ref[id]          Reference a labeled figure/table/code block or anchored section
     [text](#refId)    Citation link (dotted underline, hover popover)
     Raw HTML lines    Passed through unchanged
 
-References block (at end of file):
+References block (anywhere in the body):
     ```references
     [
       {"id": "mamba", "author": "Gu, Dao", "year": "2024",
@@ -254,6 +254,60 @@ def placeholder_index(text):
     return int(m.group(1)) if m else None
 
 
+def split_table_row(line):
+    """Split a pipe-table row into cells, honoring escaped pipes."""
+    row = line.strip()
+    if '|' not in row:
+        return None
+    if row.startswith('|'):
+        row = row[1:]
+    if row.endswith('|'):
+        row = row[:-1]
+
+    cells = []
+    current = []
+    i = 0
+    while i < len(row):
+        if row[i] == '\\' and i + 1 < len(row) and row[i + 1] == '|':
+            current.append('|')
+            i += 2
+            continue
+        if row[i] == '|':
+            cells.append(''.join(current).strip())
+            current = []
+            i += 1
+            continue
+        current.append(row[i])
+        i += 1
+    cells.append(''.join(current).strip())
+    return cells
+
+
+def parse_table_alignments(line):
+    """Parse a Markdown table separator row into per-column alignments."""
+    cells = split_table_row(line)
+    if not cells:
+        return None
+
+    alignments = []
+    for cell in cells:
+        if not re.match(r'^:?-{3,}:?$', cell):
+            return None
+        if cell.startswith(':') and cell.endswith(':'):
+            alignments.append('center')
+        elif cell.endswith(':'):
+            alignments.append('right')
+        else:
+            alignments.append('left')
+    return alignments
+
+
+def table_align_attr(alignment):
+    if alignment == 'left':
+        return ''
+    return ' style="text-align: %s;"' % alignment
+
+
 def blocks(text, protected_blocks):
     """Convert block-level Markdown to HTML."""
     lines = text.split('\n')
@@ -401,12 +455,76 @@ def blocks(text, protected_blocks):
             i += 1
             continue
 
+        # Pipe table
+        if i + 1 < len(lines):
+            header_cells = split_table_row(s)
+            alignments = parse_table_alignments(lines[i + 1].strip())
+            if (
+                header_cells is not None and
+                len(header_cells) > 1 and
+                alignments is not None and
+                len(header_cells) == len(alignments)
+            ):
+                flush()
+                table_wrapper_indent = '      '
+                table_indent = '        '
+                if pending_label:
+                    out.append(
+                        '      <div class="table-block" id="%s" data-block-kind="table">'
+                        % pending_label['id']
+                    )
+                    table_wrapper_indent = '        '
+                    table_indent = '          '
+                out.append('%s<div class="table-wrapper">' % table_wrapper_indent)
+                out.append('%s<table>' % table_indent)
+                out.append('%s<thead>' % table_indent)
+                out.append('%s<tr>' % table_indent)
+                for cell, alignment in zip(header_cells, alignments):
+                    out.append('%s<th%s>%s</th>' % (
+                        table_indent + '  ',
+                        table_align_attr(alignment), inline(cell)
+                    ))
+                out.append('%s</tr>' % table_indent)
+                out.append('%s</thead>' % table_indent)
+                out.append('%s<tbody>' % table_indent)
+                i += 2
+                while i < len(lines):
+                    row_cells = split_table_row(lines[i].strip())
+                    if row_cells is None or len(row_cells) != len(alignments):
+                        break
+                    out.append('%s<tr>' % table_indent)
+                    for cell, alignment in zip(row_cells, alignments):
+                        out.append('%s<td%s>%s</td>' % (
+                            table_indent + '  ',
+                            table_align_attr(alignment), inline(cell)
+                        ))
+                    out.append('%s</tr>' % table_indent)
+                    i += 1
+                out.append('%s</tbody>' % table_indent)
+                out.append('%s</table>' % table_indent)
+                out.append('%s</div>' % table_wrapper_indent)
+                if pending_label:
+                    raw_caption = pending_label.get('caption')
+                    caption_prefix = '__BLOCK_REF__%s__' % pending_label['id']
+                    if raw_caption:
+                        out.append(
+                            '        <p class="plot-caption">%s: %s</p>'
+                            % (caption_prefix, inline(raw_caption))
+                        )
+                    else:
+                        out.append('        <p class="plot-caption">%s</p>' % caption_prefix)
+                    out.append('      </div>')
+                    pending_label = None
+                continue
+
         # Image on its own line: ![caption](src)  or  ![caption](src){width=400 height=260}
         m = re.match(r'^!\[([^\]]*)\]\(([^)]+)\)(\{([^}]+)\})?$', s)
         if m:
             flush()
             cap, src, attrs_raw = m.group(1), m.group(2), m.group(4)
             img_attrs = ''
+            # Standalone figures should start below any active right-floated sidenote.
+            figure_clear_attr = ' style="clear: right;"'
             if attrs_raw:
                 # Parse key=value pairs like width=400 height=260 style="..."
                 for pair in re.findall(r'(\w+)=(?:"([^"]+)"|(\S+))', attrs_raw):
@@ -414,7 +532,10 @@ def blocks(text, protected_blocks):
                     val = pair[1] if pair[1] else pair[2]
                     img_attrs += ' %s="%s"' % (key, val)
             if pending_label:
-                out.append('      <div class="figure-block" id="%s" data-block-kind="figure">' % pending_label['id'])
+                out.append(
+                    '      <div class="figure-block" id="%s" data-block-kind="figure"%s>'
+                    % (pending_label['id'], figure_clear_attr)
+                )
                 out.append('        <div class="plot-container">')
                 out.append('          <div class="plot-background-1">')
                 out.append('            <img src="%s" alt="%s"%s>' % (src, cap, img_attrs))
@@ -432,7 +553,7 @@ def blocks(text, protected_blocks):
                 out.append('      </div>')
                 pending_label = None
             else:
-                out.append('      <div class="plot-container">')
+                out.append('      <div class="plot-container"%s>' % figure_clear_attr)
                 out.append('        <div class="plot-background-1">')
                 out.append('          <img src="%s" alt="%s"%s>' % (src, cap, img_attrs))
                 out.append('        </div>')
@@ -480,12 +601,13 @@ def resolve_block_references(html):
     """Turn labeled blocks and anchored sections into links."""
     labels = {}
     figure_count = 0
+    table_count = 0
     code_count = 0
     protected_segments = []
 
-    for m in re.finditer(r'<[^>]+\bdata-block-kind="(figure|code|section)"[^>]*>', html):
+    for m in re.finditer(r'<[^>]+\bdata-block-kind="(figure|table|code|section)"[^>]*>', html):
         tag = m.group(0)
-        kind_match = re.search(r'\bdata-block-kind="(figure|code|section)"', tag)
+        kind_match = re.search(r'\bdata-block-kind="(figure|table|code|section)"', tag)
         id_match = re.search(r'\bid="([^"]+)"', tag)
         ref_text_match = re.search(r'\bdata-ref-text="([^"]*)"', tag)
         if not kind_match or not id_match:
@@ -499,6 +621,9 @@ def resolve_block_references(html):
         if kind == 'figure':
             figure_count += 1
             labels[label] = 'Figure %d' % figure_count
+        elif kind == 'table':
+            table_count += 1
+            labels[label] = 'Table %d' % table_count
         elif kind == 'code':
             code_count += 1
             labels[label] = 'Code chunk %d' % code_count
@@ -571,6 +696,40 @@ def wrap_sections(html):
     return '\n'.join(out)
 
 
+def place_reference_list(body_html, has_references):
+    """Place the reference list inside the References section when present."""
+    if not has_references:
+        return body_html, ''
+
+    ref_list_html = '      <ul id="reference-list"></ul>'
+    pattern = re.compile(
+        r'(?P<open><section\b[^>]*>\s*\n\s*<h2>References</h2>)(?P<body>.*?)(?P<close>\n\s*</section>)',
+        re.DOTALL,
+    )
+    match = pattern.search(body_html)
+    if not match:
+        return body_html, ref_list_html
+
+    section_body = match.group('body')
+    if 'id="reference-list"' in section_body:
+        return body_html, ''
+
+    trimmed_body = section_body.rstrip()
+    if trimmed_body:
+        new_body = trimmed_body + '\n' + ref_list_html
+    else:
+        new_body = '\n' + ref_list_html
+
+    updated_html = (
+        body_html[:match.start()]
+        + match.group('open')
+        + new_body
+        + match.group('close')
+        + body_html[match.end():]
+    )
+    return updated_html, ''
+
+
 # ── HTML template ───────────────────────────────────────────────────────────
 
 TEMPLATE = r"""<!DOCTYPE html>
@@ -589,7 +748,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     <title>__TITLE__ | Chus</title>
     <link rel="stylesheet" href="__REL__/style.css">
     <link rel="stylesheet" href="https://use.typekit.net/znl5vhc.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="icon" href="https://chus.space/favicon.ico?v=2"/>
     <link rel="canonical" href="https://chus.space/__CANONICAL__">
     <meta name="robots" content="index, follow">
@@ -652,7 +811,7 @@ __TAGLINE__
             </div>
             <div class="social-links">
                 <div id="copy-notification" style="display: none;">Copied!</div>
-                <a target="_blank" aria-label="Twitter"> <i class="fab fa-twitter-square"></i> </a>
+                <a target="_blank" aria-label="X" data-share="x"> <i class="fa-brands fa-x-twitter"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
         </div>
@@ -661,7 +820,7 @@ __TAGLINE__
 
 __BODY__
 
-    <ul id="reference-list"></ul>
+__REFERENCE_LIST__
 __BIBTEX__
 
     </article>
@@ -710,7 +869,9 @@ def build(meta, body_html, references, extra_head, bibtex, rel_root, canonical):
         )
 
     refs_script = ''
+    reference_list_html = ''
     if references:
+        body_html, reference_list_html = place_reference_list(body_html, True)
         refs_json = json.dumps(references, indent=2, ensure_ascii=False)
         refs_script = '<script>\nconst references = %s;\n</script>\n' % refs_json
         refs_script += '<script src="%s/src/citations.js"></script>' % rel_root
@@ -749,6 +910,7 @@ def build(meta, body_html, references, extra_head, bibtex, rel_root, canonical):
     html = html.replace('__TAGLINE__', tagline_html)
     html = html.replace('__EXTRA_HEAD__', extra_head_html)
     html = html.replace('__BODY__', body_html)
+    html = html.replace('__REFERENCE_LIST__', reference_list_html)
     html = html.replace('__BIBTEX__', bibtex_html)
     html = html.replace('__POST_NAV__', nav_html)
     html = html.replace('__REFS_SCRIPT__', refs_script)
@@ -797,7 +959,7 @@ def main():
 
     # Compute paths
     md_dir = os.path.dirname(os.path.abspath(md_path))
-    root_dir = os.path.abspath('.')
+    root_dir = os.path.dirname(os.path.abspath(__file__))
     rel_root = os.path.relpath(root_dir, md_dir).replace('\\', '/')
     canonical = os.path.relpath(md_dir, root_dir).replace('\\', '/')
 
