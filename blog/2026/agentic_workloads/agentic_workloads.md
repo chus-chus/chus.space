@@ -696,17 +696,10 @@ evaluators: !include shared/evaluators.yml
 trace_recorder: !include shared/trace_recorder.yml
 ```
 
-!label[workload-ratios-case-2]{Derived workload ratios for case study 2.}
-| Comparative quantity | Value |
-| --- | --- |
-| DAG / linear effective-input ratio from the trace design | `1.203175` |
-| DAG / linear cacheable-history ratio from the trace design | `1.266667` |
-
 !label[observed-comparison-case-2]{Observed comparison for case study 2.}
 | Metric | Linear | DAG | DAG vs. linear |
 | --- | --- | --- | --- |
 | Mean total prompt tokens per request | `2094.3` | `2517.5` | `20.2%` |
-| P95 total prompt tokens | `3700.0` | `3699.0` | `-0.0%` |
 | TTFC p99 | `0.205s` | `0.444s` | `116.7%` |
 | E2E p95 | `3.054s` | `5.410s` | `77.2%` |
 | TBC p99 | `11.1 ms` | `52.4 ms` | `372.1%` |

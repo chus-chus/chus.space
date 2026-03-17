@@ -6,7 +6,7 @@
     <description>Technical writing by Chus Antonanzas on machine learning, inference, and systems.</description>
     <language>en-us</language>
     <atom:link href="https://chus.space/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Tue, 17 Mar 2026 11:39:13 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 17 Mar 2026 14:51:39 +0000</lastBuildDate>
     <item>
       <title>State Space Models (3): Mamba and Mamba-2</title>
       <link>https://chus.space/blog/2024/ssm_3_mambas</link>

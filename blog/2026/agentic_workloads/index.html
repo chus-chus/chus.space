@@ -379,7 +379,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
       <p><strong>Results</strong></p>
       <p>The experiments yield $\rho_l^*$ of 5.50 and $\rho_d^*$ of 6.67, which means a higher system capacity with the exact same configuration and hardware resources when the workload looks like the DAG reference. Under the same SLO regime, DAG sustains about 1.21x more useful work.</p>
       <p>Imagine that we were sizing a fleet of GPUs for inference. We have as reference a linear workload, but the real traffic looks more like the DAG one. In this case, we would have about 17.5% slack capacity relative to the provisioned fleet, and the linear-tuned fleet would be roughly 21% larger than needed for DAG traffic. Those are resources that would be wasted.</p>
-      <p><a href="#deployment-frontier-case-3" class="block-ref">Table 4</a>, <a href="#frontier-metrics-case-3" class="block-ref">Table 5</a>, and <a href="#capacity-implication-case-3" class="block-ref">Table 6</a> in the annex collect the frontier, same-budget replay, and deployment-implication numbers in full.</p>
+      <p><a href="#deployment-frontier-case-3" class="block-ref">Table 3</a>, <a href="#frontier-metrics-case-3" class="block-ref">Table 4</a>, and <a href="#capacity-implication-case-3" class="block-ref">Table 5</a> in the annex collect the frontier, same-budget replay, and deployment-implication numbers in full.</p>
       <div class="figure-block" id="case-study-3-frontier-metric-facets" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
           <div class="plot-background-1">
@@ -511,29 +511,6 @@ client: !include shared/client_qwen3_5_nonthinking.yml
 runtime: !include shared/runtime_qwen.yml
 evaluators: !include shared/evaluators.yml
 trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-caption">Code chunk 3: Sample Veeksha configuration for case study 2 DAG runs.</p></div>
-      <div class="table-block" id="workload-ratios-case-2" data-block-kind="table">
-        <div class="table-wrapper">
-          <table>
-          <thead>
-          <tr>
-            <th>Comparative quantity</th>
-            <th>Value</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>DAG / linear effective-input ratio from the trace design</td>
-            <td><code>1.203175</code></td>
-          </tr>
-          <tr>
-            <td>DAG / linear cacheable-history ratio from the trace design</td>
-            <td><code>1.266667</code></td>
-          </tr>
-          </tbody>
-          </table>
-        </div>
-        <p class="plot-caption">Table 2: Derived workload ratios for case study 2.</p>
-      </div>
       <div class="table-block" id="observed-comparison-case-2" data-block-kind="table">
         <div class="table-wrapper">
           <table>
@@ -551,12 +528,6 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
             <td><code>2094.3</code></td>
             <td><code>2517.5</code></td>
             <td><code>20.2%</code></td>
-          </tr>
-          <tr>
-            <td>P95 total prompt tokens</td>
-            <td><code>3700.0</code></td>
-            <td><code>3699.0</code></td>
-            <td><code>-0.0%</code></td>
           </tr>
           <tr>
             <td>TTFC p99</td>
@@ -585,7 +556,7 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
           </tbody>
           </table>
         </div>
-        <p class="plot-caption">Table 3: Observed comparison for case study 2.</p>
+        <p class="plot-caption">Table 2: Observed comparison for case study 2.</p>
       </div>
       <h3 id="sec:annex-deployment-claim" data-block-kind="section" data-ref-text="Annex: case study 3">Annex: case study 3</h3>
       <div class="table-block" id="deployment-frontier-case-3" data-block-kind="table">
@@ -617,7 +588,7 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
           </tbody>
           </table>
         </div>
-        <p class="plot-caption">Table 4: Case study 3 frontier and first-failure points under the shared p95-based SLO regime.</p>
+        <p class="plot-caption">Table 3: Case study 3 frontier and first-failure points under the shared p95-based SLO regime.</p>
       </div>
       <div class="table-block" id="frontier-metrics-case-3" data-block-kind="table">
         <div class="table-wrapper">
@@ -670,7 +641,7 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
           </tbody>
           </table>
         </div>
-        <p class="plot-caption">Table 5: Observed frontier metrics and same-budget replay metrics for case study 3.</p>
+        <p class="plot-caption">Table 4: Observed frontier metrics and same-budget replay metrics for case study 3.</p>
       </div>
       <div class="table-block" id="capacity-implication-case-3" data-block-kind="table">
         <div class="table-wrapper">
@@ -705,7 +676,7 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
           </tbody>
           </table>
         </div>
-        <p class="plot-caption">Table 6: Derived deployment implications for case study 3.</p>
+        <p class="plot-caption">Table 5: Derived deployment implications for case study 3.</p>
       </div>
       </section>
 
