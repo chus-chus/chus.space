@@ -6,6 +6,7 @@ description: How to characterise agentic sessions for inference evaluation: bran
 og_description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
 prev: /blog/2024/ssm_3_mambas | Mamba and Mamba-2
 copyright: © 2026 Jesus M. Antonanzas. All rights reserved.
+rss: false
 ---
 
 ## Introduction {#sec:intro}
@@ -229,7 +230,7 @@ agentic loops to generate thousands of inference requests per user task.
 
 The first-order consequence is that end-to-end latency compounds across many
 sequential prefills and decodes, not one. The second-order consequence is that
-the scheduler sees long-lived dependent chains rather than iid requests, which
+the scheduler sees long lived dependent chains rather than iid requests, which
 changes batching opportunities and how long session state remains live.
 
 ### Stateful prefix reuse
@@ -392,7 +393,7 @@ prefix cache configuration, while replica B has it disabled.
 **Takeaway**
 
 This first case study mainly establishes the regime. Agentic workloads are
-long-lived, stateful traces with very high prefix reuse, so cache handling
+long lived, stateful traces with very high prefix reuse, so cache handling
 quickly becomes a dominant factor in latency. Once that basic effect is in
 place, the more interesting questions are the ones taken up in the next
 sections: how token heterogeneity, bursty timing, and branching change the
@@ -601,7 +602,7 @@ Simple workloads are useful for measuring raw prefill or
 decode performance and isolate confounding variables. Agentic workloads 
 reveal deeper effects in inference systems, like cache
 retention under bursty traffic, scheduling fairness under mixed concurrency,
-memory pressure from long-lived sessions, and the combined effects of request
+memory pressure from long lived sessions, and the combined effects of request
 expansion, branching and prefix invalidation.
 
 ### Putting it all together

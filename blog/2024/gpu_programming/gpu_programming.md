@@ -5,6 +5,7 @@ tagline: In this post we explore what GPU programming is, why it's done, how, an
 description: An introduction to GPU programming: kernels, threads, blocks, and performance considerations.
 og_description: An introduction to GPU programming: kernels, threads, blocks, and performance considerations.
 copyright: © 2024 Jesus M. Antonanzas. All rights reserved.
+rss: false
 ---
 
 ## Motivation & what you'll learn

@@ -49,6 +49,10 @@ import sys
 import os
 import re
 import json
+from datetime import datetime, timezone
+from email.utils import format_datetime
+from glob import glob
+from xml.sax.saxutils import escape as xml_escape
 
 
 # ── Frontmatter & special blocks ────────────────────────────────────────────
@@ -56,6 +60,10 @@ import json
 REF_ID_PATTERN = r'[A-Za-z0-9_:-]+'
 BLOCK_LABEL_RE = re.compile(r'^!label\[(' + REF_ID_PATTERN + r')\](?:\{(.*)\})?$')
 BLOCK_REF_RE = re.compile(r'!ref\[(' + REF_ID_PATTERN + r')\]')
+
+SITE_URL = 'https://chus.space'
+FEED_PATH = 'feed.xml'
+FEED_URL = SITE_URL + '/' + FEED_PATH
 
 def parse_frontmatter(text):
     """Extract frontmatter dict and body from the full text."""
@@ -70,6 +78,137 @@ def parse_frontmatter(text):
             key, _, val = line.partition(':')
             meta[key.strip()] = val.strip()
     return meta, body
+
+
+def parse_bool(value):
+    """Parse a frontmatter boolean-like value."""
+    if value is None:
+        return None
+
+    normalized = str(value).strip().lower()
+    if normalized in ('1', 'true', 'yes', 'on'):
+        return True
+    if normalized in ('0', 'false', 'no', 'off'):
+        return False
+    return None
+
+
+def parse_post_date(date_text):
+    """Parse supported post date formats into UTC datetimes."""
+    cleaned = ' '.join((date_text or '').split())
+    if not cleaned:
+        raise ValueError('missing date')
+
+    cleaned = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', cleaned, flags=re.IGNORECASE)
+
+    for fmt in ('%B %d, %Y', '%b %d, %Y', '%Y-%m-%d', '%Y/%m/%d'):
+        try:
+            return datetime.strptime(cleaned, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+
+    for fmt in ('%B %Y', '%b %Y'):
+        try:
+            # Month-only dates resolve to the first of the month for RSS ordering.
+            return datetime.strptime(cleaned, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+
+    raise ValueError('unsupported date format: %s' % date_text)
+
+
+def should_skip_feed_post(meta):
+    """Allow posts to opt out of the RSS feed via frontmatter."""
+    return parse_bool(meta.get('rss')) is False
+
+
+def load_feed_posts(root_dir):
+    """Collect published blog posts for the RSS feed."""
+    posts = []
+    pattern = os.path.join(root_dir, 'blog', '**', '*.md')
+
+    for md_path in glob(pattern, recursive=True):
+        post_dir = os.path.dirname(os.path.abspath(md_path))
+        html_path = os.path.join(post_dir, 'index.html')
+        if not os.path.isfile(html_path):
+            continue
+
+        with open(md_path, 'r', encoding='utf-8') as f:
+            raw = f.read()
+
+        meta, _ = parse_frontmatter(raw)
+        if should_skip_feed_post(meta):
+            continue
+
+        title = meta.get('title', '').strip()
+        date_text = meta.get('date', '').strip()
+        if not title or not date_text:
+            print('Warning: skipping RSS entry with missing title/date: %s' % md_path, file=sys.stderr)
+            continue
+
+        try:
+            pub_date = parse_post_date(date_text)
+        except ValueError as exc:
+            print('Warning: skipping RSS entry for %s (%s)' % (md_path, exc), file=sys.stderr)
+            continue
+
+        canonical = os.path.relpath(post_dir, root_dir).replace('\\', '/')
+        description = (
+            meta.get('description', '').strip()
+            or meta.get('og_description', '').strip()
+            or meta.get('tagline', '').strip()
+        )
+
+        posts.append({
+            'title': title,
+            'url': '%s/%s' % (SITE_URL, canonical),
+            'description': description,
+            'pub_date': pub_date,
+        })
+
+    posts.sort(key=lambda post: (post['pub_date'], post['url']), reverse=True)
+    return posts
+
+
+def generate_feed(root_dir):
+    """Write feed.xml in the repo root and return its path and posts."""
+    posts = load_feed_posts(root_dir)
+    now = datetime.now(timezone.utc)
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+        '  <channel>',
+        '    <title>Chus Antonanzas Blog</title>',
+        '    <link>%s/</link>' % SITE_URL,
+        '    <description>Technical writing by Chus Antonanzas on machine learning, inference, and systems.</description>',
+        '    <language>en-us</language>',
+        '    <atom:link href="%s" rel="self" type="application/rss+xml" />' % FEED_URL,
+        '    <lastBuildDate>%s</lastBuildDate>' % format_datetime(now),
+    ]
+
+    for post in posts:
+        lines.extend([
+            '    <item>',
+            '      <title>%s</title>' % xml_escape(post['title']),
+            '      <link>%s</link>' % xml_escape(post['url']),
+            '      <guid isPermaLink="true">%s</guid>' % xml_escape(post['url']),
+            '      <pubDate>%s</pubDate>' % format_datetime(post['pub_date']),
+            '      <description>%s</description>' % xml_escape(post['description']),
+            '    </item>',
+        ])
+
+    lines.extend([
+        '  </channel>',
+        '</rss>',
+        '',
+    ])
+
+    out_path = os.path.join(root_dir, FEED_PATH)
+    with open(out_path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(lines))
+
+    return out_path, posts
 
 
 def extract_fenced(text, label):
@@ -751,6 +890,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="icon" href="https://chus.space/favicon.ico?v=2"/>
     <link rel="canonical" href="https://chus.space/__CANONICAL__">
+    <link rel="alternate" type="application/rss+xml" title="Chus Antonanzas Blog RSS" href="https://chus.space/feed.xml">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta property="og:type" content="article">
@@ -969,12 +1109,15 @@ def main():
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(html)
 
+    feed_path, feed_posts = generate_feed(root_dir)
+
     # Summary
     n_sections = html.count('<section id=')
     n_refs = len(references)
     n_sidenotes = html.count('class="sidenote"')
     print('%s -> %s' % (md_path, out_path))
     print('  %d sections, %d references, %d sidenotes' % (n_sections, n_refs, n_sidenotes))
+    print('  RSS feed updated: %s (%d posts)' % (feed_path, len(feed_posts)))
 
 
 if __name__ == '__main__':

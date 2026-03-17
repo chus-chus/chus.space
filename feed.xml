@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Chus Antonanzas Blog</title>
+    <link>https://chus.space/</link>
+    <description>Technical writing by Chus Antonanzas on machine learning, inference, and systems.</description>
+    <language>en-us</language>
+    <atom:link href="https://chus.space/feed.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 17 Mar 2026 10:45:41 +0000</lastBuildDate>
+    <item>
+      <title>State Space Models (3): Mamba and Mamba-2</title>
+      <link>https://chus.space/blog/2024/ssm_3_mambas</link>
+      <guid isPermaLink="true">https://chus.space/blog/2024/ssm_3_mambas</guid>
+      <pubDate>Fri, 27 Sep 2024 00:00:00 +0000</pubDate>
+      <description>Learn all about the Mamba and Mamba-2 models in the third part of the State Space Model series.</description>
+    </item>
+    <item>
+      <title>State Space Models (2): networks and S4</title>
+      <link>https://chus.space/blog/2024/ssm_2_networks</link>
+      <guid isPermaLink="true">https://chus.space/blog/2024/ssm_2_networks</guid>
+      <pubDate>Mon, 12 Aug 2024 00:00:00 +0000</pubDate>
+      <description>Learn about SSM (State Space Model) neural networks, like Mamba, and the advances that made them possible.</description>
+    </item>
+    <item>
+      <title>State Space Models (1): introduction to SSMs</title>
+      <link>https://chus.space/blog/2024/ssm_1_context</link>
+      <guid isPermaLink="true">https://chus.space/blog/2024/ssm_1_context</guid>
+      <pubDate>Mon, 10 Jun 2024 00:00:00 +0000</pubDate>
+      <description>Explore State Space Models (SSMs) in this introductory post. Learn about their history, how they work and their current role in machine learning with interactive visualizations.</description>
+    </item>
+  </channel>
+</rss>

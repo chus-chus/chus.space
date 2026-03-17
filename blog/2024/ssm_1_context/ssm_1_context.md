@@ -6,6 +6,7 @@ description: Explore State Space Models (SSMs) in this introductory post. Learn 
 og_description: Enter into the world of State Space Models (SSMs) with this introduction to their mechanics and evolution.
 next: /blog/2024/ssm_2_networks | SSM networks and S4
 copyright: © 2024 Jesus M. Antonanzas. All rights reserved.
+rss: true
 ---
 
 ```head

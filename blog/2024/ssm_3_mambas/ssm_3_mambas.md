@@ -7,6 +7,7 @@ og_description: Learn all about the Mamba and Mamba-2 models in the third part o
 prev: /blog/2024/ssm_2_networks | SSM networks and S4
 next: /blog/2026/agentic_workloads | Agentic workloads
 copyright: © 2024 Jesus M. Antonanzas. All rights reserved.
+rss: true
 ---
 
 ## Intro

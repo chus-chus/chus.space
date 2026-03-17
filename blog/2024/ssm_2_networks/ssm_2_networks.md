@@ -7,6 +7,7 @@ og_description: Learn about SSM (State Space Model) neural networks, like Mamba,
 prev: /blog/2024/ssm_1_context | Introduction to SSMs
 next: /blog/2024/ssm_3_mambas | Mamba and Mamba-2
 copyright: © 2024 Jesus M. Antonanzas. All rights reserved.
+rss: true
 ---
 
 ```head

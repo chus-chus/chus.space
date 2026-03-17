@@ -1,13 +1,16 @@
 # chus.space
 
 > Personal website and technical blog by Jesus M. Antonanzas (Chus).
-> ML engineer working on LLM inference and applied AI.
+> ML and inference engineer
 
 ## Blog posts
 
 Each post is available as both HTML (rendered) and Markdown (source).
 Markdown files include full content, LaTeX math, and citation metadata.
 Please cite using the bibtex provided at the end of each post.
+
+- [Agentic workloads for Inference Evaluation](https://chus.space/blog/2026/agentic_workloads/)
+  - Markdown: https://chus.space/blog/2026/agentic_workloads/agentic_workloads.md
 
 ### State Space Models (3-part series)
 
@@ -28,4 +31,4 @@ Please cite using the bibtex provided at the end of each post.
 ## License
 
 © Jesus M. Antonanzas. All rights reserved.
-If you use this work, please cite it using the bibtex provided at the end of each post.
+If you use this work, cite it using the bibtex provided at the end of each post.
