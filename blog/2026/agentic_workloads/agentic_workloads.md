@@ -225,8 +225,9 @@ cycle can therefore turn one human request into many inference requests.
 Statistically, the quantity we care about is not "user turns" but the
 distribution of inference requests per user task, or equivalently the depth of
 these dependency chains. In the trace underlying !ref[experiment-1], 3 user interventions
-expand into 130 inference requests. In the near future, we can expect
-agentic loops to generate thousands of inference requests per user task.
+expand into 130 inference requests, which is on the current low-medium end.
+Very soon, I'd expect agentic loops to be able to generate thousands to 
+10s of thousands of inference requests per user task.
 
 The first-order consequence is that end-to-end latency compounds across many
 sequential prefills and decodes, not one. The second-order consequence is that
@@ -584,15 +585,15 @@ The experiments yield $\rho_l^*$ of 5.50 and $\rho_d^*$ of 6.67, which means a h
 configuration and hardware resources when the workload looks like the DAG reference. Under the same SLO regime,
 DAG sustains about 1.21x more useful work.
 
+!label[case-study-3-frontier-metric-facets]{Frontier behavior at the optimal normalized request rates $\rho_l^*=5.50$ and $\rho_d^*=6.67$. Linear TTFC (left) is consistently lower, consistent with its shorter context lengths. DAG has a better mid tail distribution and reaches a similar p95 at a higher load, consistent with higher cache reuse (right).}
+![](../../../static/2026/agentic_workloads/case_study_3_frontier_metric_facets_transparent.png){width=760 height=290}
+
 Imagine that we were sizing a fleet of GPUs for inference. We have as reference
 a linear workload, but the real traffic looks more like the DAG one. In this case, we would have about 17.5% slack
 capacity relative to the provisioned fleet, and the linear-tuned fleet would be roughly 21% larger than needed for
 DAG traffic. Those are resources that would be wasted.
 
 !ref[deployment-frontier-case-3], !ref[frontier-metrics-case-3], and !ref[capacity-implication-case-3] in the annex collect the frontier, same-budget replay, and deployment-implication numbers in full.
-
-!label[case-study-3-frontier-metric-facets]{Frontier behavior at the optimal normalized request rates $\rho_l^*=5.50$ and $\rho_d^*=6.67$. Linear TTFC (left) is consistently lower, consistent with its shorter context lengths. DAG has a better mid tail distribution and reaches a similar p95 at a higher load, consistent with higher cache reuse (right).}
-![](../../../static/2026/agentic_workloads/case_study_3_frontier_metric_facets_transparent.png){width=760 height=290}
 
 ## Conclusion
 
