@@ -122,6 +122,16 @@ def should_skip_feed_post(meta):
     return parse_bool(meta.get('rss')) is False
 
 
+def feed_status_message(meta, canonical, feed_posts):
+    """Describe whether the current post ended up in the RSS feed."""
+    post_url = '%s/%s' % (SITE_URL, canonical)
+    if any(post['url'] == post_url for post in feed_posts):
+        return 'included in RSS'
+    if parse_bool(meta.get('rss')) is False:
+        return 'excluded from RSS (rss: false)'
+    return 'not included in RSS'
+
+
 def load_feed_posts(root_dir):
     """Collect published blog posts for the RSS feed."""
     posts = []
@@ -950,7 +960,7 @@ __TAGLINE__
                 <span>__DATE__</span>
             </div>
             <div class="social-links">
-                <div id="copy-notification" style="display: none;">Copied!</div>
+                <div id="copy-notification" style="display: none;">Copied</div>
                 <a target="_blank" aria-label="X" data-share="x"> <i class="fa-brands fa-x-twitter"></i> </a>
                 <a href="#" onclick="copyToClipboard(window.location.href)" aria-label="Copy link"> <i class="fas fa-link"></i></a>
             </div>
@@ -1118,6 +1128,7 @@ def main():
     print('%s -> %s' % (md_path, out_path))
     print('  %d sections, %d references, %d sidenotes' % (n_sections, n_refs, n_sidenotes))
     print('  RSS feed updated: %s (%d posts)' % (feed_path, len(feed_posts)))
+    print('  This post is %s' % feed_status_message(meta, canonical, feed_posts))
 
 
 if __name__ == '__main__':
