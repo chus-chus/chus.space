@@ -70,7 +70,7 @@
 
     <div class="blog-header">
         <h1>Agentic Workloads for Inference Evaluation</h1>
-        <p class="tagline">For inference systems, chat benchmarks are unit tests; agentic workloads are integration tests.</p>
+        <p class="tagline">Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads.</p>
         <div class="header-date-links">
             <div class="header-date">
                 <span>March 16th, 2026</span>
@@ -87,40 +87,39 @@
       <section id="sec:intro" data-block-kind="section" data-ref-text="Introduction">
       <h2>Introduction</h2>
       <h3 id="sec:intro-evaluation-problem" data-block-kind="section" data-ref-text="The evaluation problem">The evaluation problem</h3>
-      <p>Inference systems have a large configuration space. New optimizations ship very fast, and each one interacts with others in ways that are hard to predict. To know whether a configuration is good or not, you test it. To compare inference systems against each other, you test them under the same conditions.</p>
-      <p>Common popular inference benchmarking projects do this: nightly benchmarks across systems, telling you which is fastest or most efficient, giving you the most bang for your buck. But when we say one system is "better" or "worse", in what context do we mean? <a href="#artificial-analysis">Artificial Analysis</a> and <a href="#inferencemax">InferenceX</a> are useful examples of this benchmarking style. An inference system might be excellent at bursty, short-context workloads, while subpar at long-context ones. Another might shine with quantized models on specific hardware. The definition of "good" depends entirely on the workload. For us to test an inference system before deployment, we need to understand how it behaves under representative workloads.</p>
-      <p>However, inference systems are complex scheduling software, which makes reasoning about how a workload interacts with all of the relevant components or optimizations<span class="sidenote">for example, what are the engine's policies for KV cache management or prefill and decode scheduling?</span> really not straightforward. So we usually simplify. Common benchmark policies are to run independent requests or, at most, linear conversations: I send a message, the model responds, I append the response to the history, send another. Maybe we can also have a few conversations running in parallel.</p>
+      <p>Inference systems have a large configuration space. New optimizations ship very fast, and each one interacts with others in ways that are hard to predict. To measure the quality of a particular configuration, you benchmark it. To compare inference systems against each other, you benchmark them under the same conditions.</p>
+      <p>Common popular inference benchmarking projects do this: nightly benchmarks across systems, reporting which one is fastest or most efficient. But what do we exactly mean when declaring a system better or worse? <a href="#artificial-analysis">Artificial Analysis</a> and <a href="#inferencemax">InferenceX</a> are useful examples of this benchmarking style. An inference system might be excellent at bursty, short-context workloads, while subpar at long context ones. Another might shine with quantized models on specific hardware. The definition of "good" depends entirely on the workload. For us to test an inference system before deployment, we need to understand how it behaves under representative workloads.</p>
+      <p>However, inference systems are complex scheduling software, which makes reasoning about how a workload interacts with all of the relevant components or optimizations<span class="sidenote">for example, what are the engine's policies for KV cache management or prefill and decode scheduling?</span> really not straightforward. So things are simplified. Common benchmark policies are to run independent requests or, at most, linear conversations: I send a message, the model responds, I append the response to the history, send another. Maybe we can also have a few conversations running in parallel.</p>
       <p>And even though simple workloads are useful for that same reason and because they let us isolate variables, they might not be testing the whole range of interactions between components of the inference system. The reader might even let me make this analogy: simple workloads are unit tests, while agentic workloads are integration tests.</p>
       <h3 id="sec:intro-workload-gap" data-block-kind="section" data-ref-text="The workload gap">The workload gap</h3>
-      <p>This means that there is a growing disconnect between what we benchmark and what runs in production. Many prominent LLM applications today are agentic systems rather than simple chatbots. OpenClaw and Claude Code run sessions with parallel tool calls, growing context and sub-agent delegation (see <a href="#openclaw-subagents">OpenClaw sub-agents</a> and <a href="#claude-code-subagents">Claude Code subagents</a>). The workload they place on an inference system looks nothing like a linear conversation or independent random requests.</p>
-      <p>How an inference system handles linear requests versus agentic sessions; these are different regimes. Agentic workloads stress prefix caching across long sessions, memory management under bursty traffic, scheduling fairness when sessions have wildly different context sizes. None of this shows up in simple benchmarks. Evaluating on the wrong workload might lead to wrong conclusions, and wrong conclusions might cost real money.</p>
+      <p>This means that there is a growing disconnect between what we benchmark and thus use as reference and what actually runs in production. Many prominent LLM applications today are agentic systems rather than simple chatbots of the 2023 era. OpenClaw and Claude Code run sessions with parallel tool calls, growing context and subagent delegation (see <a href="#openclaw-subagents">OpenClaw subagents</a> and <a href="#claude-code-subagents">Claude Code subagents</a>). The workload they place on an inference system does not look like a short linear conversation or independent random requests.</p>
+      <p>How an inference system handles iid requests versus agentic sessions; these are different regimes. Agentic workloads stress prefix caching across long sessions, memory management under bursty traffic, scheduling fairness when sessions have wildly different context sizes. None of this shows up in simple benchmarks. Evaluating on the wrong workload might lead to wrong conclusions, and wrong conclusions might cost real money.</p>
       <h3 id="sec:intro-real-agent" data-block-kind="section" data-ref-text="Why not just run a real agent?">Why not just run a real agent?</h3>
-      <p>So, when we want to fully evaluate the performance of an inference system, we don't just want to test it against the simple, traditional workloads, but also against agentic ones. Naively, we might think: just run OpenClaw against the inference system, give it some tasks, measure the timings. This does not work for rigorous evaluation, though:</p>
+      <p>So, when we want to fully evaluate the performance of an inference system, we don't just want to test it against the simple, traditional workloads, but also against agentic ones. Naively, one might think: just run OpenClaw against the inference system, give it some tasks, measure the timings. This does not work for rigorous evaluation, though:</p>
       <ul>
         <li><strong>Reproducibility.</strong> LLM outputs are non-deterministic. The same task produces different tool-call sequences on different runs. The workload itself changes between experiments, making A/B comparisons impossible.</li>
-        <li><strong>Control.</strong> You cannot isolate variables. Want to test what happens when fan-out increases from 2 to 8, or when think time between requests grows? With a real agent, you cannot control that. With a benchmark framework, you change a parameter.</li>
-        <li><strong>Instrumentation.</strong> A benchmark framework measures what you need. Time to first token, time between tokens, cache hit rates, at the right granularity, without instrumenting someone else's code.</li>
+        <li><strong>Control.</strong> Cannot to isolate variables. Hard to test scenarios that deviate from the simplest case, like what happens when fan-out increases from 2 to 8, or when think time between requests grows. With a real agent, you cannot control that. With a benchmark framework you can just change a parameter.</li>
+        <li><strong>Instrumentation.</strong> A benchmark framework measures time to first token, time between tokens, cache hit rates, etc. at the right granularity, without instrumenting someone else's code.</li>
       </ul>
-      <p>What we want is to replicate the <em>shape</em> of agentic workloads. The structure, the timing, the distributions, without running an agent. A benchmark framework that generates these workloads programmatically and consistently.</p>
+      <p>What we want is to replicate the <em>shape</em> of agentic workloads. The structure, the timing, the distributions, without running an agent. Then, you need a benchmarking framework that generates or reads these workloads and allows you to measure what's needed.</p>
       <h3 id="sec:intro-what-this-post-does" data-block-kind="section" data-ref-text="What this post does">What this post does</h3>
-      <p>To build such a benchmark, we first need a description of agentic workloads that is general enough to apply across implementations, but still precise enough to predict what an inference system sees. We do not really care whether "the agent writes code" or "searches the web". We care about the trace model: a graph of inference requests, their input and output lengths, how much prefix each request shares with the previous one, and how much time passes between dependent requests.</p>
-      <p>We use OpenClaw as a reference, an open-source agentic system with broad adoption (and hype)<span class="sidenote">We use it not only because we can read the source: it's also representative with sub-agent spawning, parallel execution, context management, and more</span>. The principles we extract apply to many agentic systems like Claude Code, because they share the same high-level execution patterns of tool use, result appending, and subagent delegation (see <a href="#claude-code-subagents">Claude Code subagents</a>).</p>
-      <p>Each principle corresponds to one part of this statistical description: request-graph topology, prefix reuse, incremental input size, inter-request timing and input and output-length heterogeneity. For each, we connect the trace statistic to the inference system in two ways. First-order consequences are direct changes in work: more prefills, more decode tokens, larger fresh-token tails, or more concurrent sessions. Second-order consequences are what those first-order changes do to cache retention, scheduling, fairness, batching, and memory pressure. We aim to present:</p>
+      <p>To build such a benchmark, we first need a description of agentic workloads that is general enough to apply across implementations, but still precise enough to predict what an inference system sees. We do not really care whether "the agent writes code" or "searches the web", but rather about the trace model: a graph of inference requests, their input and output lengths, how much prefix each request shares with the previous one, and how much time passes between dependent requests.</p>
+      <p>I use OpenClaw as a reference, an open-source agentic system with broad adoption (and hype)<span class="sidenote">I use it not only because it's open sourced; it's also representative with subagent spawning, parallel execution or context management.</span>. The principles I extract apply to many agentic systems like Claude Code, because they roughly share the same high-level execution patterns of tool use, result appending, and subagent delegation (see <a href="#claude-code-subagents">Claude Code subagents</a>).</p>
+      <p>Each principle corresponds to one part of this statistical description: request-graph topology (length and branching), prefix reuse, input and output-length heterogeneity and inter-request timing. For each, I connect the trace statistic to the inference system in two ways. First-order consequences are direct changes in work: more prefills, more decode tokens, larger fresh token tails, or more concurrent sessions. Second-order consequences are what those first-order changes might do to cache retention, scheduling, fairness, batching, and memory pressure. I aim to present:</p>
       <ol>
-        <li>How to describe agentic traces statistically: as session graphs plus distributions over token counts, waits, shared prefixes, and branching.</li>
+        <li>How to roughly describe agentic traces statistically: as session graphs plus distributions over token counts, waits, shared prefixes, and branching.</li>
         <li>How to replicate them in a benchmark: by measuring those distributions from real traces and generating matching synthetic sessions.</li>
         <li>Why it matters: inference systems behave differently under agentic load, and evaluating on the wrong workload might not give you the full picture.</li>
       </ol>
-      <p>We use Veeksha to instantiate and measure all workload models in the experiments.</p>
       </section>
 
       <section id="sec:prerequisites" data-toc-subsections="true" data-block-kind="section" data-ref-text="Prerequisites">
       <h2>Prerequisites</h2>
       <p>Before we get into OpenClaw, let's set up our shared vocabulary and execution model. If you work with inference systems, this will be familiar; if you don't, this will be a quick overview.</p>
       <h3 id="sec:prerequisites-inference-basics" data-block-kind="section" data-ref-text="Inference basics">Inference basics</h3>
-      <p>An inference system handles user requests. When a request arrives, the system computes and saves the keys and values of the input tokens: the prefill. Then, it generates output tokens one at a time: the decode. In practice, the system deals with many concurrent requests, carefully managing scheduling, CPU/GPU overlap, memory management, etc. All optimizations on top of this, like advanced KV-cache policies, chunking, prefill-decode disaggregation, speculative decoding, and more, are generally strategies to make the prefill, decode, or both faster or more efficient under concurrency (see <a href="#pagedattention">PagedAttention</a>, <a href="#orca">Orca</a>, and <a href="#distserve">DistServe</a>).</p>
+      <p>An inference system handles user requests. When a request arrives, the system computes and saves the keys and values of the input tokens: the prefill. Then, it generates output tokens one at a time: the decode. In practice, the system deals with many concurrent requests, carefully managing scheduling, CPU/GPU overlap, memory management, etc. All optimizations on top of this, like advanced KV-cache policies, chunking, prefill-decode disaggregation, speculative decoding, and more, are generally strategies to make the prefill, decode, or both faster or more efficient under concurrency (<a href="#orca">Orca</a>, <a href="#distserve">DistServe</a>, <a href="#sarathi-serve">Sarathi-Serve</a>, <a href="#pagedattention">PagedAttention</a>).</p>
       <h3 id="sec:prerequisites-inference-performance" data-block-kind="section" data-ref-text="Measuring inference performance">Measuring inference performance</h3>
-      <p>When we evaluate an inference system, we care about how fast it does prefills and decodes across a workload.<span class="sidenote">In this post we focus on text-only requests because most agentic workloads as of time of writing are text-only, but requests can also be multimodal i.e. with images or audio, and the metrics which we care about would change in that case.</span> The core metrics are:</p>
+      <p>When we evaluate an inference system, we care about how fast it does prefills and decodes across a workload.<span class="sidenote">In this post I focus on text-only requests because most agentic workloads as of time of writing are text-only, but requests can also be multimodal i.e. with images or audio, and the metrics which we care about would change in that case.</span> The core metrics are:</p>
       <ul>
         <li><strong>TTFT</strong>: time to first token. How long until the first output token arrives after submitting a request. Measures prefill speed.</li>
         <li><strong>TBT</strong>: time between tokens. The interval between consecutive output tokens. Measures decode speed.</li>
@@ -130,8 +129,8 @@
       </ul>
       <p>Everything else, like cost per token or energy per token, derives from these plus hardware and pricing data. We can measure TTFT and TBT because modern inference APIs stream tokens back, so we can observe each one as it arrives. Some systems batch output tokens into chunks for efficiency, so we actually prefer TTFC (time to first chunk) and TBC (time between chunks) instead for agnostic evaluation.<span class="sidenote">As of now, inference systems report streaming information differently, and there isn't a standard way of seeing the number of output tokens in output chunks. Counting the number of tokens in a chunk accurately is not always possible due to tokenization mismatches.</span> Same idea but slightly coarser (see, for example, <a href="#openai-streaming">OpenAI streaming responses</a>).</p>
       <h3 id="sec:prerequisites-a-session" data-block-kind="section" data-ref-text="What is a session?">What is a session?</h3>
-      <p>Throughout this post, we use the term <em>session</em> rather than <em>conversation</em>. A conversation is always linear: user, assistant, user, assistant. A session is the generalization. That is, a graph of requests with dependencies.</p>
-      <p>In this framework, an independent request is a session with one node. A linear conversation is a session where nodes form a chain, one after the other. An agentic session can be a chain too, but it can also be a DAG: when an agent spawns sub-agents, each runs its own chain of inference requests in parallel. We are going to build up this graph structure piece by piece.</p>
+      <p>Throughout this post, I use the term <em>session</em> rather than <em>conversation</em>. A conversation is always linear: user, assistant, user, assistant. A session is the generalization. That is, a graph of requests with dependencies.</p>
+      <p>In this framework, an independent request is a session with one node. A linear conversation is a session where nodes form a chain, one after the other. An agentic session can be a chain too, but it can also be a DAG: when an agent spawns subagents, each runs its own chain of inference requests in parallel (<a href="#fig:dag-case-study-2" class="block-ref">Figure 5</a>).</p>
       <h3 id="sec:prerequisites-agentic-loop" data-block-kind="section" data-ref-text="The agentic loop">The agentic loop</h3>
       <p>Imagine we have an OpenClaw instance running. We are communicating with it via our preferred interface, having a back-and-forth conversation with it, and we ask it to perform a particular task. When the user message arrives, OpenClaw starts a loop comprised of several stages. We can roughly categorize each step as: Compose, Infer, Check, Execute and Append. First, it composes the new message from history plus new context and sends it to the LLM for inference. It checks if the LLM response was a final answer or if it decided to call tools first. For example, it might need to read a file, run a command, search the web. If so, the system executes the tool calls concurrently and appends all results to history. This loop usually repeats until the model decides it has completed the user's request.</p>
       <div class="code-chunk" id="agentic-loop-pseudo" data-block-kind="code"><pre><code class="language-python">def prompt(user_input, session):
@@ -160,17 +159,17 @@
           "content": result.content,
       })
     # Loop back. Next iteration includes all tool results</code></pre><p class="code-caption">Code chunk 1: A typical agentic loop.</p></div>
-      <p>So, each iteration of this loop is one inference request. An important observation is that most tool calls (file reads, shell commands) do not involve any LLM calls: they execute locally and return text. Some tools do call models (image generation, LLM-backed web search), but those typically hit external APIs, not the inference system serving the main agent.<span class="sidenote">For example, OpenClaw's web search can call Gemini, Perplexity, or other providers. These are external requests that just look like timing gaps from our inference system's perspective.</span> This means a single session without sub-agents produces a linear chain of requests to the inference system under evaluation.</p>
-      <p>On top of this core loop, OpenClaw also has an outer loop that handles infrastructure failures: context overflow, auth rotation, thinking mode fallback. This outer loop does not change the steady-state of the workload, but there are some things we need to know about it. We will get back to it later.</p>
-      <p>This is the core of the agentic loop, and pretty much the basic structure of agentic systems. In the next section, we will treat the properties induced by this loop as trace statistics.</p>
+      <p>So, each iteration of this loop is one inference request. An important observation is that most tool calls (file reads, shell commands) do not involve any LLM calls: they execute locally and return text. Some tools do call models (image generation, LLM-backed web search), but those typically hit external APIs, not the inference system serving the main agent.<span class="sidenote">For example, OpenClaw's web search can call Gemini, Perplexity, or other providers. These are external requests that just look like timing gaps from our inference system's perspective.</span> This means a single session without subagents produces a linear chain of requests to the inference system under evaluation.</p>
+      <p>On top of this core loop, OpenClaw also has an outer loop that handles infrastructure events like context overflow. This outer loop does not currently change much of the steady state of the workload.</p>
+      <p>This is the core of the agentic loop. In the next section, I will treat the properties induced by both this loop and models as trace statistics.</p>
       </section>
 
       <section id="sec:agentic-workload" data-toc-subsections="true" data-block-kind="section" data-ref-text="An agentic workload">
       <h2>An agentic workload</h2>
-      <p>Now that we know why agentic evaluations are important and are familiar with the basics of inference evaluation, what a session is, and how the agentic loop works, we can start characterizing an agentic workload.</p>
-      <p>For the purposes of inference evaluation, an agentic trace is a session graph whose nodes are inference requests and whose edges are dependencies. Each node carries quantities such as the number of input and output tokens, and each edge carries a delay and a history inheritance relationship. A benchmark does not need to replay exact tool semantics. It needs to reproduce the distributions of these quantities. The principles below are the dominant terms in that description. We extract them from real OpenClaw<span class="sidenote">Technically, OpenClaw does not implement the agentic loop. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about Pi agents running on OpenClaw.</span> telemetry based on real sessions.<span class="sidenote">All experiment results, extra visualizations and telemetry is available in the <a href="https://github.com/chus-chus/blogpost-agentic-workloads">repo</a> for this post.</span></p>
+      <p>Now that we know why agentic evaluations are important, and are familiar with the basics of inference evaluation, what a session is, and how the agentic loop works, we can start characterizing an agentic workload.</p>
+      <p>For the purposes of inference evaluation, an agentic workload is a set of session graphs. Each graph contains represents inference requests as nodes and dependencies as edges. Each node carries quantities such as the number of input and output tokens, and each edge carries a delay and a history inheritance relationship. A benchmark does not need to replay exact tool semantics; it needs to reproduce the distributions of these quantities. The principles below are the dominant terms in that description. I extract them from real OpenClaw<span class="sidenote">Technically, OpenClaw does not implement the agentic loop. According to the docs, it's a "... gateway for Pi agents". So we are actually talking about Pi agents running on OpenClaw.</span> telemetry based on real sessions.<span class="sidenote">All experiment results, extra visualizations and telemetry is available in the <a href="https://github.com/chus-chus/blog_inference_eval">repo</a> for this post.</span></p>
       <h3 id="sec:agentic-workload-1-request-expansion" data-block-kind="section" data-ref-text="Request expansion">Request expansion</h3>
-      <p>The agentic loop in <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a> already gives us the first principle: one user task expands into a sequence of dependent inference requests. Most tool calls do not add requests directly to the evaluated inference system, but they do trigger another LLM call once their results are appended to history. A think-act-observe cycle can therefore turn one human request into many inference requests.</p>
+      <p>The agentic loop in <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a> already gives us the first principle: one user task expands into a sequence of dependent inference requests. Most tool calls do not add requests directly to the evaluated inference system, but they do trigger another LLM call once their results are appended to history. A think+act+observe cycle can therefore turn one human request into many inference requests.</p>
       <p>Statistically, the quantity we care about is not "user turns" but the distribution of inference requests per user task, or equivalently the depth of these dependency chains. In the trace underlying <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>, 3 user interventions expand into 130 inference requests. In the near future, we can expect agentic loops to generate thousands of inference requests per user task.</p>
       <p>The first-order consequence is that end-to-end latency compounds across many sequential prefills and decodes, not one. The second-order consequence is that the scheduler sees long-lived dependent chains rather than iid requests, which changes batching opportunities and how long session state remains live.</p>
       <h3>Stateful prefix reuse</h3>
@@ -199,18 +198,18 @@
       <h4 id="experiment-1" data-block-kind="section" data-ref-text="Case study 1: multi-turn sessions">Case study 1: multi-turn sessions</h4>
       <p>To make the workload regime concrete, we start with a simple first case study: one real multi-turn coding trace and a synthetic workload derived from it. The goal here is to establish the basic prefix-reuse regime that the later case studies build on.</p>
       <ol>
-        <li>First, we ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.<span class="sidenote">Note that all numbers of trace characteristics in this post are probably going to be underestimating what power users and more advanced agentic harnesses generate.</span></li>
-        <li>We measure statistical properties of the resulting trace: token counts, timings, prefix reuse, etc.</li>
-        <li>We generate a synthetic workload from the trace that mimics the agentic pattern we just described.</li>
-        <li>We compare that workload with and without prefix caching.</li>
+        <li>First, I ask OpenClaw 26.3.2 with GPT-5.1-Codex-Mini to implement a web app for interactive exploration of LLMs via interpretability methods. We cap the total inference time to ~15 minutes.<span class="sidenote">Note that all numbers of trace characteristics in this post are probably going to be underestimating what power users and more advanced agentic harnesses generate.</span></li>
+        <li>Then, a measure statistical properties of the resulting trace is performed: token counts, timings, prefix reuse, etc.</li>
+        <li>Generate a synthetic workload from the trace that mimics the agentic pattern just described.</li>
+        <li>Compare that workload with and without prefix caching.</li>
       </ol>
-      <p>To run and measure all benchmarks, we use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> v0.2.2, an open-source benchmarking framework for LLM inference systems. It supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more.</p>
+      <p>To run and measure all benchmarks, I use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> v0.2.2, an open-source benchmarking framework for LLM inference systems. It supports sessions as graphs of requests with dependencies, configurable timings, prefix caching simulations, replicating real-world workloads, microbenchmarks, and more.</p>
       <p><strong>Trace analysis</strong></p>
       <p>When the agent is stopped, we have an output OpenClaw trace that looks like this:</p>
       <ul>
         <li>1 linear chain of inference requests</li>
         <li>130 requests in total generated from 3 user interactions, an expansion factor of roughly 43x</li>
-        <li>Median input and output length of 490 and 214 tokens, respectively.<span class="sidenote">Means 1570 and 612, inflated by a few long-context requests.</span> Every pair of requests is roughly the model deciding to call a tool and then observing the result. Interestingly, we do not see the model deciding to call a batch of tools at once.</li>
+        <li>Median input and output length of 490 and 214 tokens, respectively.<span class="sidenote">Means 1570 and 612, inflated by a few long context requests.</span> Every pair of requests is roughly the model deciding to call a tool and then observing the result. Interestingly, we do not see the model deciding to call a batch of tools at once.</li>
         <li>A median waiting time of 32ms between requests (after the previous request finished; mean of 6s, biased by 2 slow interventions)</li>
         <li>A used context length of 117k tokens</li>
         <li>A total of 8.2 million token cache reads</li>
@@ -252,7 +251,7 @@ runtime:
   max_sessions: 5
 
 seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workload configuration for the multi-turn sessions with prefix caching.</p></div>
-      <p>We run the above workload independently against two Qwen3.5-35B-A3B replicas (thinking disabled), each one running on vLLM 0.17.1 and an H100 GPU. Replica A uses the default prefix cache configuration, while replica B has it disabled.</p>
+      <p>I run the above workload independently against two Qwen3.5-35B-A3B replicas (thinking disabled), each one running on vLLM 0.17.1 and an H100 GPU. Replica A uses the default prefix cache configuration, while replica B has it disabled.</p>
       <p><strong>What is happening?</strong></p>
       <ul>
         <li>With the default prefix cache, TTFC stays in the sub-second regime even as the session approaches 100k prompt tokens.</li>
@@ -269,9 +268,9 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
       <p><strong>Takeaway</strong></p>
       <p>This first case study mainly establishes the regime. Agentic workloads are long-lived, stateful traces with very high prefix reuse, so cache handling quickly becomes a dominant factor in latency. Once that basic effect is in place, the more interesting questions are the ones taken up in the next sections: how token heterogeneity, bursty timing, and branching change the behavior of systems that already exploit prefix reuse.</p>
       <h3 id="sec:token-heavy-tail" data-block-kind="section" data-ref-text="Token-count heterogeneity">Token-count heterogeneity</h3>
-      <p>Prefix reuse does not mean the amount of new work per step is constant. At any point in an agentic loop, the model might append a small memory lookup, a medium shell output, a huge file read, or a large batch of tool results. There are other context-injection events too, like sub-agents sending summaries and artifacts to the parent agent. Similarly, the distribution of output tokens in an agentic workload is dictated by a variety of events. Many inference requests return small messages, where the model selects tools or acknowledges results. They usually stem from intermediate control events in the loop of <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a>. Others, like turn ends, where models modify artifacts or respond to the user, or context overflows, where the model needs to compact the full history, generate large answers.</p>
-      <p>Statistically, the quantities that matter are the incremental input size between consecutive requests, that is, the number of fresh, non-cached tokens added on top of the shared prefix, and the number of output tokens generated per request.</p>
-      <p>In real agentic traces both distributions are broad and usually heavy-tailed. Most steps add a modest amount of tokens and generate short outputs, but a small number create very large bursts.</p>
+      <p>Prefix reuse does not mean the amount of new work per step is constant. At any point in an agentic loop, the model might append a small memory lookup, a medium shell output, a huge file read, or a large batch of tool results. There are other context injection events too, like subagents sending summaries and artifacts to the parent agent. Similarly, the distribution of output tokens in an agentic workload is dictated by a variety of events. Many inference requests return small messages, where the model selects tools or acknowledges results. They usually stem from intermediate control events in the loop of <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a>. Others, like turn ends, where models modify artifacts or respond to the user, or context overflows, where the model needs to compact the full history, generate large answers.</p>
+      <p>Statistically, the quantities that matter are the incremental input size between consecutive requests, that is, the number of fresh, non cached tokens added on top of the shared prefix, and the number of output tokens generated per request.</p>
+      <p>In real agentic traces both distributions are broad and usually heavy tailed (<a href="#principle-3-heavy-tail-prefill" class="block-ref">Figure 3</a>, <a href="#principle-4-heavy-tail-decode" class="block-ref">Figure 4</a>). Most steps add a modest amount of tokens and generate short outputs, but a small number create very large bursts.</p>
       <div class="figure-block" id="principle-3-heavy-tail-prefill" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
           <div class="plot-background-1">
@@ -280,7 +279,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         </div>
         <p class="plot-caption">Figure 3: Empirical vs fitted distributions of new input tokens for the trace in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>. Cropped to 95th percentile (max value is around 20000 tokens). Most steps add just a few new input tokens, but a small number add very large bursts. I tested lognormal, Weibull, gamma, exponential, Pareto, normal and inverse Gaussian distributions, and found that the latter fits best.</p>
       </div>
-      <p>This same observation also applies to the decode phase. In fact, performing the same fitting experiments on output tokens also yields the inverse Gaussian as the best fit for our empirical data in the multi-turn workload of <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>.</p>
+      <p>Performing the same fitting experiment on output tokens also yields the inverse Gaussian as the best fit for our empirical data in the multi-turn workload of <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>.</p>
       <div class="figure-block" id="principle-4-heavy-tail-decode" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
           <div class="plot-background-1">
@@ -289,31 +288,31 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         </div>
         <p class="plot-caption">Figure 4: Empirical vs fitted distributions of generated output tokens for the trace in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>. Cropped to 95th percentile (max value is around 14000 tokens). Same tested distributions as for the input tokens, and same best-fit.</p>
       </div>
-      <p>The first-order consequence is that both prefill and decode work are heterogeneous across the trace rather than roughly constant per turn. Two requests with similar total context length can have very different prefill costs depending on how large the fresh tail is, and some generations are much longer than others. The second-order consequences are different for the two phases. Large fresh-token bursts create prefill interference: they occupy prefill capacity for longer, which can perturb batching and worsen tail latency for other sessions sharing the system. Long generations remain active for longer, which extends the lifetime of the KV and changes batch characteristics. Depending on the inference engine, this can affect metrics such as throughput, completion latency, TBT, or fairness under mixed workloads (see <a href="#orca">Orca</a>, <a href="#distserve">DistServe</a>, and <a href="#sarathi-serve">Sarathi-Serve</a>).</p>
-      <p>For benchmarking, the direct consequence is that we should not model either side with smooth average increments per turn, or sample from uniform distributions. In Veeksha's spec (<a href="#exp-1-workload-config" class="block-ref">Code chunk 2</a>), this means we change <code>channels.text.body_length_generator</code> and <code>output_spec.text.output_length_generator</code> from <code>uniform</code> to:</p>
+      <p>The first-order consequence is that both prefill and decode work are heterogeneous across the trace rather than roughly constant per turn. Two requests with similar total context length can have very different prefill costs depending on how large the fresh tail is, and some generations are much longer than others. The second-order consequences are different for the two phases. Large fresh token bursts create prefill interference: they occupy prefill capacity for longer, which can perturb batching and worsen tail latency for other sessions sharing the system. Long generations remain active for longer, which extends the lifetime of the KV and changes batch characteristics. Depending on the inference engine, this can affect metrics such as throughput, completion latency, TBT, or fairness under mixed workloads.</p>
+      <p>For benchmarking, the direct consequence is that we should not model either side with smooth average increments per turn, or sample from uniform distributions. For example, in Veeksha's spec (<a href="#exp-1-workload-config" class="block-ref">Code chunk 2</a>), this means we change <code>channels.text.body_length_generator</code> and <code>output_spec.text.output_length_generator</code> from <code>uniform</code> to:</p>
       <pre><code class="language-yaml">body_length_generator:
   type: inverse_gaussian
   mean: m
-  shape: s # controls dispersion, lower -&gt; more heavy-tailed</code></pre>
+  shape: s # controls dispersion, lower -&gt; more heavy tailed</code></pre>
       <p>Where:</p>
       <ul>
         <li><code>m</code> is ~815 for input tokens and ~615 for output tokens</li>
         <li><code>s</code> is ~200 for input tokens and ~145 for output tokens</li>
       </ul>
       <p><strong>Prefix invalidation</strong></p>
-      <p>In OpenClaw in particular, when the context length reaches its limit, there is a compaction event. The event creates a request asking the model to summarise, and then a new session is created with the summary as fresh context. This effectively invalidates the prefix of the original session.</p>
-      <p>We can model this event with the previous notes for prefill and decode heterogeneity, as it just creates moderately sized decodes (for summarisation) and prefill (new session with fresh summary), which fits in their heavy-tail description.</p>
+      <p>When the context length reaches its limit in modern agentic systems, a compaction event is created. The event creates a request asking the model to summarise, and then a new session is created with the summary as fresh context. This effectively invalidates the prefix of the original session.</p>
+      <p>We can model this event with the previous notes for prefill and decode heterogeneity, as it just creates moderately sized decodes (for summarisation) and prefill (new session with fresh summary), which fits in their heavy tail description.</p>
       <h3>Bursty timing</h3>
-      <p>Agentic systems are being provided with increasing ways to interact with the world. File read and write, program execution, API calls to other systems, computer use, and soon independent real-world + task navigation, we can consider them tool calls in our agentic loop of <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a>. The idle time between subsequent requests in a session is dictated mainly by three factors:</p>
+      <p>Agentic systems are being provided with increasing ways to interact with the world. File read and write, program execution, API calls to other systems, computer use, and soon independent real-world + task navigation. We can consider these as tool calls in our agentic loop of <a href="#agentic-loop-pseudo" class="block-ref">Code chunk 1</a>. Now, the idle time between subsequent requests in a session is dictated mainly by three factors:</p>
       <ol>
         <li>If user turn, how much the user takes to respond</li>
         <li>If tool turn, the nature of it. A test suite might take minutes, a file read might take tens of ms.</li>
         <li>Dispatch inefficiencies of the agentic system.</li>
       </ol>
-      <p>In the context of session graphs, we define the property <code>wait_after_ready</code> of a node (request) as the time between completion of the last parent request and the dispatch time of the node. If we take a look at its distribution in our sample trace, we see how almost 80% of the waits are less than 100ms, while the upper tail is heavy with 6% being larger than 10 seconds. This effect is similar to that of the input and output token distributions.</p>
-      <p>Again, this heavy-tail effect has implications beyond workload shape. During idle periods of a session, its KV state stays unused. This in turn increases the chance that, due to memory pressure and cache policies, at least a fraction of cache won't be resident by the time the next request of the session is dispatched. It will then have to pay a recomputation cost. This is not necessarily bad, as it might be the correct global decision; the point is that it creates a cache allocation trade-off, thus hurting other local properties.</p>
+      <p>In the context of session graphs, I define the property <code>wait_after_ready</code> of a node (request) as the time between completion of the last parent request and the dispatch time of the node. Taking a look at its distribution in our sample trace, we see how almost 80% of the waits are less than 100ms, while the upper tail is heavy with 6% being larger than 10 seconds. This effect is similar to that of the input and output token distributions.</p>
+      <p>Again, this heavy tail effect has implications beyond workload shape. During idle periods of a session, its KV state stays unused. This in turn increases the chance that, due to memory pressure and cache policies, at least a fraction of cache won't be resident by the time the next request of the session is dispatched. It will then have to pay a recomputation cost. This is not necessarily bad, as it might be the correct global decision; the point is that it creates a cache allocation tradeoff, thus hurting other local properties.</p>
       <p><strong>Fidelity on synthetic workloads</strong></p>
-      <p>While the empirical distribution of wait times roughly matches that of the tokens, a best-fit analysis tells us that it's actually not well described by a single, smooth distribution; a spike+tail description fits best (<a href="#fig:wait-after-ready-tail-ccdf" class="block-ref">Figure 9</a> in annex). Measured another trace, arguably more complete and representative, and got similar results. So, does this mean that a benchmarking framework should include ways of sampling wait times according to complex spike+tail generators? I argue that with synthetic workloads, we care more about preserving clarity and the broad operational regime instead. An inverse Gaussian or lognormal distribution would do it.</p>
+      <p>While the empirical distribution of wait times roughly matches that of the tokens, a best-fit analysis tells us that it's actually not well described by a single, smooth distribution; a spike+tail description fits best (<a href="#fig:wait-after-ready-tail-ccdf" class="block-ref">Figure 10</a> in annex). Measured another trace, arguably more complete and representative, and got similar results. So, does this mean that a benchmarking framework should include ways of sampling wait times according to complex spike+tail generators? I argue that with synthetic workloads, we care more about preserving clarity and the broad operational regime instead. An inverse Gaussian or lognormal distribution would do it.</p>
       <p>If we care about absolute fidelity a better option is to <strong>replay traces</strong>, preserving every detail of the original workload instead of approximating it. This option is especially useful for those who already have a lot of production traffic.<span class="sidenote">Veeksha can do this for a variety of trace types, like agentic ones directly from Claude Code or OpenClaw, while preserving the DAG, token and timing distributions of the workload.</span></p>
       <h3 id="sec:session-branching" data-block-kind="section" data-ref-text="Session branching">Session branching</h3>
       <p>The session characteristics described until now have all been describing linear sessions. A big component of agentic workloads, though, is how agents can spawn subagents. Similar to how cells organised into specialised subsystems (organs) in nature, as agentic capabilities of models increase we will see further and further hierarchical delegation of work; each subagent focused on some particular task.</p>
@@ -322,7 +321,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         <li>Agent decides to spawn a subagent. It does so by calling the <code>sessions_spawn</code> tool, which asynchronously spawns a subagent.</li>
         <li>Subagent starts with its own system prompt plus the task description from the parent as context. It does not inherit the full context.</li>
         <li>When finished, the subagent announces the results back to the parent. The parent receives a message with the subagent's output.</li>
-        <li>Nesting depth (sub-subagents and more) and number of allowed spawns per agent are configurable, as well as max concurrency (see <a href="#openclaw-session-tools">OpenClaw session tools</a> and <a href="#openclaw-subagents">OpenClaw sub-agents</a>).</li>
+        <li>Nesting depth (sub-subagents and more) and number of allowed spawns per agent are configurable, as well as max concurrency (see <a href="#openclaw-session-tools">OpenClaw session tools</a> and <a href="#openclaw-subagents">OpenClaw subagents</a>).</li>
       </ol>
       <p>In the context of the DAG that is an agentic session, this means that any node can have multiple children or parents. It isn't a linear chain anymore. Fan-out and fan-in degrees can be bigger than 1, which creates dependencies between requests in a way that we didn't have before. It also introduces context inheritance dynamics between nodes (not all nodes inherit the full history).</p>
       <div class="figure-block" id="fig:dag-case-study-2" data-block-kind="figure" style="clear: right;">
@@ -333,7 +332,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         </div>
         <p class="plot-caption">Figure 5: A simplified DAG session. One request has a fan-out degree of 3 (subsession spawn), and one a fan-in degree of 3 (subsessions reporting back). Shape used in <a href="#sec:case-study-2" class="block-ref">Case study 2</a> and <a href="#sec:case-study-3" class="block-ref">Case study 3</a>.</p>
       </div>
-      <p>To illustrate this, we ask OpenClaw to produce a high-quality knowledge graph and analysis of all major AI frameworks. We nudge it to make use of subagents, each dedicated to researching some part of a particular framework. When we reach the OpenAI rate limit (~5 minutes), the session is:</p>
+      <p>To illustrate this, I ask OpenClaw to produce a high-quality knowledge graph and analysis of all major AI frameworks. I nudge it to make use of subagents, each dedicated to researching some part of a particular framework. OpenAI rate limit are reached in ~5 minutes, point at which the session is:</p>
       <ul>
         <li>575 requests total</li>
         <li>35 sessions (spawns)</li>
@@ -343,24 +342,21 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         <li>25 requests wide at the maximum width</li>
         <li>A max fan-in and fan-out degree of 2.</li>
       </ul>
-      <p>Take a look at the resulting session graph in the <a href="#sec:annex" class="block-ref">Annex</a> (<a href="#openclaw-dag-branching" class="block-ref">Figure 8</a>).</p>
-      <p>When building an agentic benchmark, we need to consider details such as branching factor, depth and length of child sessions and history inheritance ratios. It will directly affect the total pressure of the workload on the inference system's memory, compute and scheduling states.</p>
+      <p>Take a look at the resulting session graph in the <a href="#sec:annex" class="block-ref">Annex</a> (<a href="#openclaw-dag-branching" class="block-ref">Figure 9</a>).</p>
+      <p>When building an agentic benchmark, we need to consider details such as branching factor, depth and length of child sessions and history inheritance ratios. Higher branching factors will usually mean much higher request concurrency; with all of what it implies at both first glance and in a more coplex way. It will directly affect the total pressure of the workload on the inference system's memory, compute and scheduling states.</p>
       <h4 id="sec:case-study-2" data-block-kind="section" data-ref-text="Case study 2">Case study 2</h4>
-      <p>We now compare two workloads of the same fresh token volume, but that differ in shape. Workload A is a sequence of short linear sessions, while workload B is a sequence of generic DAG workloads. They both have the same total number of new input and output tokens, so from the application's perspective they do the same amount of work. This does not imply identical inference work: the DAG workload may decode at longer effective context lengths and induce different cache patterns. That distinction is intentional. The point is to show that, even under the same user-visible token budget, workload shape alone can change the reported performance of the system. We run them independently against the same, but fresh, system. Model and system are the same as in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>.</p>
-      <p>At a shared session arrival rate of 0.18 sessions/s, both workloads match fresh-token volume while differing only in session shape. The linear workload uses 30 sessions of 5 requests each, while the DAG workload uses 10 sessions of 15 requests each (figure <a href="#fig:dag-case-study-2" class="block-ref">Figure 5</a>) with a simple 3-way fan-out and fan-in.<span class="sidenote">Workload spec, results and Veeksha config in annex (<a href="#sec:annex-workload-shape" class="block-ref">Annex: case study 2</a>).</span> We create the traces synthetically and replay them with Veeksha's <code>timed_synthetic_session</code> trace session generator (in annex).</p>
+      <p>I now compare two workloads of the same fresh token volume, but that differ in shape. Workload A ("linear workload") is a sequence of short linear sessions, while workload B ("DAG workload") is a sequence of generic DAG sessions (<a href="#fig:dag-case-study-2" class="block-ref">Figure 5</a>). Over a full pass, they both have the same total number of new input and output tokens, so from the application's perspective they do the same amount of work. This does not imply identical inference work: the DAG workload may, for example, decode at longer effective context lengths and induce different cache patterns. That distinction is intentional. The point is to show that, even under the same user token budget, workload shape alone can change the reported performance of the system if not taken into account properly.</p>
+      <p>I run both workloads independently against the same, but fresh, system, at a shared session arrival rate of 0.18 sessions/s. The linear workload uses 30 sessions of 5 requests each, while the DAG workload uses 10 sessions of 15 requests each (<a href="#fig:dag-case-study-2" class="block-ref">Figure 5</a>) with a 3-way fan-out and fan-in.<span class="sidenote">Workload spec, results and Veeksha config in annex (<a href="#sec:annex-workload-shape" class="block-ref">Annex: case study 2</a>).</span> <code>wait_after_ready</code> is always 0. I create the traces synthetically and replay them for 300 seconds with Veeksha's <code>timed_synthetic_session</code> trace session generator (in annex). Model and system are the same as in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a></p>
       <div class="figure-block" id="case-study-2-context-latency" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
           <div class="plot-background-1">
             <img src="../../../static/2026/agentic_workloads/case_study_2_shape_ecdfs_transparent.png" alt="" width="760" height="282">
           </div>
         </div>
-        <p class="plot-caption">Figure 6: Matched fresh-token budget, different effective work. Left: ECDF of total prompt tokens. Middle: TTFC ECDF. Right: end-to-end latency ECDF. Even though both workloads keep fresh tokens fixed, the DAG workload shifts mass into the longer-context regime, moving the latency curves.</p>
+        <p class="plot-caption">Figure 6: Matched fresh token budget, different effective work. Left: ECDF of total prompt tokens. Middle: TTFC ECDF. Right: end-to-end latency ECDF. Even though both workloads keep fresh tokens fixed, the DAG workload shifts mass into the longer-context regime, moving the latency curves.</p>
       </div>
-      <p>Under the same fresh-token budget, the DAG workload has 20.2% longer mean prompt lengths, 116.7% higher TTFC p99, and 77.2% higher E2E p95 than the linear workload; see <a href="#sec:annex-workload-shape" class="block-ref">Annex: case study 2</a> for the full comparison. Figure <a href="#case-study-2-context-latency" class="block-ref">Figure 6</a> also shows why looking only at prompt-length p95 is misleading here: the p95 total prompt length is effectively unchanged, but the median rises from 2100 to 2899 tokens, so much more of workload B spends time in the long-context regime. Two main reasons:</p>
-      <ol>
-        <li>More of B lives in long-context regime, because a much larger share of requests carries longer total prompts.</li>
-        <li>B induces burstier concurrency. While session arrival is 0.18 sessions per second, the scheduler sees far more simultaneous active decodes.</li>
-      </ol>
+      <p>Under the same fresh token budget, the DAG workload has 116.7% higher TTFC p99, and 77.2% higher E2E p95 than the linear workload; It actually has 20.2% longer mean prompt lengths! See <a href="#sec:annex-workload-shape" class="block-ref">Annex: case study 2</a> for the full comparison.</p>
+      <p>Figure <a href="#case-study-2-context-latency" class="block-ref">Figure 6</a> also shows why looking only at prompt length p95 is misleading here: the p95 total prompt length is effectively unchanged, but the median rises from 2100 to 2899 tokens, so much more of workload B spends time in the long context regime. B also induces burstier concurrency: while session arrival is 0.18 sessions per second, the scheduler sees far more simultaneous active decodes because DAG sessions contain more requests with some degree of dispatch parallelism. And even though B has a 39% higher prefix cache hit rate than A, it is not enough to compensate for the last two characteristics; thus increasing perceived TTFC.</p>
       <div class="figure-block" id="case-study-2-decode-overlap" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
           <div class="plot-background-1">
@@ -369,27 +365,36 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         </div>
         <p class="plot-caption">Figure 7: Duration-weighted decode overlap. For each x axis value k, the y axis shows the share of total decode time spent with at least k simultaneous decode requests. The linear run never exceeds 6 simultaneous active decodes. The DAG run reaches 41, and spends more than 60% of decode-active time at 10+ simultaneous decode requests.</p>
       </div>
-      <p>This is in spite of B having a 39% higher prefix cache hit rate and equal session dispatch rate. Topology alone can change inference behavior under the same high-level total token budget.</p>
-      <p>Inference systems, however, are not usually provisioned for a fixed total token budget.</p>
+      <p>Topology alone can strongly influence benchmarking results when not studied properly beforehand. Inference systems, however, are not usually provisioned for a fixed total token budget.</p>
       <h4 id="sec:case-study-3" data-block-kind="section" data-ref-text="Case study 3">Case study 3</h4>
-      <p>Case study 2 briefly shows that there is more that meets the eye when evaluating capacity on different workloads. In case study 3 we tune two inference deployments on the previous DAG and linear workloads. We provision each one based on maximizing healthy<span class="sidenote">defined by TTFT, E2E and TBC SLOs as well as targets such as minimum request completion ratio and maximum error rate.</span> normalized request rate $\rho$. In both workloads, each request always has 500 fresh input tokens and requests 300 output tokens, so each deployment sees:</p>
+      <p>Case study 2 briefly shows that there is more that meets the eye when evaluating capacity on different workloads. In case study 3 I tune two inference deployments on the previous DAG and linear workloads (same system and model as well), provisioning each one based on maximizing healthy<span class="sidenote">defined by the SLOs P95 TTFT $\leq$ 0.75s and P95 TBC $\leq$ 75ms, as well as maximum error rate.</span> normalized request rate $\rho$. $\rho_l$ refers to the normalized request rate given the linear workload as reference, and $\rho_d$ for the DAG workload. $\rho_l^*$ and $\rho_d^*$ refer to the maximal value found in the respective value search.</p>
+      <p>In both workloads, each request always has 500 fresh input tokens and requests 300 output tokens, so each deployment sees a fresh input rate of 500$\rho$ tokens/s and a requested output rate of 300$\rho$ tokens/s for all values $\rho$ in the search grid. Session dispatch rates are thus:</p>
       <ul>
-        <li>a fresh input rate of 500$\rho$ tokens/s</li>
-        <li>a requested output rate of 300$\rho$ tokens/s</li>
-        <li>a linear session dispatch rate of $\frac{\rho}{5}$ sessions/s</li>
-        <li>a DAG session dispatch rate of $\frac{\rho}{15}$ sessions/s</li>
+        <li>$\frac{\rho_l}{5}$ sessions/s for the linear workload</li>
+        <li>$\frac{\rho_d}{15}$ sessions/s for the DAG workload</li>
       </ul>
-      <p>We compare both optimized deployments and show how even having optimized for the same fresh input / output token rates over time, it is possible to over/under provision given different workloads.</p>
-      <p>-- TODO results case study 3</p>
+      <p>I compare both deployments and show how it is possible to under/over provision given different reference workloads.</p>
+      <p><strong>Results</strong></p>
+      <p>The experiments yield $\rho_l^*$ of 5.50 and $\rho_d^*$ of 6.67, which means a higher system capacity with the exact same configuration and hardware resources when the workload looks like the DAG reference. Under the same SLO regime, DAG sustains about 1.21x more useful work.</p>
+      <p>Imagine that we were sizing a fleet of GPUs for inference. We have as reference a linear workload, but the real traffic looks more like the DAG one. In this case, we would have about 17.5% slack capacity relative to the provisioned fleet, and the linear-tuned fleet would be roughly 21% larger than needed for DAG traffic. Those are resources that would be wasted.</p>
+      <p><a href="#deployment-frontier-case-3" class="block-ref">Table 4</a>, <a href="#frontier-metrics-case-3" class="block-ref">Table 5</a>, and <a href="#capacity-implication-case-3" class="block-ref">Table 6</a> in the annex collect the frontier, same-budget replay, and deployment-implication numbers in full.</p>
+      <div class="figure-block" id="case-study-3-frontier-metric-facets" data-block-kind="figure" style="clear: right;">
+        <div class="plot-container">
+          <div class="plot-background-1">
+            <img src="../../../static/2026/agentic_workloads/case_study_3_frontier_metric_facets_transparent.png" alt="" width="760" height="290">
+          </div>
+        </div>
+        <p class="plot-caption">Figure 8: Frontier behavior at the optimal normalized request rates $\rho_l^*=5.50$ and $\rho_d^*=6.67$. Linear TTFC (left) is consistently lower, consistent with its shorter context lengths. DAG has a better mid tail distribution and reaches a similar p95 at a higher load, consistent with higher cache reuse (right).</p>
+      </div>
       </section>
 
       <section id="Conclusion">
       <h2>Conclusion</h2>
       <h3>Simple and agentic workloads (you need both)</h3>
-      <p>Simple workloads are useful to measure raw prefill or decode performance and isolate confounding variables. Agentic workloads reveal deeper effects in inference systems, like cache retention under bursty traffic, scheduling fairness under mixed concurrency, memory pressure from long-lived sessions, and the combined effects of request expansion, branching and prefix invalidation.</p>
+      <p>Simple workloads are useful for measuring raw prefill or decode performance and isolate confounding variables. Agentic workloads reveal deeper effects in inference systems, like cache retention under bursty traffic, scheduling fairness under mixed concurrency, memory pressure from long-lived sessions, and the combined effects of request expansion, branching and prefix invalidation.</p>
       <h3>Putting it all together</h3>
-      <p>In summary, a single agentic session is usually a DAG of parallel inference chains with partial history inheritance. One user task expands into many inference requests, consecutive requests share most of their prefix, fresh input and output sizes vary widely, waits are bursty, and occasional compaction events invalidate the prefix.</p>
-      <p>We have talked about these agentic workload particularities:</p>
+      <p>A single agentic session is usually a DAG of parallel inference chains with partial history inheritance. One user task expands into many inference requests, consecutive requests share most of their prefix, fresh input and output sizes vary widely, waits are bursty, and occasional compaction events invalidate the prefix.</p>
+      <p>I have talked about these agentic workload particularities:</p>
       <ul>
         <li>Request expansion: the think-act-observe loop turns one user task into a long chain of dependent requests.</li>
         <li>Stateful prefix reuse: full-history appends make consecutive requests share most of their prefix, though compaction or partial-history handoffs can reset or reduce that reuse.</li>
@@ -404,7 +409,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
         <li>This matters because inference systems behave differently under agentic load, so the wrong workload can give the wrong conclusion.</li>
       </ol>
       <h3>Where to go from here</h3>
-      <p>We use <a href="https://github.com/project-vajra/veeksha">Veeksha</a> here because it can express session graphs, replay traces, and generate synthetic workloads. If you want to try these ideas on your own inference system, the <a href="https://github.com/project-vajra/veeksha">repository</a> and <a href="https://project-vajra.github.io/veeksha">documentation</a> are a good starting point. Thank you for reading.</p>
+      <p>If you want to try these ideas on your own inference system, the Veeksha <a href="https://github.com/project-vajra/veeksha">repository</a> and <a href="https://project-vajra.github.io/veeksha">documentation</a> are a good starting point. Thank you for reading.</p>
       </section>
 
       <section id="References">
@@ -420,7 +425,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
             <img src="../../../static/2026/agentic_workloads/branching_dag_openclaw.png" alt="" width="650" height="1150">
           </div>
         </div>
-        <p class="plot-caption">Figure 8: Real session structure extracted from the trace in the section <a href="#sec:session-branching" class="block-ref">Session branching</a>. Open in a new tab for high resolution exploration. Only 2 subagents return results because I was rate limited fast.</p>
+        <p class="plot-caption">Figure 9: Real session structure extracted from the trace in the section <a href="#sec:session-branching" class="block-ref">Session branching</a>. Open in a new tab for high resolution exploration. Only 2 subagents return results because I was rate limited fast.</p>
       </div>
       <div class="figure-block" id="fig:wait-after-ready-tail-ccdf" data-block-kind="figure" style="clear: right;">
         <div class="plot-container">
@@ -428,7 +433,7 @@ seed: 77</code></pre><p class="code-caption">Code chunk 2: The synthetic workloa
             <img src="../../../static/2026/agentic_workloads/wait_after_ready_pareto_tail_ccdf_transparent.png" alt="" width="680" height="408">
           </div>
         </div>
-        <p class="plot-caption">Figure 9: Empirical CDF of <code>wait_after_ready</code> for the OpenClaw trace in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>, log-log axes. The dashed line marks the 100 ms threshold used for the Pareto tail fit. We see the initial spike and the slower heavy tail.</p>
+        <p class="plot-caption">Figure 10: Empirical CDF of <code>wait_after_ready</code> for the OpenClaw trace in <a href="#experiment-1" class="block-ref">Case study 1: multi-turn sessions</a>, log-log axes. The dashed line marks the 100 ms threshold used for the Pareto tail fit. We see the initial spike and the slower heavy tail.</p>
       </div>
       <h3 id="sec:annex-workload-shape" data-block-kind="section" data-ref-text="Annex: case study 2">Annex: case study 2</h3>
       <div class="table-block" id="workload-spec-case-2" data-block-kind="table">
@@ -580,6 +585,126 @@ trace_recorder: !include shared/trace_recorder.yml</code></pre><p class="code-ca
         </div>
         <p class="plot-caption">Table 3: Observed comparison for case study 2.</p>
       </div>
+      <h3 id="sec:annex-deployment-claim" data-block-kind="section" data-ref-text="Annex: case study 3">Annex: case study 3</h3>
+      <div class="table-block" id="deployment-frontier-case-3" data-block-kind="table">
+        <div class="table-wrapper">
+          <table>
+          <thead>
+          <tr>
+            <th>Quantity</th>
+            <th>Linear workload</th>
+            <th>DAG workload</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Max healthy normalized request rate $\rho^*$</td>
+            <td><code>5.50</code></td>
+            <td><code>6.67</code></td>
+          </tr>
+          <tr>
+            <td>First failing normalized request rate</td>
+            <td><code>5.51</code></td>
+            <td><code>6.68</code></td>
+          </tr>
+          <tr>
+            <td>First limiting SLOs</td>
+            <td><code>TBC p95 &gt; 75ms</code></td>
+            <td><code>TBC p95 &gt; 75ms</code></td>
+          </tr>
+          </tbody>
+          </table>
+        </div>
+        <p class="plot-caption">Table 4: Case study 3 frontier and first-failure points under the shared p95-based SLO regime.</p>
+      </div>
+      <div class="table-block" id="frontier-metrics-case-3" data-block-kind="table">
+        <div class="table-wrapper">
+          <table>
+          <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Linear at $\rho_l^*=5.50$</th>
+            <th>DAG replay at $\rho_l^*=5.50$</th>
+            <th>DAG at $\rho_d^*=6.67$</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>TTFC p95</td>
+            <td><code>0.386s</code></td>
+            <td><code>0.426s</code></td>
+            <td><code>0.508s</code></td>
+          </tr>
+          <tr>
+            <td>E2E p95</td>
+            <td><code>11.61s</code></td>
+            <td><code>8.40s</code></td>
+            <td><code>9.69s</code></td>
+          </tr>
+          <tr>
+            <td>TBC p95</td>
+            <td><code>74.9 ms</code></td>
+            <td><code>57.6 ms</code></td>
+            <td><code>74.6 ms</code></td>
+          </tr>
+          <tr>
+            <td>TPOT throughput</td>
+            <td><code>35.6</code> tok/s</td>
+            <td><code>47.0</code> tok/s</td>
+            <td><code>39.8</code> tok/s</td>
+          </tr>
+          <tr>
+            <td>Prefix-cache hit rate</td>
+            <td><code>0.338</code></td>
+            <td><code>0.686</code></td>
+            <td><code>0.652</code></td>
+          </tr>
+          <tr>
+            <td>Prompt reuse ratio</td>
+            <td><code>0.597</code></td>
+            <td><code>0.743</code></td>
+            <td><code>0.744</code></td>
+          </tr>
+          </tbody>
+          </table>
+        </div>
+        <p class="plot-caption">Table 5: Observed frontier metrics and same-budget replay metrics for case study 3.</p>
+      </div>
+      <div class="table-block" id="capacity-implication-case-3" data-block-kind="table">
+        <div class="table-wrapper">
+          <table>
+          <thead>
+          <tr>
+            <th>Comparative quantity</th>
+            <th>Value</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>DAG replay at $\rho_l^*$ meets all SLOs</td>
+            <td><code>yes</code></td>
+          </tr>
+          <tr>
+            <td>DAG / linear useful-work ratio at the frontier</td>
+            <td><code>1.21x</code></td>
+          </tr>
+          <tr>
+            <td>Fleet fraction needed if real traffic is DAG-shaped</td>
+            <td><code>0.825x</code></td>
+          </tr>
+          <tr>
+            <td>Slack capacity in the linear-tuned fleet</td>
+            <td><code>17.5%</code></td>
+          </tr>
+          <tr>
+            <td>Linear-tuned fleet size relative to DAG need</td>
+            <td><code>1.21x</code></td>
+          </tr>
+          </tbody>
+          </table>
+        </div>
+        <p class="plot-caption">Table 6: Derived deployment implications for case study 3.</p>
+      </div>
       </section>
 
 
@@ -631,7 +756,7 @@ const references = [
     "id": "openclaw-subagents",
     "author": "OpenClaw",
     "year": "2026",
-    "title": "OpenClaw Docs: Sub-Agents",
+    "title": "OpenClaw Docs: Subagents",
     "url": "https://docs.clawd.bot/tools/subagents"
   },
   {
