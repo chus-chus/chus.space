@@ -10,7 +10,7 @@ rss: false
 ---
 
 *Experiment results, OpenClaw telemetry and more available at this
-[GitHub repo](https://github.com/chus-chus/blog_inference_eval).*
+[GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).*
 
 ## Introduction {#sec:intro}
 
@@ -640,7 +640,7 @@ Veeksha [repository](https://github.com/project-vajra/veeksha) and
 starting point. Thank you for reading.
 
 *Experiment results, OpenClaw telemetry and more available at this
-[GitHub repo](https://github.com/chus-chus/blog_inference_eval).*
+[GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).*
 
 ## References
 
