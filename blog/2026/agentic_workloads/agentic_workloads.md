@@ -30,7 +30,7 @@ Another might shine with quantized models on specific hardware. The
 definition of "good" depends entirely on the workload. For us to test an inference system
 before deployment, we need to understand how it behaves under representative workloads.
 
-However, inference systems are complex scheduling software, so reasoning about how a workload interacts with all of the relevant components or optimizations^[for example, what are the engine's policies for KV cache management or prefill and decode scheduling?] is not straightforward. So things are simplified. Common benchmark policies are to run independent requests or, at most, linear conversations: I send a message, the model responds, I append the response to the history, and send another. Maybe we can also have a few conversations running in parallel.
+However, inference systems are complex software, so reasoning about how a workload interacts with all of the relevant components or optimizations^[for example, what are the engine's policies for KV cache management or prefill and decode scheduling?] is not straightforward. So things are simplified. Common benchmark policies are to run independent requests or, at most, linear conversations: I send a message, the model responds, I append the response to the history, and send another. Maybe we can also have a few conversations running in parallel.
 
 And even though simple workloads are useful for exactly that reason, and because they let us isolate variables, they might not test the full range of interactions between inference-system components. We could say that simple workloads are unit tests, while agentic workloads are integration tests.
 
@@ -108,7 +108,7 @@ All optimizations on top of this, like advanced KV-cache policies, chunking, pre
 ### Measuring inference performance {#sec:prerequisites-inference-performance}
 
 When we evaluate an inference system, we care about how fast it does prefills
-and decodes across a workload.^[In this post I focus on text-only requests because most agentic workloads, at the time of writing, are text-only. Requests can also be multimodal, i.e. include images or audio, in which case the relevant metrics would change.] The core metrics are:
+and decodes across a workload.^[In this post I focus on text-only requests because most agentic workloads, at the time of writing, are text-only. Requests can also be multimodal, in which case the relevant metrics could change. For example, in the case of an audio response, the Time to First Audio matters more than just TTFT.] The core metrics are:
 
 - **TTFT**: time to first token. How long until the first output token arrives after submitting a request. Measures prefill speed.
 - **TBT**: time between tokens. The interval between consecutive output tokens. Measures decode speed.
