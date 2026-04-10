@@ -1,7 +1,7 @@
 ---
 title: Agentic Workloads for Inference Evaluation
 date: March 17th, 2026  
-tagline: Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads.
+tagline: Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads. Experiment setup, results, OpenClaw telemetry, sessions and more available at the [GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).
 description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
 og_description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
 prev: /blog/2024/ssm_3_mambas | Mamba and Mamba-2
@@ -9,8 +9,12 @@ copyright: © 2026 Jesus M. Antonanzas. All rights reserved.
 rss: false
 ---
 
-*Experiment results, OpenClaw telemetry and more available at this
-[GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).*
+**TL;DR.** If your benchmark is a short chat loop, you may be measuring the
+wrong workload regime. Agentic workloads turn one task into long-lived, branching,
+bursty sessions with heavy prefix reuse, which reshapes cache behavior,
+scheduler fairness, memory pressure, and even the fleet size you think you
+need. This post shows how to model those workloads and benchmark them
+reproducibly.
 
 ## Introduction {#sec:intro}
 

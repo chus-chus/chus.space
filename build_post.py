@@ -60,6 +60,7 @@ from xml.sax.saxutils import escape as xml_escape
 REF_ID_PATTERN = r'[A-Za-z0-9_:-]+'
 BLOCK_LABEL_RE = re.compile(r'^!label\[(' + REF_ID_PATTERN + r')\](?:\{(.*)\})?$')
 BLOCK_REF_RE = re.compile(r'!ref\[(' + REF_ID_PATTERN + r')\]')
+FRONTMATTER_KEY_RE = re.compile(r'^([A-Za-z0-9_-]+):(?=\s|$)(.*)$')
 
 SITE_URL = 'https://chus.space'
 FEED_PATH = 'feed.xml'
@@ -73,10 +74,24 @@ def parse_frontmatter(text):
     fm_text = text[3:end].strip()
     body = text[end + 3:].strip()
     meta = {}
+    current_key = None
     for line in fm_text.splitlines():
-        if ':' in line:
-            key, _, val = line.partition(':')
-            meta[key.strip()] = val.strip()
+        m = FRONTMATTER_KEY_RE.match(line)
+        if m:
+            key = m.group(1).strip()
+            meta[key] = m.group(2).strip()
+            current_key = key
+            continue
+
+        if current_key and line.strip():
+            continuation = line.strip()
+            if meta[current_key]:
+                meta[current_key] += ' ' + continuation
+            else:
+                meta[current_key] = continuation
+            continue
+
+        current_key = None
     return meta, body
 
 
@@ -1000,7 +1015,7 @@ def build(meta, body_html, references, extra_head, bibtex, rel_root, canonical):
 
     tagline_html = ''
     if tagline:
-        tagline_html = '        <p class="tagline">%s</p>' % tagline
+        tagline_html = '        <p class="tagline">%s</p>' % inline(tagline)
 
     extra_head_html = ''
     if extra_head:

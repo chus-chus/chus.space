@@ -71,7 +71,7 @@
 
     <div class="blog-header">
         <h1>Agentic Workloads for Inference Evaluation</h1>
-        <p class="tagline">Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads.</p>
+        <p class="tagline">Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads. Experiment setup, results, OpenClaw telemetry, sessions and more available at the <a href="https://github.com/chus-chus/blogpost_agentic_workloads">GitHub repo</a>.</p>
         <div class="header-date-links">
             <div class="header-date">
                 <span>March 17th, 2026</span>
@@ -85,7 +85,7 @@
         <hr>
     </div>
 
-      <p><em>Experiment results, OpenClaw telemetry and more available at this <a href="https://github.com/chus-chus/blogpost_agentic_workloads">GitHub repo</a>.</em></p>
+      <p><strong>TL;DR.</strong> If your benchmark is a short chat loop, you may be measuring the wrong workload regime. Agentic workloads turn one task into long-lived, branching, bursty sessions with heavy prefix reuse, which reshapes cache behavior, scheduler fairness, memory pressure, and even the fleet size you think you need. This post shows how to model those workloads and benchmark them reproducibly.</p>
       <section id="sec:intro" data-block-kind="section" data-ref-text="Introduction">
       <h2>Introduction</h2>
       <h3 id="sec:intro-evaluation-problem" data-block-kind="section" data-ref-text="The evaluation problem">The evaluation problem</h3>
