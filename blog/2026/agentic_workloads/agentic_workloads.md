@@ -317,7 +317,7 @@ that the later case studies build on.
 4. Finally, I compare that workload with and without prefix caching.
 
 To run and measure all benchmarks, I use [Veeksha](https://github.com/project-vajra/veeksha)
-v0.2.2, an open source benchmarking framework for LLM inference systems. It
+v0.2.2, an open source benchmarking framework for LLM inference systems we (the Systems for AI Lab @ Georgia Tech) developed. It
 supports sessions as graphs of requests with dependencies, configurable
 timings, prefix caching simulations, replicating real-world workloads,
 microbenchmarks, and more.
