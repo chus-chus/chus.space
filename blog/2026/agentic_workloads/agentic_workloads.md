@@ -1,12 +1,12 @@
 ---
 title: Agentic Workloads for Inference Evaluation
 date: March 17th, 2026  
-tagline: Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads. Experiment setup, results, OpenClaw telemetry, sessions and more available at the [GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).
+tagline: Why simple chat benchmarks are not enough for inference performance evaluation, and how to model agentic workloads. Experiment setup, results, OpenClaw telemetry, sessions and more available in the [GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads). Cross-posted on [gatech-sysml](https://gatech-sysml.github.io/2026/03/17/agentic-workloads.html).
 description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
 og_description: How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.
 prev: /blog/2024/ssm_3_mambas | Mamba and Mamba-2
 copyright: © 2026 Jesus M. Antonanzas. All rights reserved.
-rss: false
+rss: true
 ---
 
 **TL;DR.** If your benchmark is a short chat loop, you may be measuring the
@@ -643,8 +643,12 @@ Veeksha [repository](https://github.com/project-vajra/veeksha) and
 [documentation](https://project-vajra.github.io/veeksha) are a good
 starting point. Thank you for reading.
 
-*Experiment results, OpenClaw telemetry and more available at this
+*Experiment results, OpenClaw telemetry and more available in the
 [GitHub repo](https://github.com/chus-chus/blogpost_agentic_workloads).*
+
+### Acknowledgements
+
+I’d like to thank Souradeep Bera and Elton Pinto for their helpful feedback on this post, as well as the entire Vajra Project team for their support and contributions to Veeksha’s development.
 
 ## References
 

@@ -6,7 +6,14 @@
     <description>Technical writing by Chus Antonanzas on machine learning, inference, and systems.</description>
     <language>en-us</language>
     <atom:link href="https://chus.space/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Sat, 11 Apr 2026 09:51:39 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 11 Apr 2026 12:16:37 +0000</lastBuildDate>
+    <item>
+      <title>Agentic Workloads for Inference Evaluation</title>
+      <link>https://chus.space/blog/2026/agentic_workloads</link>
+      <guid isPermaLink="true">https://chus.space/blog/2026/agentic_workloads</guid>
+      <pubDate>Tue, 17 Mar 2026 00:00:00 +0000</pubDate>
+      <description>How to characterise agentic sessions for inference evaluation: branching, prefix reuse, bursty timing, token heterogeneity, and reproducible synthetic workloads.</description>
+    </item>
     <item>
       <title>State Space Models (3): Mamba and Mamba-2</title>
       <link>https://chus.space/blog/2024/ssm_3_mambas</link>
